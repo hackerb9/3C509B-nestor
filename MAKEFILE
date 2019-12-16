@@ -1,0 +1,10 @@
+.asm.obj:
+ 	tasm $*;
+
+3c509.com: head.obj 3c509.obj tail.obj
+	tlink /t/m head+3c509+tail,3c509;
+
+zip:
+	del *.obj
+	del *.map
+	zip -a 3c509

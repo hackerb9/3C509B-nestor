@@ -1,7 +1,7 @@
 # 3C509B-nestor
 8086 Driver for 3COM Etherlink III 3C509B cards
 
-> TL;DR: [3c509.com](3c509.com?raw=true)
+> TL;DR: [3C509.COM](3c509.com?raw=true)
 
 The 3COM 3C509B card is known to work with computers with a 16-bit ISA bus, but the reason for this is not that the card physically requires it, but because the software uses assembly opcodes found in the 286 processor. That meant the original IBM PC and XT (which have an 8-bit ISA bus) couldn't use the card. 
 

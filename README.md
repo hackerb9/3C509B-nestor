@@ -3,12 +3,11 @@
 # 3C509B-nestor
 8086 Driver for 3COM Etherlink III 3C509B cards
 
-
-The 3COM 3C509B card is known to work with computers with a 16-bit ISA bus, but the reason for this is not that the card physically requires it, but because the software uses assembly opcodes found in the 286 processor. That meant the original IBM PC and XT (which have an 8-bit ISA bus) couldn't use the card. 
+The 3COM 3C509B network interface card is known to work with computers with a 16-bit ISA bus, but that is not because that the card wouldn't work on an 8-bit bus. The driver software uses assembly opcodes found in the 286 processor, which meant older computers such as the IBM PC and XT with 8088 and 8086 processors wouldn't work.
 
 [Nestor](http://www.vcfed.org/forum/member.php?12204-nestor) a.k.a. [Distwave](http://ibmps1.wordpress.com/) of [VCFed.org](http://www.vcfed.org/) took the time in 2012 to replace all the 286 specific assembly instructions with [generic 8086 code](http://www.vcfed.org/forum/showthread.php?30537-Feeling-lucky-is-the-3c509B-compatible-with-8088-using-NE1000-drivers&p=224266#post224266). Nestor used the packet driver source code from [crynwr.com](http://web.archive.org/web/*/http://www.crynwr.com/drivers/), which was released under the GNU GPL license.
 
-This repository is meant to be a secondary place to hold the source code and to log the changes Nestor made. (Look at the history for the file 3c509.asm). Hopefully, having this in version control will also allow other changes people have made (such as hacks  to get it to work on the V20 CPU) to be incorporated in a clean way. 
+This repository is meant to be a secondary place to hold the source code. This is also a good place to document usage and to log the changes Nestor made. (Look at the history for the file [3c509.asm](3c509.asm)). Hopefully, having this in version control will also allow future changes people may make (such as the hack to get it working on the V20 CPU) to be incorporated in a clean way. 
 
 Nota bene: while this driver works with any 3C509**B** card (the B is important), at least one of those cards, the 3C509B-**TP** card requires software configuration before it can be used in a PC/XT machine. Please see below for details.
 

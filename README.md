@@ -57,7 +57,7 @@ usage: 3c509 [options] <packet_int_no> [id_port]
 The 3C509B-**TP** and perhaps **TPO** may require software configuration in a 286 machine before they can be used in a PC or XT. If no NIC is detected by the 3c509.com driver, follow these steps:
 
 1. Put the network card in a 286 machine.
-1. Run 3Com's [3C5X9CFG.EXE](3c5x9x/3C5X9CFG.EXE?raw=true) (found in [3C5X9X.ZIP](3c5x9x/3C5X9X.ZIP?raw=true)).
+1. Run 3Com's [3C5X9CFG.EXE](3c5x9x/3C5X9CFG.EXE?raw=true) (found in [EtherDisk](3c5x9x/3C5X9X.ZIP?raw=true)).
    1. Disable PNP
    1. Set the IRQ to 2 (or another free IRQ, see table below)
    1. Optimize for DOS
@@ -94,7 +94,7 @@ According to archive.org's cache of 3com.com's [FAQ](http://web.archive.org/web/
 ```
 This has not yet been tested on an 8086/8088 machine, but may fix the problem without a 286.
 
-Here is the commentary from INSTALL.TXT from EtherDisk V4.3b
+Here is the commentary from INSTALL.TXT from [EtherDisk V4.3b](3c5x9x/3C5X9X.ZIP?raw=true)
 
 > Installing an EtherLink III ISA adapter (3C509B) in certain computers
  may result in neither the diagnostic and configuration program nor the

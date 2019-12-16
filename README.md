@@ -10,7 +10,7 @@ This repository is meant to be a secondary place to hold the source code and to 
 Nota bene: while this driver works with any 3C509**B** card (the B is important), at least one of those cards, the 3C509B-**TP** card requires software configuration before it can be used in a PC/XT machine. Please see below for details.
 
 ## Installation
-Download [3c509.com](https://github.com/hackerb9/3C509B-nestor/raw/3c509.com) to get Ethernet working. 
+Download [3c509.com](3c509.com?raw=true) to get Ethernet working. 
 
 To get on the Internet, you'll also need software that handles TCP/IP such as [mTCP](https://www.brutman.com/mTCP/). 
 
@@ -53,7 +53,7 @@ usage: 3c509 [options] <packet_int_no> [id_port]
 The 3C509B-**TP** and perhaps **TPO** may require software configuration in a 286 machine before they can be used in a PC or XT. If no NIC is detected by the 3c509.com driver, follow these steps:
 
 1. Put the network card in a 286 machine.
-1. Run 3Com's [3C5X9CFG.EXE](https://github.com/hackerb9/3C509B-nestor/3c5x9x/raw/3C5X9CFG.EXE) (found in [3C5X9X.ZIP](3c5x9x/3C5X9X.zip)).
+1. Run 3Com's [3C5X9CFG.EXE](3c5x9x/3C5X9CFG.EXE?raw=true) (found in [3C5X9X.ZIP](3c5x9x/3C5X9X.ZIP?raw=true)).
    1. Disable PNP
    1. Set the IRQ to 2 (or another free IRQ, see table below)
    1. Optimize for DOS
@@ -103,7 +103,7 @@ Here is the commentary from INSTALL.TXT from EtherDisk V4.3b
 > 1. Boot a minimal DOS setup, making sure that no EtherLink III drivers are loaded.
 > 2. Put this EtherDisk in the diskette drive and type A: at the DOS prompt.
 > 3.  Enter PNPDSABL [_which is just a BAT file that executes the two 
-      [3C5X9CFG](3c5x9x/3C5X9CFG.EXE) commands above_] 
+      [3C5X9CFG](3c5x9x/3C5X9CFG.EXE?raw=true) commands above_] 
       at the DOS prompt.  The configuration and diagnostic
       program will execute twice.  The first time it executes, the configuration
       and diagnostic program "kicks" the EtherLink III out of its PnP wait.

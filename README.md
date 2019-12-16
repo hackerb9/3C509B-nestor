@@ -31,6 +31,7 @@ Why the gaps? 0x67 is the EMS interrupt, 0x70 through 0x77 are used by the secon
 
 If you run the COM file with no parameters, you'll see this message:
 ```dos
+A:\> 3C509.COM
 usage: 3c509 [options] <packet_int_no> [id_port]
 -i -- Force driver to report itself as IEEE 802.3 instead of Ethernet II.
 -d -- Delayed initialization.  Used for diskless booting

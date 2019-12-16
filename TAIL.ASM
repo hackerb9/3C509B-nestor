@@ -1,6 +1,6 @@
 ;   PC/FTP Packet Driver source, conforming to version 1.05 of the spec
 ;   Updated to version 1.08 Feb. 17, 1989.
-;   Copyright 1988-1993 Russell Nelson
+;   Copyright 1988-1996 Russell Nelson
 
 ;   This program is free software; you can redistribute it and/or modify
 ;   it under the terms of the GNU General Public License as published by
@@ -84,6 +84,9 @@ db"   -d -- Delayed initialization.  Used for diskless booting",CR,LF
 db"   -n -- NetWare conversion.  Converts 802.3 packets into 8137 packets",CR,LF
 db"   -w -- Windows hack, obsoleted by winpkt",CR,LF
 db"   -p -- Promiscuous mode disable",CR,LF
+  if M_OPTION
+db"   -m -- Micronetics MSM compatibility",CR,LF
+  endif
 db"   -u -- Uninstall",CR,LF
 db '$'
 
@@ -93,7 +96,7 @@ db '$'
 	extrn	copyright_msg: byte
 
 copyleft_msg	label	byte
- db "Packet driver skeleton copyright 1988-95, Crynwr Software.",CR,LF
+ db "Packet driver skeleton copyright 1988-96, Crynwr Software.",CR,LF
  db "This program is freely copyable; source must be available; NO WARRANTY.",CR,LF
  db "See the file COPYING.DOC for details; send FAX to +1-315-268-9201 for a copy.",CR,LF
  db CR,LF,'$'
@@ -333,6 +336,13 @@ not_p_opt:
 	or	flagbyte,U_OPTION
 	jmp	chk_options
 not_u_opt:
+  if M_OPTION
+	cmp	al,'m'
+	jne	not_m_opt
+	or	flagbyte,M_OPTION
+	jmp	chk_options
+not_m_opt:
+  endif
 	cmp	al,'i'
 	jne	not_i_opt
 	cmp	word ptr driver_class,BLUEBOOK + IEEE8023*256	;both present?

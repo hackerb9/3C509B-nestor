@@ -204,4 +204,5 @@ D_OPTION	equ	2		; delayed initialization
 N_OPTION	equ	4		; Novell protocol conversion
 W_OPTION	equ	8		; Windows upcall checking.
 U_OPTION	equ	10h		; Terminate the driver.
+M_OPTION	equ	20h		; Micronetics M
 

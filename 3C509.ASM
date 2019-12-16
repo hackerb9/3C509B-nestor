@@ -1,5 +1,6 @@
-version	equ	5
-;History:1,18
+version	equ	6
+;History:1,1
+;Fri Mar 08 14:48:42 2002 Merge in Peter Tattum's 3c509b changes.
 ;Mon Jan 22 15:09:36 1996 we were rejecting frames with dribble set and accepting other errored frames.
 
 	.286
@@ -405,6 +406,26 @@ xmit:
 	assume	ds:nothing
 	ret
 
+tx_reset:
+        push    ax
+        push    dx
+        loadport
+        setport PORT_CmdStatus
+        pushf
+        cli
+	mov	ax,CMD_TXRESET
+	out	dx,ax
+tx_reset_1:
+	in	ax,dx			;wait for the command to finish.
+	test	ax,ST_BUSY
+	jne	tx_reset_1
+        popf
+
+	mov	ax,CMD_TXENABLE		;yes, re-enable the transmitter.
+	out	dx,ax
+        pop     dx
+        pop     ax
+        ret
 
 	public	send_pkt
 send_pkt:
@@ -420,18 +441,15 @@ send_pkt:
 	loadport
 	setport	PORT_TxStatus		;get the previous transmit status.
 	in	al,dx
-	or		al, al		; Is there anything on the stack
-	jz		nothing_on_stack
-	out		dx, al		; A write clears the entry for the stack
-nothing_on_stack:
 	setport	PORT_CmdStatus
 	test	al,TXS_UNDERRUN or TXS_JABBERERROR	;do we need to reset transmitter?
 	je	send_pkt_0
-	push	ax
-	mov	ax,CMD_TXRESET
-	out	dx,ax
-	pop	ax
+        call    tx_reset
 send_pkt_0:
+;        test    al,TXS_COMPLETE
+;        je send_pkt_0_1
+;        out     dx,al
+;send_pkt_0_1:
 
 	test	al,TXS_ERRTYPE		;any errors?
 	je	send_pkt_3		;no.
@@ -453,6 +471,7 @@ send_pkt_1:
 	jae	send_pkt_2
 	call	do_timeout
 	jne	send_pkt_1
+        call    tx_reset
 	mov	dh,CANT_SEND		;timed out, can't send.
 	stc
 	ret
@@ -667,7 +686,7 @@ recv_early:
 	jmp	recv_discard		;it isn't.
 
 recv_early_1:
-	jmp	recv_exit
+	jmp	recv_another
 
 ;yes, this is dead code.  It's only in here to ensure that the setport macro
 ;has the right value.
@@ -798,13 +817,15 @@ io_input_done:
 recv_discard:
 	loadport
 	setport	PORT_CmdStatus
+        pushf
+        cli
 	mov	ax,CMD_RXDISCARD
 	out	dx,ax
-
 recv_discard_1:
 	in	ax,dx			;wait for the command to finish.
 	test	ax,ST_BUSY
 	jne	recv_discard_1
+        popf
 
 	mov	early_bytes,0
 
@@ -1081,7 +1102,8 @@ not_10baseT:
 	out	dx,ax
 
 ;Enable RX Complete interrupts
-	mov	ax,CMD_SETINTMASK + INT_RXCOMPLETE + INT_RXEARLY
+	mov	ax,CMD_SETINTMASK + INT_RXCOMPLETE
+	;mov	ax,CMD_SETINTMASK + INT_RXCOMPLETE + INT_RXEARLY
 	out	dx,ax
 
 	mov	ax,CMD_SETRZMASK + 0feh	;Enable all the status bits.

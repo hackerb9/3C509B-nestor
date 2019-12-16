@@ -1,0 +1,1164 @@
+3C5X9,24,18,28,24,27,23,17,26,22,1,9,25,3,34,32,29,29,2,7,6,12,11,10,5,14
+3C5X9,8,16,15,4,33,20,19,21,13
+
+ ERROR 
+ 
+
+ Unable to locate topic.  No information was found in the help file.  
+
+ This message appears because there is a problem in accessing the 
+ information in the help file.  Press [Esc] and exit the program.
+ Locate the original help file that came with the program.
+
+
+ About the Program
+ NIC Information 
+ NIC Statistics
+ Boot PROM
+ Command Line Help
+ Configuring the NIC
+ Echo Server
+ EISA Configuration
+ Exit
+ File Options for NIC Configuration
+ File Options for Test Results
+ File Options for Test Setup
+ Full Duplex
+ Installing Network Drivers
+ Interrupt Request Level
+ I/O Base Address
+ Load Configuration File
+ Load Test Setup File
+ Maximum Modem Speed
+ Network Driver Optimization
+ Plug and Play Capabilities
+ Print Configuration Settings
+ Print Test Results
+ Print Test Setup File 
+ Run Tests
+ Save Configuration File
+ Save Test Results
+ Save Test Setup File
+ Select NIC 
+ Technical Support
+ Test Definitions
+ Test Setup
+ Transceiver Type
+ Troubleshooting	 
+
+ About the Program
+ 
+ The Configuration and Diagnostic program lets you software-configure
+ the installed NICs and run various levels of diagnostic tests.  
+
+ The program is window-based and composed of dialog boxes.  To move
+ within the dialog boxes, you can use:
+
+    - A mouse
+    - Specific keys such as [Tab] and arrow keys
+    - Speed keys (press [Alt]+[Highlighted Key])
+    - Function keys
+
+ At the bottom of each dialog box are command buttons.  Each command 
+ button performs an action within the dialog box, such as saving the 
+ information or exiting the dialog box.  When you highlight a command 
+ button, it is defined at the bottom of the screen.
+
+ For more information on any dialog box press [F1].     
+
+ Command Buttons (for the help screens):
+ ---------------
+ <Index>:   Displays all of the help information that is available in
+            the program.  Scroll through the list to highlight a title 
+            and press [Enter] to access help information.
+ <Cancel>:  Exits this help screen and returns to the main window.
+
+ NIC Information
+ 
+ This menu item lets you view specific NIC information.  Only those
+ settings that apply to the NIC are listed.  For example, the 
+ settings for an ISA NIC will differ from those of an EISA or a
+ Micro Channel NIC. 
+
+ Command Buttons:
+ ---------------
+ <Cancel>:  Exits the dialog box and returns to the main window.
+
+ NIC Statistics
+
+ This menu item displays the network statistics maintained by the 
+ NIC.  The definitions are:
+
+ Packets transmitted:  The number of packets transmitted by the 
+      NIC.
+
+ Bytes transmitted:  The number of bytes transmitted by the NIC.
+
+ Transmit deferrals:  The number of times the NIC deferred to 
+      another transmitting node while waiting to transmit.  This number 
+      increases as other stations contend with this NIC for access
+      to the Ethernet.
+
+ Packets transmitted after exactly one collision:  Collisions are a
+      normal occurrence on an Ethernet; however, excessive collisions
+      may indicate problems.  If this occurs, contact your network
+      administrator.
+
+ Packets transmitted after multiple collisions:  Collisions are a
+      normal occurrence on an Ethernet; however, excessive collisions
+      may indicate problems.  If this occurs, contact your network
+      administrator.
+
+ Packets not transmitted after maximum collisions:  Collisions are a 
+      normal occurrence on an Ethernet; however, excessive collisions 
+      may indicate problems.  If this occurs, contact your network 
+      administrator.
+
+ Late collisions:  A late collision occurs when another node on the 
+      Ethernet does not properly defer once the NIC has started 
+      transmitting.  If a large number of late collisions occur, 
+      contact your network administrator.
+
+ Packets transmitted with no CD heartbeat:  If you are using an
+      external transceiver, a non-zero value for this number may
+      mean the transceiver does not support CD (collision detect)
+      heartbeat, or that the transceiver is not performing properly.
+      Consult your network administrator.
+
+ Packets transmitted with carrier sense loss:  This normally occurs as
+      a result of collisions.  For more information, refer to an 
+      Ethernet reference guide.
+
+ Packets received:  The number of packets received by the NIC.
+
+ Bytes received:  The number of bytes received by the NIC.
+
+ Packets received with CRC error:  Each packet sent on an Ethernet
+      has a calculated CRC (cyclic redundancy check) appended to it.
+      When the packet is received, this CRC is compared against the 
+      calculated CRC.  A difference in the CRC indicates the packet 
+      was corrupted, most likely by line noise.  A large value for this 
+      statistic indicates noise on the network.
+
+ Packets received with framing error:  Similar to CRC error.  A small
+      number of these errors may be normal.  
+
+ Packets received with oversize error:  Oversize packets are those 
+      greater than 1514 bytes.  Even though such packets are
+      theoretically illegal under Ethernet, they do occur on certain
+      live Ethernet networks.
+
+ Packets received with undersize error:  Undersize packets are those 
+      less than 60 bytes.  Typically these are simply collision 
+      fragments.  There are no problems on the network.
+
+ Packets not received:  Packets may not be received if the 
+      NIC/protocol is still busy with previous packets.  Normally
+      the higher-level protocol will retransmit the packets with no
+      ill effects other than some performance degradation. 
+ 
+ Command Button:
+ --------------
+ <Cancel>:  Exits the dialog box and returns to the main window.
+
+ Boot PROM 
+ 
+ NOTE:  This software option applies only to the EtherLink III
+ ISA and EISA NICs. 
+
+ The boot PROM lets the computer start DOS operations through the 
+ network without using a local startup disk.  The Disabled setting
+ indicates that no boot PROM is installed or that you do not want it
+ active.
+
+ The other settings are sizes of the installed boot PROM.  When you 
+ select a size, the boot PROM addresses appear in the second list box.
+ A different group of addresses appears for each size.  The base 
+ address specifies that portion of the computer's address space that
+ will be used for the boot PROM. 
+
+ Command Line Help
+
+ You can configure and test the NIC from the command line.  To get
+ help from the command line, exit this program and type:
+
+    3C5X9CFG HELP
+
+ You can get help information for specific commands such as RUN by 
+ typing:
+
+    3C5X9CFG HELP RUN
+
+ For more information, refer to the NIC user guide.
+
+ Configuring the NIC
+
+ This menu item lets you change the configuration settings on the
+ selected NIC. 
+  
+ Use the arrow keys to scroll through the list of options.  To 
+ view all of the possible settings under each option, highlight one 
+ of the options and press [Enter].  Another dialog box appears for 
+ each separate option.  Use the arrow keys to scroll through the 
+ settings.  
+ 
+ The available options and corresponding default settings for ISA
+ NICs are:
+
+ I/O Base Address                 [300h]
+ Interrupt Request Level          [10]
+ Boot PROM                        [Disabled]
+ Transceiver Type                 [On-board*]
+ Network Driver Optimization      [DOS Client]
+ Maximum Modem Speed              [9600 Baud]
+ Plug and Play Capability**       [Enabled]
+ Full Duplex**                    [Disabled]
+ 
+ *For 3C509, the default setting is either On-board Coax or
+  On-board TP depending on which NIC you are configuring.
+  For a Combo board, the default setting is On-board Coax.  For
+  3C509B, the default setting is Auto Select for all boards
+  except for TPO (stealth) board, which always uses On-board TP.
+
+**For 3C509B only.
+ 
+
+ The available options and corresponding default settings for EISA and
+ MCA NICs are:
+
+ Network Driver Optimization      [DOS Client]
+ Maximum Modem Speed              [9600 Baud]
+
+ To save any changes to the NIC, press [Tab] to highlight <OK>
+ and press [Enter].  All setting changes are saved automatically to 
+ the NIC.  You can also save the settings to a file by using
+ the save option in the File Options dialog box.
+
+ Command Buttons:
+ ---------------
+ <Auto Configure>:  Default action.  Press [Enter].  Auto Configure 
+		    automatically configures the board for ISA use.
+		    The program selects I/O Base Address, Interrupt
+		    Request Level, and Transceiver Type settings that
+		    will not conflict with other NICs or devices in
+		    your computer.
+ <Modify>:          Use the arrow keys to highlight one of the options.  
+                    Press [Tab] to highlight <Modify> and press [Enter].
+                    A second dialog box appears with the available 
+                    settings for that option.
+ <File Options>:    Press [Tab] to highlight this command button and 
+                    press [Enter].  A second dialog box appears.  For
+                    more information on the load, save, or print
+                    options, press [F1] after selecting this option.
+ <OK>:              Saves any setting changes to the NIC.
+ <Cancel>:          Ends this operation and returns to the main window.
+
+ Echo Server
+
+ To run the Group 3 test on your NIC you need a second computer 
+ set up as an echo server.  The echo server receives packets from the 
+ NIC being tested and echoes them back.  This menu item lets you set 
+ up an echo server.
+
+ The second computer must contain a 3Com NIC.  The diagnostic 
+ program that comes with the NIC supports the Configuration and
+ Diagnostic program's echo server function.  You can use any of the
+ NICs listed below in the echo server:
+
+ EtherLink II or II TP
+ EtherLink Plus
+ EtherLink 16 or 16 TP
+ EtherLink/MC or MC TP
+ EtherLink/MC 32
+ EtherLink II/16 or II/16 TP
+ EtherLink III
+
+ For specific setup information refer to the user guide that accompanied
+ the 3Com NIC.
+
+ EISA Configuration
+
+ NOTE:  This software option does not apply to the EtherLink III
+ EISA or Micro Channel NICs.
+
+ The EISA configuration is an option setting under the I/O base address
+ in the Configure NIC dialog box.
+
+ Selecting the EISA setting means the NIC will behave as an EISA
+ NIC and will identify itself to the EISA computer for automatic
+ configuration. 
+
+ CAUTION:  If you are installing the ISA NIC in an EISA computer,
+           you must configure the NIC for the EISA computer.  If you 
+           need to reinstall the NIC in an ISA computer, you must
+           reconfigure the NIC BEFORE you physically install it in
+           the ISA computer.
+
+ For instructions on configuring the EISA NIC or reconfiguring the 
+ NIC for an ISA computer, refer to the NIC user guide.
+
+ Exit
+
+ To exit the program you can do one of the following:
+
+    -  Go to the Quit menu, highlight Exit, and press [Enter].
+
+    -  Press [F3] while in the main window.
+
+    -  Press [Esc] while in the main window.  A dialog box appears
+       asking if you want to quit the program.  The default response 
+       is <OK>, and it is already highlighted.  Press [Enter].
+
+ File Options for NIC Configuration
+
+ This dialog box lets you load, save, and print the NIC 
+ configuration file.  Highlight one of the File Options command buttons 
+ and press [Enter].  Another dialog box appears.
+
+ Command Buttons:
+ ---------------
+ <Load>:    Loads a previously saved configuration file, and changes the
+            current configuration to that in the file.  
+ <Save>:    Saves the NIC's currently displayed software 
+            configuration settings to a file. 
+ <Print>:   Prints the configuration information currently displayed
+            on the screen.
+ <Cancel>:  Ends this operation and returns to the previous dialog box.
+
+ File Options for Test Results
+
+ This dialog box lets you save and print the current NIC's
+ diagnostic test results.  Highlight one of the File Options command 
+ buttons and press [Enter].  Another dialog box appears. 
+ 
+ Command Buttons:
+ ---------------
+ <Save>:    Saves your diagnostic test results to a file.
+ <Print>:   Prints the diagnostic test results.
+ <Cancel>:  Ends this operation and returns to the previous dialog
+            box.
+
+ File Options for Test Setup
+
+ This dialog box lets you load, save, and print the NIC's diagnostic 
+ test setup file.  Highlight one of the File Options command buttons and 
+ press [Enter].  Another dialog box appears.
+
+ Command Buttons:
+ ---------------
+ <Load>:    Loads a previously saved test setup file.  The test 
+            configuration previously saved can be run on the installed 
+            NIC.
+ <Save>:    Saves the test setup selections currently displayed on the 
+            screen to a file.  
+ <Print>:   Prints the test setup currently displayed on the screen. 
+ <Cancel>:  Ends this operation and returns to the previous dialog box.
+
+ Full Duplex
+
+ This option lets you disable or enable the full duplex feature on the
+ NIC.  Ensure the NIC is connected to hub/repeater which supports
+ full duplex before enabling the full duplex feature of the NIC.
+ Otherwise, it will bring down the whole network.
+
+ Installing Network Drivers
+
+ The EtherDisk diskette contains the network drivers for the NIC.  
+ The utility program that automatically installs the drivers is accessed 
+ through the EtherDisk main menu.  Exit this program to return to the 
+ main menu of the EtherDisk diskette.
+
+ Interrupt Request Level
+
+ NOTE:  This software option applies only to the EtherLink III ISA
+ NICs.
+
+ This option specifies the interrupt request level that is used by the
+ NIC for communication between the NIC and the computer.  The
+ interrupt request level is the communications channel through which a 
+ device issues interrupts to the interrupt handler of your computer.  
+ Make sure that no other device is using the same setting.
+
+ I/O Base Address
+
+ NOTE:  This software option applies only to the EtherLink III
+ ISA NICs.
+
+ This option specifies the portion of the computer's I/O address space
+ that will be used by the NIC for communications between the NIC
+ and the computer.  The NIC uses 16 bytes of I/O space, starting at
+ the I/O base address.  Make sure that no other device is using any
+ I/O addresses in the same range.
+
+ If you select the EISA setting, the NIC will identify itself to 
+ the EISA computer for automatic configuration.  In EISA mode, the
+ NIC uses slot-specific I/O addressing.
+
+ Load Configuration File
+
+ The NIC configuration file contains the option settings that were 
+ previously selected and saved for the NIC.  This option retrieves 
+ the configuration file.
+ 
+ Definition of Fields:
+ --------------------
+ Filename:      Enter the NIC configuration filename.  The default 
+		name is 3C5X9.SET.  You can also enter *.* to list all 
+                the files in a specific directory.  You can include the 
+                DRIVE\PATH\FILENAME.
+ Directory is:  Displays the current drive and directory.
+ Files:         Lists all the files in the current directory.
+ Directories:   Lists all directories visible in the current drive and 
+                all the drives on the computer.
+
+ There are three methods available to load the configuration file.  
+ Once the file is loaded, the program returns to the NIC 
+ Configuration dialog box.
+
+ - Method 1:  Type in the filename in the Filename text edit box and 
+              press [Enter].  Your file is loaded.  
+
+ - Method 2:  If you first need to locate the file:
+
+              a.  Type X:*.* in the Filename text edit box, where X is 
+                  the drive the file is located in.  For example:  D:*.*
+              b.  Press [Tab] to highlight the Files list box.
+              c.  Use the arrow keys to highlight the file you want to 
+                  load.  Press [Enter].  Your file is loaded.
+
+ - Method 3:  With the third method you are changing the directory or 
+              drive to locate the file.
+
+              a.  Press [Tab] to highlight the Directories list box.
+              b.  Use the arrow keys to highlight the directory or drive 
+                  your file is located in.  Press [Enter]. 
+              c.  Press [Tab] to highlight the Files list box.
+              d.  Use the arrow keys to highlight the file you want to 
+                  load.  Press [Enter].  Your file is loaded. 
+
+ Command Buttons:
+ ---------------
+ <OK>:      Default action.  Loads the NIC configuration file 
+            specified in the Filename text edit box.  When the operation 
+            is completed, the program returns to the NIC 
+            Configuration dialog box.
+ <Cancel>:  Ends this operation and returns to the File Options dialog 
+            box.
+
+ Load Test Setup File
+
+ The test setup file contains the diagnostic test settings that were 
+ previously selected and saved for the NIC.  This option retrieves 
+ the file.  
+ 
+ Definition of Fields:
+ --------------------
+ Filename:      Enter the test setup filename.  The default name is 
+		3C5X9.TST NIC.  You can also enter *.* to list all 
+                the files in a specific directory.  You can include 
+                the DRIVE\PATH\FILENAME.
+ Directory is:  Displays the current drive and directory.
+ Files:         Lists all the files in the current directory.
+ Directories:   Lists all directories visible in the current drive and 
+                all the drives on the computer.
+
+ There are three methods available to load the test setup file.  Once 
+ the file is loaded, the program returns you to the Test Setup dialog 
+ box. 
+
+ - Method 1:  Type in the filename in the Filename text edit box and 
+              press [Enter].  Your file is loaded.  
+
+ - Method 2:  If you first need to locate the file: 
+
+              a.  Type X:*.* in the Filename text edit box, where X is 
+                  the drive the file is located in.  For example:  D:*.*
+              b.  Press [Tab] to highlight the Files list box.
+              c.  Use the arrow keys to highlight the file you want to 
+                  load.  Press [Enter].  Your file is loaded.
+          
+ - Method 3:  If you need to change the directory or drive to locate 
+              the file:
+
+              a.  Press [Tab] to highlight the Directories list box.
+              b.  Use the arrow keys to highlight the directory or drive 
+                  the file is located in.  Press [Enter].
+              c.  Press [Tab] to highlight the Files list box.
+              d.  Use the arrow keys to highlight the file you want to 
+                  load.  Press [Enter].  Your file is loaded.
+
+ To run the test setup file, go to the Run menu item.  Highlight <Start> 
+ and press [Enter]. 
+
+ Command Buttons:
+ ---------------
+ <OK>:      Default action.  Loads the test setup file specified in the 
+            Filename text edit box.  When the operation is completed, 
+            the program returns to the Test Setup dialog box.
+ <Cancel>:  Ends this operation and returns to the File Options dialog 
+            box.
+
+ Maximum Modem Speed
+
+ Selecting a modem speed tells the NIC how long it can disable
+ interrupts without causing problems with the serial port.  The lower
+ the modem speed, the longer the NIC can keep interrupts disabled.
+ On slower computers, running with longer disabled interrupts can 
+ improve network performance.  On those computers, changing the option
+ setting to 2400, 1200, or No Modem may improve performance.  On faster
+ computers, there is little performance difference among the settings.
+ 
+ If you experience problems with your modem, such as dropped characters
+ or excessive retries, selecting a higher option setting should help.  
+ If the problem is not due to the EtherLink III driver, changing the
+ option setting will not make a difference.
+
+ CAUTION:  The default value (9600 baud) will work whether you have a 
+ modem or not, or even if the modem is slower than the default (for 
+ example, 2400 baud).  Do not change the default option setting unless 
+ you experience problems.
+
+ If you experience compatibility problems between your NIC and 
+ another device in the system other than a modem, selecting a higher
+ option setting may help. 
+
+ Network Driver Optimization
+
+ This option specifies whether to optimize the network driver for a
+ DOS client, a Microsoft Windows or IBM OS/2 client, or a server 
+ environment.  Changing this option to match your system may improve 
+ the network performance.  The responsiveness of your system in
+ performing network tasks may also improve.  The driver will attempt 
+ to optimize various parameters, such as CPU utilization, to the 
+ environment specified.  For example, it may use a larger percentage
+ of the CPU under DOS in order to improve network throughput.  On a 
+ server this may be inappropriate, so the driver will attempt to 
+ minimize CPU utilization in a server environment.
+
+ Plug and Play Capabilities
+
+ Enabling the Plug and Play Capabilities will use the ISA Plug and
+ Play method to discover and configure the 3C509B card.  If disabled,
+ the old contention test will be used to discover the 3C509B card. 
+
+ Print Configuration Settings
+
+ To print a copy of the currently displayed configuration settings, use 
+ the arrow keys to select the appropriate printer port and printer type.
+
+ To print more than one copy, press [Tab] to access the Copies box.  
+ Type in the number of copies you want to print, up to a maximum of 99 
+ copies.
+
+ To print the settings previously saved to a file, load the file so that 
+ the settings are the current ones displayed on the screen and then 
+ print.
+
+ Command Buttons:
+ ---------------
+ <OK>:      Default action.  Prints the displayed NIC configuration 
+            settings.  When the operation is completed, the program 
+            returns to the NIC Configuration dialog box.
+ <Cancel>:  Ends this operation and returns to the File Options dialog 
+            box.
+
+ Print Test Results
+
+ To print a copy of the diagnostic test results, use the arrow keys to
+ select the appropriate printer port and printer type.
+
+ To print more than one copy, press [Tab] to access the Copies box.  
+ Type in the number of copies you want to print, up to a maximum of 99 
+ copies.
+
+ Command Buttons:
+ ---------------
+ <OK>:      Default action.  Prints the NIC diagnostic test 
+            results.  When the operation is completed, the program 
+            returns to the Run dialog box.
+ <Cancel>:  Ends this operation and returns to the File Options 
+            dialog box.     
+
+ Print Test Setup File
+
+ To print a copy of the currently displayed diagnostic test setup, use
+ the arrow keys to select the appropriate printer port and printer 
+ type.
+
+ To print more than one copy, press [Tab] to access the Copies box.  
+ Type in the number of copies you want to print, up to a maximum of 99 
+ copies.  
+
+ Command Buttons:
+ ---------------
+ <OK>:      Default action.  Prints the NIC diagnostic test 
+            settings.  When the operation is completed, the program 
+            returns to the Test Setup dialog box.
+ <Cancel>:  Ends this operation and returns to the File Options dialog
+            box.
+
+ Run Tests
+
+ This menu item displays the current status of the diagnostic tests.  
+ Use the command buttons to start or stop (abort) any of the test groups.
+
+ Definition of Fields:
+ --------------------
+ Test Results.  Displays the diagnostic test results for the selected 
+ NIC.  Each line in the list box contains:
+
+    - The test name
+    - The number of times the test was completed
+    - The results of the test
+
+ The test results field can change as the tests are run.  The value of 
+ the test results field is one of the following:
+
+    - Not Tested:  the test was not run
+    - Passed:  the NIC passed the test
+    - !Failed:  the NIC failed the test 
+    - DISABLED:  the test was not selected 
+
+ Diagnostic Tests Status.  The responses to the current status of the 
+ diagnostic tests include:
+       
+    - Waiting for <Start>
+    - Completed Successfully
+    - Testing Halted
+    - Error-Halted
+    - Completed with Error
+    - Testing in Progress
+    - No Tests Are Enabled
+
+ Command Buttons:
+ ---------------
+ <Start>:         Begins the diagnostic tests. 
+ <Continue>:      Restarts the diagnostic tests without resetting the
+                  counters.  
+ <Pause>:         Stops the tests that are currently running.   
+ <Test Setup>:    Accesses the Test Setup dialog box, but only if the 
+                  diagnostic tests are not being run.
+ <Zoom>:          Lists a test, the number of times the test completed 
+                  successfully, the number of times the test failed, and 
+                  the reasons it failed.
+ <Stats>:         Lists the NIC's statistics.  You can only access 
+                  this window if the diagnostic tests are not being run.
+ <File Options>:  Accesses the Test Results File Options dialog box.  
+                  You can only access this window if the diagnostic 
+                  tests are not being run.
+ <Cancel>:        Exits this dialog box and returns to the main window.  
+
+ Save Configuration File
+
+ This option saves the NIC's software configuration settings to a 
+ file.  When this information is saved, the same configuration can be used 
+ on other NICs.
+
+ Definition of Fields:
+ --------------------
+ Filename:      Type in an NIC configuration filename.  
+ Directory is:  Displays the current drive and directory.
+ Directories:   Lists all directories visible in the current drive and 
+                all of the drives on the computer.  
+
+ To save the configuration settings, type in a filename in the Filename 
+ text edit box and press [Enter].  The filename can be up to eight 
+ characters long.  The recommended filename extension is .SET.  The 
+ default name is 3C5X9.SET.  You can also type in a path and save the  
+ file to another directory or drive (DRIVE\PATH\FILENAME).  For example:
+
+    D:\CONFIG\3C5X9.SET
+
+ saves the file to the CONFIG directory in drive D.   
+
+ Command Buttons:
+ ---------------
+ <OK>:      Default action.  Saves the file created in the Filename 
+            text edit box to a specified directory/drive.  When the 
+            operation is completed, the program returns to the NIC 
+            Configuration dialog box.      
+ <Cancel>:  Ends this operation and returns to the File Options 
+            dialog box.
+
+ Save Test Results
+ 
+ This option saves the current diagnostic test results to a file.
+ 
+ NOTE:	If you quit the Configuration and Diagnostic program before
+        saving the test results to a file, it will not be saved.
+
+ Definition of Fields:
+ --------------------
+ Filename:      Type in a test results filename.            
+ Directory is:  Displays the current drive and directory.
+ Directories:   Lists all directories visible in the current drive and 
+                all the drives on the computer.
+
+ To save the test results, type in a filename in the Filename text 
+ edit box and press [Enter].  Your file will be saved to the current 
+ drive.  The filename can be up to eight characters long.  The 
+ recommended filename extension is .RPT.  The default name is 
+ 3C5X9.RPT.  You can also type in a path and save the file to another
+ directory or drive (DRIVE\PATH\FILENAME).  For example:
+ 
+    D:\RESULTS\3C5X9.RPT
+
+ saves the file to the RESULTS directory in drive D.
+
+ Command Buttons:
+ ---------------
+ <OK>:      Default action.  Saves the file created in the Filename text
+            edit box to the specified directory/drive.  When the 
+            operation is completed the program returns to the Run dialog 
+            box.
+ <Cancel>:  Ends this operation and returns to the File Options dialog 
+            box.
+
+ Save Test Setup File
+
+ This option saves the current diagnostic test setup to a file.  When 
+ this information is saved, the same diagnostic tests can be run on other 
+ NICs.
+
+ Definition of Fields:
+ --------------------
+ Filename:      Type in a test setup filename.  
+ Directory is:  Displays the current drive and directory.
+ Directories:   Lists all directories visible in the current drive and
+                all the drives on the computer.  
+
+ To save a test setup file, type in a filename in the Filename text edit 
+ box and press [Enter].  The filename can be up to eight characters 
+ long.  The recommended extension is .TST.  The default name is 
+ 3C5X9.TST.  You can also type in a path and save the file to another 
+ directory or drive (DRIVE\PATH\FILENAME).  For example:
+
+    D:\TESTS\3C5X9.TST
+
+ saves the file to the TESTS directory in drive D.
+ 
+ Command Buttons:  
+ ---------------
+ <OK>:      Default action.  Saves the file created in the text edit 
+            box to the specified drive/directory.  Once the file is 
+            saved, the program returns to the Test Setup dialog box.
+ <Cancel>:  Ends this operation and returns to the File Options menu.
+
+ Select NIC
+
+ The Installed NICs dialog box appears if you have more than one 
+ NIC installed in your computer.  Select the NIC you want to 
+ configure and/or test and press [Enter].
+
+ If you need to change your selection at any time during the program, 
+ go to the Select menu item and choose "Select NIC" to access the 
+ Installed NICs dialog box.
+
+ Command Buttons:
+ ---------------
+ <Select>:  Selects the NIC you highlighted for testing and/or
+            configuration.
+ <Cancel>:  Exits the dialog box and returns to the main window.
+
+ Technical Support
+
+ Listed below are technical support services available for your 3Com
+ NIC.  Make sure that you have followed the steps listed in the
+ troubleshooting sections in this program and in the NIC user guide
+ to determine the problem. 
+
+ Contact your 3Com network supplier first for assistance.  If you do 
+ not know who this is, contact your nearest 3Com sales office.  To 
+ find the 3Com sales office nearest you, call 1-800-NET3Com. 
+
+ Software updates, drivers, and product information can be obtained
+ by accessing one of the following online services:
+   
+   - Fax service.  This service, called CardFacts, sends printed
+     information to your fax machine anywhere in the world.  Using
+     a touch-tone telephone, call (408) 727-7021.  Follow the recorded
+     instructions.  Document 9999 provides you with a list of current
+     documents.
+   
+   - Bulletin board service (BBS).  The 3Com bulletin board service 
+     is called "CardBoard" and can be accessed 24 hours a day.  To 
+     access, set your modem for 2400 or 9600 baud, 8 data-bits, 1 stop 
+     bit, no parity, and dial (408) 980-8204.
+
+   - 3Com Product Information Service.  ASK3Com is a CompuServe-based
+     service containing patches and drivers, technical articles about
+     all 3Com products, and an interactive forum for technical 
+     questions.  To use ASK3Com, you need a CompuServe account.  Log
+     in to CompuServe, type GO THREECOM and press [Enter] to see the
+     ASK3Com main menu.
+
+ For more information refer to the technical support appendix in the 
+ NIC user guide.
+
+ Test Definitions
+
+ GROUP 1:
+ -------
+ Group 1 tests the physical components, connectors, and circuitry
+ on the NIC. 
+
+    -  The Register Access test verifies that the computer can 
+       access the NIC's registers correctly.
+
+    -  The EEPROM Vital Data test verifies that the ASIC can access 
+       the EEPROM and checks the integrity of the nonconfigurable 
+       data in the EEPROM.
+    
+    -  The EEPROM Configurable Data test verifies that the ASIC can 
+       access the EEPROM and verifies the integrity of the 
+       user-configurable data in the EEPROM.
+   
+    -  The Boot PROM test verifies that the computer can access the 
+       boot PROM correctly and verifies the integrity of the boot PROM.  
+       This test is only run if the NIC configuration indicates a 
+       boot PROM is installed.
+
+    -  The FIFO Built-in Self-test verifies the data integrity of the
+       FIFOs.
+
+    -  The FIFO Loopback test uses the FIFO loopback mode to verify the 
+       correct operation of the transmit and receive FIFOs.
+ 
+    -  The Interrupt test verifies that the NIC can generate 
+       interrupts to the computer.
+
+    -  The Ethernet Core Loopback test verifies the NIC's ability to 
+       send and receive frames through the Ethernet core.
+
+    -  The Encoder/Decoder Loopback test verifies the NIC's ability 
+       to send and receive frames through the encoder/decoder.
+
+ GROUP 2:
+ -------
+ Group 2 consists of the Network Loopback test, which verifies the 
+ NIC's ability to transmit data over the network.  This test 
+ requires a loopback plug to be installed at the NIC's transceiver 
+ connection.  Run this test only on a coax NIC.
+
+ GROUP 3:
+ -------
+ Group 3 consists of the Echo Exchange test, which verifies the NIC's 
+ ability to transmit and receive data while on the network.  The NIC 
+ must be connected to a network that includes an echo server.
+
+ Test Setup
+
+ The Test Setup menu item lets you run the diagnostic tests on the 
+ installed NIC.  You can use the default settings, specify the 
+ number of times the tests will be run, or enable/disable a test group.
+
+ NOTE:  For specific information on the individual tests, press [Tab] 
+        to highlight <Index> at the bottom of this screen.  When the 
+        help screen list appears, highlight Test Definitions and 
+        press [Enter].
+
+ Definition of Fields:
+ --------------------
+ Tests:          There are three groups of tests:
+
+                 -  Group 1 tests the physical components, connectors,
+                    and circuitry on the NIC.
+                 -  Group 2 tests the NIC's ability to transmit 
+                    data over the network.
+                 -  Group 3 checks the NIC's ability to transmit and 
+                    receive data while on the network.       
+
+ Repetitions:    Lets you specify the number of times you want to run 
+                 the diagnostic tests.
+
+ Halt on Error:  Stops the program when one of the diagnostic tests 
+                 fails.
+    
+ To enable/disable a test group:
+
+    1.  Press [Tab] until the Group Select dialog box is highlighted.  
+    2.  Scroll to the Enable Group or Disable Group command buttons 
+        using the arrow keys.
+    3.  Press [Enter] to enable or disable a test group.
+
+        NOTE:  Individual tests can be enabled/disabled by pressing the
+               [Space Bar].
+
+ There are two options available to specify the number of times the 
+ tests are run.  Press [Tab] to highlight the Repetitions box and follow
+ these steps:
+
+    1.  The default option is highlighted in the Repetitions box.  To 
+        specify an exact number of times to run a test group:
+
+        a.  Press [Tab] and the cursor will jump to [1      ] Times.  
+            Enter the number of times you want to run the tests (the 
+            maximum is four billion).
+        b.  Press [Tab] to highlight <OK>.  Press [Enter].  Your test 
+            settings have been accepted but not saved to a file.
+                 
+    2.  If you want to run a test group continuously, then:
+
+        a.  Use the arrow keys to select Continuous in the Repetitions 
+            box.  Press [Tab] and an [X] appears.
+        b.  Press [Tab] to highlight <OK>.  Press [Enter].  Your test 
+            settings have been accepted but not saved to a file.
+
+ Command Buttons:
+ ---------------
+ <Defaults>:       Returns all of the diagnostic tests to their default 
+                   values.
+ <Enable Group>:   Enables an entire test group.
+ <Disable Group>:  Disables an entire test group.
+ <File Options>:   Accesses the Test Setup File Options dialog box.
+ <OK>:             Updates the Test Setup window with the new settings.  
+                   These settings are only current while this program is 
+                   running.  If you exit this program, the settings will 
+                   go back to the default.  Go to Test Setup File 
+                   Options if you want to save the current test setup.
+ <Cancel>:         Ends the operation and does not accept any changes 
+                   to the diagnostic tests that have been entered.
+			  
+ Transceiver Type
+
+ NOTE:  This software option applies only to the EtherLink III
+ ISA NICs.
+
+ This option lets you select the transceiver type, based on the type
+ of cable you are using.  With coax (BNC connector) or twisted-pair
+ cable (RJ-45 connector), use the on-board transceiver.  If you are
+ using thick coaxial cable (AUI connector), you need to select the
+ external transceiver option. For 3C509, you have the choices of TP,
+ Coax, and AUI depending on what kind of board you have.  For 3C509B,
+ you have one more option, the Auto Select, but which is not available
+ for a TPO (stealth) board.
+
+ Troubleshooting
+ 
+ If any of the diagnostic tests fail, the NIC may not be defective.  
+ Check the following:
+ 
+    1.  Check the NIC installation by reviewing the instructions in
+        the NIC user guide.  Make sure that the NIC is seated
+        correctly in the slot.
+    2.  Inspect all cables and connections.  Use only IEEE certified
+        cabling.
+    3.  Make sure that your computer was booted under DOS and that no 
+        device drivers or memory managers are loaded.
+    4.  If you are running the Group 2 test, make sure that the loopback
+        plug is securely attached to the NIC's BNC connector or that
+        a properly cabled and inactive network is connected to the 
+        NIC.
+    5.  If you are running the Group 3 test, make sure that the NIC
+        is connected to a properly cabled and inactive network and an 
+        echo server is set up on the network. 
+    6.  Make sure that the NIC option settings are not used by any 
+        other NIC boards installed in the computer.
+    7.  Install the NIC in another slot and run the tests again.  
+        The slot may be defective.
+    8.  Replace the failed NIC with a working NIC and run the 
+        diagnostic tests again, using the same option settings as those
+        used on the failed NIC.
+    9.  Install the NIC in another functioning computer and run the 
+        tests again.  Your computer may be defective.
+
+ If the NIC still does not function correctly, first refer to the 
+ NIC user guide for specific troubleshooting information.  Second, go
+ to the Help Index to access the Technical Support help screen or refer  
+ to the technical support appendix in the NIC user guide.
+
+ 
+<<Begin Error Information Text>>
+3C5X9,11,1,2,3,4,5,6,7,8,9,10,11
+
+
+ Unable to locate topic.  No information was found in the help file.  
+
+ This message appears because there is a problem in accessing the 
+ information in the help file.  Press [Esc] and exit the Configuration and
+ Diagnostic program.  Locate the original help file that came with the
+ Configuration and Diagnostic program.
+
+
+If the Register Access test failed:  
+
+   -  Check the I/O base address setting on the NIC and make sure 
+      that it is not being used by another device.
+
+   -  Make sure that the NIC is installed in the appropriate slot
+      (16- or 32-bit).
+
+   -  Refer to the Troubleshooting help screen and the NIC user
+      guide more information.
+
+
+If the EEPROM Vital Data test failed:
+
+   -  Check the I/O base address setting on the NIC and make sure
+      that it does not conflict with another device using the same 
+      setting.
+   
+   -  Make sure that the NIC is installed in the appropriate slot
+      (16- or 32-bit).
+
+   -  Refer to the Troubleshooting help screen and the NIC user
+      guide more information.
+
+
+If the EEPROM Configurable Data test failed:
+
+   -  Check the I/O base address setting on the NIC and make sure
+      that it does not conflict with another device using the same 
+      setting.
+
+   -  The user-configurable data in the EEPROM may be corrupted.
+      Reconfigure the NIC so that the configuration information
+      is rewritten to the EEPROM. 
+
+   -  Make sure that the NIC is installed in the appropriate slot
+      (16- or 32-bit). 
+
+   -  Refer to the Troubleshooting help screen and the NIC user
+      guide more information.
+
+
+If the Boot PROM test failed:
+
+   -  Check the I/O base address setting on the NIC and make sure
+      that it does not conflict with another device using the same 
+      setting.
+
+   -  Check the boot PROM base address setting on the NIC and make 
+      sure that it is not being used by another device or software 
+      program.
+
+   -  Check the size of the boot PROM configuration.
+
+   -  Make sure that the boot PROM was installed correctly.  Check 
+      the installation instructions in the documentation.
+
+   -  Make sure that the setting is disabled if no boot PROM is 
+      installed.
+   
+   -  Make sure that the NIC is installed in the appropriate slot
+      (16- or 32- bit).
+
+   -  Refer to the Troubleshooting help screen and the NIC user
+      guide for more information.
+
+   -  The boot PROM is not functioning correctly.  Refer to the manual
+      that accompanied the boot PROM for technical support.
+
+
+If the FIFO Built-in Self-test failed:
+
+   -  Check the I/O base address setting on the NIC and make sure
+      that it is not being used by another device.
+
+   -  Make sure that the NIC is installed in the appropriate slot
+      (16- or 32-bit).
+
+   -  Refer to the Troubleshooting help screen and the NIC user
+      guide more information.
+
+
+If the FIFO Loopback test failed:
+ 
+   -  Check the I/O base address setting on the NIC and make sure
+      that it is not being used by another device.
+
+   -  Make sure that the NIC is installed in the appropriate slot
+      (16- or 32-bit).
+
+   -  Refer to the Troubleshooting help screen and the NIC user
+      guide more information.
+
+
+If the Interrupt test failed:
+
+   -  Check the I/O base address setting on the NIC and make sure 
+      that it is not being used by another device.
+
+   -  Check the interrupt request level on the NIC and make sure 
+      that it is not being used by another device.
+
+   -  Make sure that the NIC is installed in the appropriate slot
+      (16- or 32-bit).
+
+   -  Refer to the Troubleshooting help screen and the NIC user
+      guide for more information.
+
+
+If the Ethernet Core Loopback test failed:
+
+   -  Check the I/O base address setting on the NIC and make sure 
+      that it is not being used by another device.
+
+   -  Make sure that the NIC is installed in the appropriate slot
+      (16- or 32-bit).
+
+   -  Refer to the Troubleshooting help screen and the NIC user
+      guide for more information.
+
+
+If the Encoder/Decoder Loopback test failed:
+
+   -  Check the I/O base address setting on the NIC and make sure 
+      that it is not being used by another device.
+   
+   -  Make sure that the NIC is installed in the appropriate slot
+      (16- or 32-bit).
+
+   -  Refer to the Troubleshooting help screen and the NIC user
+      guide more information.  
+
+
+If the Network Loopback test failed:
+
+   -  Check the I/O base address setting on the NIC and make sure 
+      that it is not being used by another device.   
+
+   -  Check the transceiver setting on the NIC.
+
+   -  Make sure that the loopback plug is installed correctly.  
+      Reinstall the plug or try a new plug.
+
+   -  Make sure that the test is running on an inactive network.
+
+   -  Check the NIC's connection to the network.
+
+   -  Make sure that the NIC is installed in the appropriate slot
+      (16- or 32-bit).
+ 
+   -  Refer to the Troubleshooting help screen and the NIC user
+      guide for more information.
+
+
+If the Echo Exchange test failed:
+
+   -  Check the I/O base address setting on the NIC and make sure 
+      that it is not being used by another device.
+
+   -  Check the transceiver setting on the NIC.
+
+   -  Make sure that the test is running on an inactive network.
+
+   -  Check the NIC's connection to the network.
+
+   -  If you are testing a twisted-pair NIC, check the LED on
+      the back of the NIC.  If it is not lit, there is a problem 
+      with the loopback plug or the network.  
+
+   -  Make sure that the NIC is installed in the appropriate slot
+      (16- or 32-bit).
+
+   -  Refer to the Troubleshooting help screen and the NIC user
+      guide for more information.
+
+
+
+Sudden end of file
+
+
+(%VER 3C5X9 Configuration and Diagnostic English Help v3.2b)
+

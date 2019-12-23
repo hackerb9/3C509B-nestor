@@ -9,14 +9,14 @@ The 3COM 3C509B network interface card is known to work with computers with a 16
 
 [Nestor](http://www.vcfed.org/forum/member.php?12204-nestor) a.k.a. [Distwave](http://ibmps1.wordpress.com/) of [VCFed.org](http://www.vcfed.org/) took the time in 2012 to replace all the 286 specific assembly instructions with [generic 8086 code](http://www.vcfed.org/forum/showthread.php?30537-Feeling-lucky-is-the-3c509B-compatible-with-8088-using-NE1000-drivers&p=224266#post224266). Nestor used the packet driver source code from [crynwr.com](http://web.archive.org/web/*/http://www.crynwr.com/drivers/), which was released under the GNU GPL license.
 
-This repository is meant to be a secondary place to hold the source code. This is also a good place to document usage and to log the changes Nestor made. (Look at the history for the file [3c509.asm](3c509.asm)). Hopefully, having this in version control will also allow future changes people may make (such as the hack to get it working on the V20 CPU) to be incorporated in a clean way. 
+This repository is meant to be a secondary place to hold the source code. This is also a good place to document usage and to log the changes Nestor made. (Look at the history for the file [3c509.asm](3c509.asm)). Hopefully, having this in version control will also allow future changes people may make (such as the hack to get it working on the V20 CPU) to be incorporated in a clean way.
 
 Nota bene: while this driver works with any 3C509**B** card (the B is important), at least one of those cards, the 3C509B-**TP** card requires software configuration before it can be used in a PC/XT machine. Please see below for details.
 
 ## Installation
-Download [3c509.com](3c509.com?raw=true) to get Ethernet working. 
+Download [3c509.com](3c509.com?raw=true) to get Ethernet working.
 
-To get on the Internet, you'll also need software that handles TCP/IP such as [mTCP](https://www.brutman.com/mTCP/). 
+To get on the Internet, you'll also need software that handles TCP/IP such as [mTCP](https://www.brutman.com/mTCP/).
 
 ## Basic Usage
 Run the COM file with the software interrupt number: **3C509.COM** _<packet_int_no>_
@@ -48,8 +48,8 @@ usage: 3c509 [options] <packet_int_no> [id_port]
 
 | Card ID                      | Connector Type        | Cable                                    | Works? |
 | ---------------------------- | --------------------- | ---------------------------------------- | :----: |
-| 3C509B<br/>(3C509B-Coax)     | BNC<br/>AUI           | 10base2<br/>Thick coax                   | Yes    |   
-| 3C509B-C<br/>(3C509B-COMBO)  | RJ-45<br/>BNC<br/>AUI | 10baseT<br/>10base2<br/>Thick coax       | Yes    | 
+| 3C509B<br/>(3C509B-Coax)     | BNC<br/>AUI           | 10base2<br/>Thick coax                   | Yes    |
+| 3C509B-C<br/>(3C509B-COMBO)  | RJ-45<br/>BNC<br/>AUI | 10baseT<br/>10base2<br/>Thick coax       | Yes    |
 | 3C509B-TP                    | RJ-45<br/>BNC         | 10baseT<br/>10base2                      | With configuration |
 | 3C509B-TPO                   | RJ-45                 | 10baseT                                  | With configuration |
 
@@ -60,14 +60,14 @@ The 3C509B-**TP** and perhaps **TPO** may require software configuration in a 28
 1. Put the network card in a 286 machine.
 1. Run 3Com's [3C5X9CFG.EXE](3c5x9x/3C5X9CFG.EXE?raw=true) (found in [EtherDisk](3c5x9x/3C5X9X.ZIP?raw=true)).
    1. Disable PNP
-   1. Set the IRQ to 2 (or another free IRQ, see table below)
+   1. Set the IRQ to 7 (or another free IRQ, see table below)
    1. Optimize for DOS
    1. No modem installed
    1. Change the Base Address to 0x320, if you have an XT-IDE at 0x300
    1. Change port transciever (RJ45, BNC, AUI), if you wish
 1. Save settings to EEPROM.
 1. Move the card back to your IBM PC / XT.
-1. Running `3c509.com 0x7e` should now work. 
+1. Running `3c509.com 0x7e` should now work.
 
 
 ## IRQs
@@ -75,22 +75,49 @@ The 3C509B-**TP** and perhaps **TPO** may require software configuration in a 28
 | --- | ------------ | ---------------- | ------- |
 | 0   | System Timer | yes | Not wired to ISA bus |
 | 1   | Keyboard     | yes | Not wired to ISA bus |
-| 2   | Available    |     |
+| 2   | Available    |     | Not allowed by 3C5X9CFG |
 | 3   | COM2 / COM4  |     |
 | 4   | COM1 / COM3  | yes |
 | 5   | Hard Disk<br/>Soundcard    |     |
 | 6   | Floppy       | yes |
 | 7   | Parallel     | yes | Many people remove LPT1 to free this IRQ |
 
+## Factory Defaults
+
+At least for the 3C509B-TP these are the factory default settings:
+
+| Setting                           | Default                | Command line parameter | Possible Values
+| --------------------------------- | ---------------------- | ---------------------- | --------------- |
+| I/O base address                  | 300H                   | /IOBASE:               | 200..3E0, in increments of 10 |
+| Interrupt request level           | 10                     | /INT:                  | 3, 5, 7, 9, 10, 11, 12, 15 |
+| Transceiver type                  | auto select            | /XCVR:                 | AUTO, TP, COAX, AUI |
+| Network driver optimization       | Windows or OS/2 client | /OPTIMIZE:             | DOS, Windows, OS/2, server |
+| Maximum interrupt disable time    | 500 microseconds       | /MODEM:                | 25-1600, in increments of 25ms, or use<br/>None, 1200, 2400, 9600, 19200, 38400 |
+| Plug and Play Capability          | enabled                | /PNP:                  | ENABLED, DISABLED |
+| Full duplex                       | disabled               | /FULLDUPLEX:           | ENABLED, DISABLED |
+| Boot PROM Size                    | disabled               | /BSIZE:                | 8,16,32,disabled |       
+| Boot PROM Address                 | D0000h                 | /BADDRESS:             | C2000-DE000      |       
+| Link beat (pre-10base-T only)     | disabled               | /LINKBEAT:             | disabled, enabled |
+| Configuration & Diagnostic Port<br/>(Do not change unless another device is on address 110)  | 110                    | /CONFIGPORT:           | 100-1E0, in increments of 10 |
+| Insert wait state each bus cycle<br/>(Allows NIC to work in computers with marginal ISA I/O bus timing)  | disabled               | /SYNCREADY:            | disabled, enabled |
+
+
+## Suggested setting
+
+```
+3CCFG.EXE CONFIGURE /int:3 /optimize:dos /modem:none /pnp:disabled /xcvr:auto
+```
+
+
 ## Future work
 
-The 3COM configuration program runs on an 8086 machine but does not detect the NIC, so you'll need a 286 or better machine temporarily. It is unclear why this happens since 3COM clearly states that the 3C509B works in 8-bit busses. 
+The 3COM configuration program runs on an 8086 machine but does not detect the NIC, so you'll need a 286 or better machine temporarily. It is unclear why this happens since 3COM clearly states that the 3C509B works in 8-bit busses.
 
 ### 3C5X9CFG /PNPRST; 3C5X9CFG CONFIGURE /PNP:DISABLED
 
 According to archive.org's cache of 3com.com's [FAQ](http://web.archive.org/web/20060314235414/http://support.3com.com/infodeli/inotes/techtran/2406_5ea.htm), when the "No Etherlink III Adapter Found" error is seen, one should run the following and reboot:
 ```
-3C5X9CFG /PNPRST 
+3C5X9CFG /PNPRST
 3C5X9CFG CONFIGURE /PNP:DISABLED
 ```
 This has not yet been tested on an 8086/8088 machine, but may fix the problem without a 286.
@@ -107,8 +134,8 @@ Here is the commentary from INSTALL.TXT from [EtherDisk V4.3b](3c5x9x/3C5X9X.ZIP
  this problem is very simple; follow the steps below:
 > 1. Boot a minimal DOS setup, making sure that no EtherLink III drivers are loaded.
 > 2. Put this EtherDisk in the diskette drive and type A: at the DOS prompt.
-> 3.  Enter PNPDSABL [_which is just a BAT file that executes the two 
-      [3C5X9CFG](3c5x9x/3C5X9CFG.EXE?raw=true) commands above_] 
+> 3.  Enter PNPDSABL [_which is just a BAT file that executes the two
+      [3C5X9CFG](3c5x9x/3C5X9CFG.EXE?raw=true) commands above_]
       at the DOS prompt.  The configuration and diagnostic
       program will execute twice.  The first time it executes, the configuration
       and diagnostic program "kicks" the EtherLink III out of its PnP wait.
@@ -116,7 +143,7 @@ Here is the commentary from INSTALL.TXT from [EtherDisk V4.3b](3c5x9x/3C5X9X.ZIP
       displayed will be:
         "The 3C5X9 adapter, adapter number 1, was successfully configured"
 > 4. Finally, remove the EtherDisk from the diskette drive, and turn the
-      computer power off, then on. 
+      computer power off, then on.
 
 
 

@@ -1,32 +1,84 @@
-(TL;DR? Download [3C509.COM](3c509.com?raw=true) driver).
+(TL;DR? Download [3C509.COM](3c509.com?raw=true) driver and [3ccfg.exe](3C5x9x/3ccfg.exe?raw=true) configuration).
 
 # 3C509B-nestor
-8086 Driver for 3COM Etherlink III 3C509B cards
+8086 Driver for 3COM Etherlink III 3C509**B** cards 
+
+Here is a driver and a configuration program for the 3C509B family of network interface cards (NICs) which work in IBM PC and XT hardware.
+
+## Quick start
+
+Download:
+*[3c509.com Driver](3c509.com?raw=true)
+*[3ccfg.exe Configuration](3C5x9x/3ccfg.exe?raw=true))
+
+Use:
+```DOS
+3ccfg.exe configure /int:3 /optimize:dos /modem:none /pnp:disabled /xcvr:auto
+3c509.exe 0x60
+```
+
+## History
 
 <img align="right" width="25%" src="README.md.d/3Com_3C509BC_Ethernet_NIC.jpg">
-The 3COM 3C509B network interface card is known to work with computers with a 16-bit ISA bus, but that is not because that the card wouldn't work on an 8-bit bus. The driver software uses assembly opcodes found in the 286 processor, which meant older computers such as the IBM PC and XT with 8088 and 8086 simply couldn't run it.
-
+The widespread and easily available 3COM 3C509B network interface card has been long known to work with computers with a 16-bit ISA bus. That is not because the card couldn't work on an 8-bit ISA bus. The driver software uses assembly opcodes found in the 286 processor, which meant older computers such as the IBM PC and XT with 8088 and 8086 simply couldn't run it.
 
 [Nestor](http://www.vcfed.org/forum/member.php?12204-nestor) a.k.a. [Distwave](http://ibmps1.wordpress.com/) of [VCFed.org](http://www.vcfed.org/) took the time in 2012 to replace all the 286 specific assembly instructions with [generic 8086 code](http://www.vcfed.org/forum/showthread.php?30537-Feeling-lucky-is-the-3c509B-compatible-with-8088-using-NE1000-drivers&p=224266#post224266). Nestor used the packet driver source code from [crynwr.com](http://web.archive.org/web/*/http://www.crynwr.com/drivers/), which was released under the GNU GPL license.
 
-This repository is meant to be a secondary place to hold the source code. This is also a good place to document usage and to log the changes Nestor made. (Look at the history for the file [3c509.asm](3c509.asm)). Hopefully, having this in version control will also allow future changes people may make (such as the hack to get it working on the V20 CPU) to be incorporated in a clean way.
+However, while Nestor's driver worked, it required that some cards have their IRQ and other parameters preconfigured on a 286 machine. The 3Com configuration program, 3C5X9CFG.EXE, would die claiming no card was in the machine.  [Predator99](http://www.vcfed.org/forum/showthread.php?30537-Feeling-lucky-is-the-3c509B-compatible-with-8088-using-NE1000-drivers&p=599622#post599622) fixed the problem so it now works on 8088 and 8086 machine. The resulting executable, now called [3ccfg.exe](3C5x9x/3ccfg.exe?raw=true)), has been compressed with PKLITE so that it fits on a single 360K floppy. 
 
-Nota bene: while this driver works with any 3C509**B** card (the B is important), at least one of those cards, the 3C509B-**TP** card requires software configuration before it can be used in a PC/XT machine. Please see below for details.
+### Purpose of this repository
+
+This repository is mainly meant as a secondary location to hold the
+source code for Nestor's modified driver. (For specific changes Nestor
+made, look at the history for the file [3c509.asm](3c509.asm)).
+
+The repository also collates parts like the configuration tool and
+documentation. Hopefully, having this in version control will also
+allow future changes people may make (such as the hack to get it
+working on the V20 CPU) to be incorporated in a clean way.
 
 ## Installation
-Download [3c509.com](3c509.com?raw=true) to get Ethernet working.
 
-To get on the Internet, you'll also need software that handles TCP/IP such as [mTCP](https://www.brutman.com/mTCP/).
+### Configuration
+
+First, download the configuration tool [3ccfg.exe](3C5x9x/3ccfg.exe?raw=true) to configure your 3C509B. If you run it without arguments, it will give you an easy to use menu based system. Or, you can configure everything from the command line, like so:
+
+```
+3ccfg.exe configure /int:3 /optimize:dos /modem:none /pnp:disabled /xcvr:auto
+```
+
+### Driver
+Download [3c509.com](3c509.com?raw=true) to get Ethernet working.
+You can run it like
+```
+3c509.com 0x60
+```
+
+### TCP/IP
+
+To get on the Internet, you'll also need software that handles TCP/IP such as [mTCP](https://www.brutman.com/mTCP/). To use mTCP, you need to create a configuration file and then set an environment variable to point to that file.
+
+```DOS
+COPY SAMPLE.CFG MTCP.CFG
+SET MTCPCFG=A:\MTCP.CFG
+```
+
+Once that is done, you can use `DHCP` to get an IP address and `TELNET` to connect to a remote machine.
+```DOS
+DHCP
+TELNET NETHACK.ALT.ORG
+```
 
 ## Basic Usage
 Run the COM file with the software interrupt number: **3C509.COM** _<packet_int_no>_
 
-The readme suggests using 0x7e, like so:
+If you use 0x60, you won't have to edit the mTCP sample file:
 ```dos
 A:\> 3C509.COM 0x7e
 ```
+(Note: the README for the driver suggests 0x7e.)
 
-## Advanced Usage
+## Advanced Usage of 3C509.COM
 
 According to the source code comments, _<packet_int_no>_'s range is 0x60 to 0x66, 0x68 to 0x6f, and 0x7b to 0x7e.
 Why the gaps? 0x67 is the EMS interrupt, 0x70 through 0x77 are used by the second 8259, and 0x7a is used by NetWare's IPX.
@@ -53,21 +105,19 @@ usage: 3c509 [options] <packet_int_no> [id_port]
 | 3C509B-TP                    | RJ-45<br/>BNC         | 10baseT<br/>10base2                      | With configuration |
 | 3C509B-TPO                   | RJ-45                 | 10baseT                                  | With configuration |
 
-## Software configuration on a 286
+## Software configuration
 
-The 3C509B-**TP** and perhaps **TPO** may require software configuration in a 286 machine before they can be used in a PC or XT. If no NIC is detected by the 3c509.com driver, follow these steps:
+The 3C509B-**TP** and perhaps **TPO** require software configuration before they can be used in a PC or XT as they use IRQ 10 (which didn't exist until the 286). If no NIC is detected by the 3c509.com driver, follow these steps:
 
-1. Put the network card in a 286 machine.
-1. Run 3Com's [3C5X9CFG.EXE](3c5x9x/3C5X9CFG.EXE?raw=true) (found in [EtherDisk](3c5x9x/3C5X9X.ZIP?raw=true)).
+1. Run [3CCFG.EXE](3c5x9x/3ccfg.exe?raw=true) (which is a modified for 8086 version of 3C5X9CFG.EXE, found in [EtherDisk](3c5x9x/3C5X9X.ZIP?raw=true)).
    1. Disable PNP
-   1. Set the IRQ to 7 (or another free IRQ, see table below)
+   1. Set the IRQ to 3 (or another free IRQ, such as 7, see table below)
    1. Optimize for DOS
-   1. No modem installed
-   1. Change the Base Address to 0x320, if you have an XT-IDE at 0x300
-   1. Change port transciever (RJ45, BNC, AUI), if you wish
+   1. No modem installed (unless you use a serial port)
+   1. If you have an XT-IDE at 0x300, change the Base Address to 0x320.
+   1. Change port transciever (RJ45, BNC, AUI), if you wish, but AUTO works.
 1. Save settings to EEPROM.
-1. Move the card back to your IBM PC / XT.
-1. Running `3c509.com 0x7e` should now work.
+1. Running `3c509.com 0x60` should now work.
 
 
 ## IRQs
@@ -80,7 +130,7 @@ The 3C509B-**TP** and perhaps **TPO** may require software configuration in a 28
 | 4   | COM1 / COM3  | yes |
 | 5   | Hard Disk<br/>Soundcard    |     |
 | 6   | Floppy       | yes |
-| 7   | Parallel     | yes | Many people remove LPT1 to free this IRQ |
+| 7   | Parallel     | yes | Some people remove LPT1 to free this IRQ |
 
 ## Factory Defaults
 
@@ -109,18 +159,15 @@ At least for the 3C509B-TP these are the factory default settings:
 ```
 
 
-## Future work
-
-The 3COM configuration program runs on an 8086 machine but does not detect the NIC, so you'll need a 286 or better machine temporarily. It is unclear why this happens since 3COM clearly states that the 3C509B works in 8-bit busses.
-
 ### 3C5X9CFG /PNPRST; 3C5X9CFG CONFIGURE /PNP:DISABLED
+
+If you are unable to run the configuration program due to "No Adapter Found", it may be because of a strange BIOS quirk which puts the NIC into an infinite loop trying to negotiate PNP. 
 
 According to archive.org's cache of 3com.com's [FAQ](http://web.archive.org/web/20060314235414/http://support.3com.com/infodeli/inotes/techtran/2406_5ea.htm), when the "No Etherlink III Adapter Found" error is seen, one should run the following and reboot:
 ```
 3C5X9CFG /PNPRST
 3C5X9CFG CONFIGURE /PNP:DISABLED
 ```
-This has not yet been tested on an 8086/8088 machine, but may fix the problem without a 286.
 
 Here is the commentary from INSTALL.TXT from [EtherDisk V4.3b](3c5x9x/3C5X9X.ZIP?raw=true)
 
@@ -146,9 +193,3 @@ Here is the commentary from INSTALL.TXT from [EtherDisk V4.3b](3c5x9x/3C5X9X.ZIP
       computer power off, then on.
 
 
-
-### Or, could it be the IRQ?
-It may be because the default IRQ is 10, which is an illegal IRQ for the 8-bit PC/XT ISA bus. However, one user reported that the configuration program does not work even after changing the IRQ, so it seems unlikely.
-
-### Is it fixable?
-This may be fixable by hacking 3C5X9CFG.EXE to branch around the NIC detection code. Or perhaps a new 8086 configuration utility can be written by looking at the [Linux 3C509 configuration code](https://github.com/torvalds/linux/blob/master/drivers/net/ethernet/3com/3c509.c).

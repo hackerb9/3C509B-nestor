@@ -20,7 +20,7 @@ Use:
 ## History
 
 <img align="right" width="25%" src="README.md.d/3Com_3C509BC_Ethernet_NIC.jpg">
-The widespread and easily available 3COM 3C509B network interface card has been long known to work with computers with a 16-bit ISA bus. That is not because the card couldn't work on an 8-bit ISA bus. The driver software uses assembly opcodes found in the 286 processor, which meant older computers such as the IBM PC and XT with 8088 and 8086 simply couldn't run it.
+The widespread and easily available 3COM 3C509B network interface card has been long known to work with computers with a 16-bit ISA bus. However, that was not because the card couldn't work on an 8-bit ISA bus. The driver software uses assembly opcodes found in the 286 processor, which meant older computers such as the IBM PC and XT with 8088 and 8086 simply couldn't run it.
 
 [Nestor](http://www.vcfed.org/forum/member.php?12204-nestor) a.k.a. [Distwave](http://ibmps1.wordpress.com/) of [VCFed.org](http://www.vcfed.org/) took the time in 2012 to replace all the 286 specific assembly instructions with [generic 8086 code](http://www.vcfed.org/forum/showthread.php?30537-Feeling-lucky-is-the-3c509B-compatible-with-8088-using-NE1000-drivers&p=224266#post224266). Nestor used the packet driver source code from [crynwr.com](http://web.archive.org/web/*/http://www.crynwr.com/drivers/), which was released under the GNU GPL license.
 
@@ -35,7 +35,7 @@ made, look at the history for the file [3c509.asm](3c509.asm)).
 The repository also collates parts like the configuration tool and
 documentation. Hopefully, having this in version control will also
 allow future changes people may make (such as the hack to get it
-working on the V20 CPU) to be incorporated in a clean way.
+working on the V20 CPU at full speed) to be incorporated in a clean way.
 
 ## Installation
 
@@ -107,15 +107,15 @@ usage: 3c509 [options] <packet_int_no> [id_port]
 
 ## Software configuration
 
-The 3C509B-**TP** and perhaps **TPO** require software configuration before they can be used in a PC or XT as they use IRQ 10 (which didn't exist until the 286). If no NIC is detected by the 3c509.com driver, follow these steps:
+The 3C509B-**TP** and **TPO** require software configuration before they can be used in a PC or XT as they use IRQ 10 (which didn't exist until the 286). If no NIC is detected by the 3c509.com driver, follow these steps:
 
-1. Run [3CCFG.EXE](3c5x9x/3ccfg.exe?raw=true) (which is a modified for 8086 version of 3C5X9CFG.EXE, found in [EtherDisk](3c5x9x/3C5X9X.ZIP?raw=true)).
+1. Run [3CCFG.EXE](3c5x9x/3ccfg.exe?raw=true) (which is a modified-for-8086 version of 3C5X9CFG.EXE, found in [EtherDisk](3c5x9x/3C5X9X.ZIP?raw=true)).
    1. Disable PNP
    1. Set the IRQ to 3 (or another free IRQ, such as 7, see table below)
    1. Optimize for DOS
    1. No modem installed (unless you use a serial port)
    1. If you have an XT-IDE at 0x300, change the Base Address to 0x320.
-   1. Change port transciever (RJ45, BNC, AUI), if you wish, but AUTO works.
+   1. If you wish, change port transciever (RJ45, BNC, AUI), but the default (AUTO) should work.
 1. Save settings to EEPROM.
 1. Running `3c509.com 0x60` should now work.
 
@@ -154,14 +154,22 @@ At least for the 3C509B-TP these are the factory default settings:
 
 ## Suggested setting
 
+If don't use a serial port, I suggest using the following command:
+
 ```
 3CCFG.EXE CONFIGURE /int:3 /optimize:dos /modem:none /pnp:disabled /xcvr:auto
 ```
 
+A serial card may drop bytes if the 3C509B doesn't give up the bus frequently enough to allow other IRQs to be handled. Note that if your serial card has a 16**5**50 UART, you can also use `/modem:none` as it will buffer bytes in the FIFO. If you use a serial card with the older 8250 (or 16**4**50 UART), use `/modem:9600`, or whatever baud rate you use your serial port at. The lower the baud, the better your Ethernet performance will be. 
 
-### 3C5X9CFG /PNPRST; 3C5X9CFG CONFIGURE /PNP:DISABLED
 
-If you are unable to run the configuration program due to "No Adapter Found", it may be because of a strange BIOS quirk which puts the NIC into an infinite loop trying to negotiate PNP. 
+## Probably irrelevant BIOS bug
+
+This likely won't affect you, but I'm documenting it just in case.
+
+### 3CCFG /PNPRST; 3CCFG CONFIGURE /PNP:DISABLED
+
+If you are still unable to run the configuration program due to "No Adapter Found", it may be because of a strange BIOS quirk which puts the NIC into an infinite loop trying to negotiate PNP. If the 3C509.EXE driver can't find your card either, that might be a tip that this is the problem.
 
 According to archive.org's cache of 3com.com's [FAQ](http://web.archive.org/web/20060314235414/http://support.3com.com/infodeli/inotes/techtran/2406_5ea.htm), when the "No Etherlink III Adapter Found" error is seen, one should run the following and reboot:
 ```
@@ -169,7 +177,11 @@ According to archive.org's cache of 3com.com's [FAQ](http://web.archive.org/web/
 3C5X9CFG CONFIGURE /PNP:DISABLED
 ```
 
-Here is the commentary from INSTALL.TXT from [EtherDisk V4.3b](3c5x9x/3C5X9X.ZIP?raw=true)
+Of course, since we are using the 8086 version, you would replace 3C5X9CFG with `3CCFG`.
+
+### Commentary on BIOS bug
+
+Here is the commentary on the BIOS bug from [EtherDisk V4.3b](3c5x9x/3C5X9X.ZIP?raw=true):
 
 > Installing an EtherLink III ISA adapter (3C509B) in certain computers
  may result in neither the diagnostic and configuration program nor the

@@ -20,7 +20,7 @@ Use:
 ## History
 
 <img align="right" width="25%" src="README.md.d/3Com_3C509BC_Ethernet_NIC.jpg">
-The widespread and easily available 3COM 3C509B network interface card has been long known to work with computers with a 16-bit ISA bus. However, that was not because the card couldn't work on an 8-bit ISA bus. The driver software uses assembly opcodes found in the 286 processor, which meant older computers such as the IBM PC and XT with 8088 and 8086 simply couldn't run it.
+The widespread and easily available 3COM 3C509B network interface card has been long known to work with computers with a 16-bit ISA bus only. However, that was not because the card couldn't work on an 8-bit ISA bus. The driver software uses assembly opcodes found in the 286 processor, which meant older computers such as the IBM PC and XT with 8088 and 8086 simply couldn't run it.
 
 [Nestor](http://www.vcfed.org/forum/member.php?12204-nestor) a.k.a. [Distwave](http://ibmps1.wordpress.com/) of [VCFed.org](http://www.vcfed.org/) took the time in 2012 to replace all the 286 specific assembly instructions with [generic 8086 code](http://www.vcfed.org/forum/showthread.php?30537-Feeling-lucky-is-the-3c509B-compatible-with-8088-using-NE1000-drivers&p=224266#post224266). Nestor used the packet driver source code from [crynwr.com](http://web.archive.org/web/*/http://www.crynwr.com/drivers/), which was released under the GNU GPL license.
 
@@ -74,7 +74,7 @@ Run the COM file with the software interrupt number: **3C509.COM** _<packet_int_
 
 If you use 0x60, you won't have to edit the mTCP sample file:
 ```dos
-A:\> 3C509.COM 0x7e
+A:\> 3C509.COM 0x60
 ```
 (Note: the README for the driver suggests 0x7e.)
 
@@ -154,7 +154,7 @@ At least for the 3C509B-TP these are the factory default settings:
 
 ## Suggested setting
 
-If don't use a serial port, I suggest using the following command:
+If not using a serial port, I suggest the following command:
 
 ```
 3CCFG.EXE CONFIGURE /int:3 /optimize:dos /modem:none /pnp:disabled /xcvr:auto

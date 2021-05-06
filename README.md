@@ -1,4 +1,4 @@
-(TL;DR? Download [3C509.COM](3c509.com?raw=true) driver and [3ccfg.exe](3C5x9x/3ccfg.exe?raw=true) configuration).
+(TL;DR? Download [3C509.COM](3c509.com?raw=true) driver and [3ccfg.exe](3c5x9x/3ccfg.exe?raw=true) configuration).
 
 # 3C509B-nestor
 8086 Driver for 3COM Etherlink III 3C509**B** cards 
@@ -9,7 +9,7 @@ Here is a driver and a configuration program for the 3C509B family of network in
 
 Download:
 *[3c509.com Driver](3c509.com?raw=true)
-*[3ccfg.exe Configuration](3C5x9x/3ccfg.exe?raw=true))
+*[3ccfg.exe Configuration](3c5x9x/3ccfg.exe?raw=true))
 
 Use:
 ```DOS
@@ -24,7 +24,7 @@ The widespread and easily available 3COM 3C509B network interface card has been 
 
 [Nestor](http://www.vcfed.org/forum/member.php?12204-nestor) a.k.a. [Distwave](http://ibmps1.wordpress.com/) of [VCFed.org](http://www.vcfed.org/) took the time in 2012 to replace all the 286 specific assembly instructions with [generic 8086 code](http://www.vcfed.org/forum/showthread.php?30537-Feeling-lucky-is-the-3c509B-compatible-with-8088-using-NE1000-drivers&p=224266#post224266). Nestor used the packet driver source code from [crynwr.com](http://web.archive.org/web/*/http://www.crynwr.com/drivers/), which was released under the GNU GPL license.
 
-However, while Nestor's driver worked, it required that some cards have their IRQ and other parameters preconfigured on a 286 machine. The 3Com configuration program, 3C5X9CFG.EXE, would die claiming no card was in the machine.  [Predator99](http://www.vcfed.org/forum/showthread.php?30537-Feeling-lucky-is-the-3c509B-compatible-with-8088-using-NE1000-drivers&p=599622#post599622) fixed the problem so it now works on 8088 and 8086 machine. The resulting executable, now called [3ccfg.exe](3C5x9x/3ccfg.exe?raw=true)), has been compressed with PKLITE so that it fits on a single 360K floppy. 
+However, while Nestor's driver worked, it required that some cards have their IRQ and other parameters preconfigured on a 286 machine. The 3Com configuration program, 3C5X9CFG.EXE, would die claiming no card was in the machine.  [Predator99](http://www.vcfed.org/forum/showthread.php?30537-Feeling-lucky-is-the-3c509B-compatible-with-8088-using-NE1000-drivers&p=599622#post599622) fixed the problem so it now works on 8088 and 8086 machine. The resulting executable, now called [3ccfg.exe](3c5x9x/3ccfg.exe?raw=true)), has been compressed with PKLITE so that it fits on a single 360K floppy. 
 
 ### Purpose of this repository
 
@@ -41,7 +41,7 @@ working on the V20 CPU at full speed) to be incorporated in a clean way.
 
 ### Configuration
 
-First, download the configuration tool [3ccfg.exe](3C5x9x/3ccfg.exe?raw=true) to configure your 3C509B. If you run it without arguments, it will give you an easy to use menu based system. Or, you can configure everything from the command line, like so:
+First, download the configuration tool [3ccfg.exe](3c5x9x/3ccfg.exe?raw=true) to configure your 3C509B. If you run it without arguments, it will give you an easy to use menu based system. Or, you can configure everything from the command line, like so:
 
 ```
 3ccfg.exe configure /int:3 /optimize:dos /modem:none /pnp:disabled /xcvr:auto

@@ -8,8 +8,9 @@ Here is a driver and a configuration program for the 3C509B family of network in
 ## Quick start
 
 Download:
-*[3c509.com Driver](3c509.com?raw=true)
-*[3ccfg.exe Configuration](3c5x9x/3ccfg.exe?raw=true))
+
+* [3c509.com Driver](3c509.com?raw=true)
+* [3ccfg.exe Configuration](3c5x9x/3ccfg.exe?raw=true))
 
 Use:
 ```DOS
@@ -46,6 +47,8 @@ First, download the configuration tool [3ccfg.exe](3c5x9x/3ccfg.exe?raw=true) to
 ```
 3ccfg.exe configure /int:3 /optimize:dos /modem:none /pnp:disabled /xcvr:auto
 ```
+
+(3ccfg.exe does not work in 256 KB of RAM or less).
 
 ### Driver
 Download [3c509.com](3c509.com?raw=true) to get Ethernet working.
@@ -119,6 +122,11 @@ The 3C509B-**TP** and **TPO** require software configuration before they can be 
 1. Save settings to EEPROM.
 1. Running `3c509.com 0x60` should now work.
 
+## Excessive memory usage for configuration.
+
+If you have 256 KB of RAM or less, please note that, while the driver itself will work, the configuration program, 3ccfg.exe will fail even when run as a command line program.  
+
+This is due to 3ccfg.exe being linked with a large text menu library called MEWEL. *[**Help wanted!** Are you an intrepid DOS hacker? Do you feel up to removing MEWEL, leaving a stripped down, command-line only tool? Or, do you think you could write a completely new configuration program based on the Linux kernel source code? Your help is needed. Please apply at issue #2.]*
 
 ## IRQs
 | IRQ | PC/XT Use    | Used by default? | Notes   |

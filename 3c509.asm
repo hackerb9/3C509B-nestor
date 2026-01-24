@@ -967,7 +967,9 @@ etopen_eisa:
 	mov	cx,0fh
 eisa_search:
 	mov	dx,cx			;move it into the first nibble.
+	.286
 	shl	dx,12
+	.8086
 	or	dx,0c80h
 	in	ax,dx			;look for the manufacturer's ID
 	cmp	ax,EISA_MANUFACTURER_ID

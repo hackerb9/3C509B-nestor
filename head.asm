@@ -683,7 +683,7 @@ EPROT_OFF	equ	EADDR_LEN*2
 	ret
 
 f_send_pkt_2:
-	cmp	ds:[si].EPROT_OFF,3781h ; if not Novell (prot 8137)
+	cmp	word ptr ds:[si].EPROT_OFF,3781h ; if not Novell (prot 8137)
 	jne	f_send_pkt_3		;  don't tread on it
 	push	ax			; get scratch reg
 	mov	ax,[si].EPROT_OFF+4	; get len
@@ -1281,7 +1281,7 @@ recv_locate:
 	cmp	word ptr es:[di],0ffffh	;if this word not ffff
 	jne	recv_not_8137		;  then not Novell
 	sub	di,2			; back it up to the 8137 word.
-	mov	es:[di],3781h		; fake as Novell protocol (8137)
+	mov	word ptr es:[di],3781h	; fake as Novell protocol (8137)
 	mov	dl,BLUEBOOK
 	jmp	short recv_not_8137
 recv_not_802_3:
@@ -1291,7 +1291,7 @@ recv_not_802_3:
 	jne	recv_not_8137		;no, don't change it.
 	cmp	word ptr es:[di],3781h	;Is it an 8137 packet?
 	jne	recv_not_8137		;no, don't change it.
-	mov	es:[di],word ptr 3881h	;yes, mung it slightly.
+	mov	word ptr es:[di],3881h	;yes, mung it slightly.
 recv_not_8137:
 not_n_op:
 

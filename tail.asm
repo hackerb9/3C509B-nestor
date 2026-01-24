@@ -265,12 +265,18 @@ identified:
 
 ;** Identify which processor we're running on.
 
-;Determine the processor type.  The 8088 and 8086 will actually shift ax
-;over by 33 bits, while the 80[123]86 use a shift count mod 32.
-	mov	cl,33
-	mov	ax,0ffffh
-	shl	ax,cl			;186 or better?
+;Determine the processor type. The 8088 and 8086 do not support the
+;PUSHA instruction. This instruction was introduced with the 80186 and is
+;also supported by the NEC V20 and V30 processors.
+	test	al,al			;clear overflow flag
+	mov	ax,sp			;save stack pointer
+	.186
+	pusha				;on the 808[68] this is a 2 byte nop
+	nop				; when overflow flag is zero
+	.8086
+	cmp	ax,sp			;186 or better?
 	jz	processor_identified	;no.
+	xchg	ax,sp			;fix stack pointer
 	mov	is_186,1
 
 	push	sp

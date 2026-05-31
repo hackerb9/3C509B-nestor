@@ -11,6 +11,22 @@ jobs:
         target:  "dos"
     - run: |
         make
+    - uses: joncloud/dos-build-action@v1
+      with:
+        run: |
+          C:
+          CD TASM
+          MAKE CLEAN
+          MAKE
+        programs: |
+          $/tasm:C:\TASM
+        conf: |
+          [dosbox]
+          memsize=256
+
+          [cpu]
+          cycles=max
+          turbo=true
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
@@ -19,5 +35,9 @@ jobs:
         title: "Development Build"
         files: |
           3c509.com
-
+          *.map
+          *.lst
+          tasm/*.COM
+          tasm/*.MAP
+          tasm/*.LST
             

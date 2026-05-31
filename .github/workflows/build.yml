@@ -11,5 +11,5 @@ jobs:
         target:  "dos"
     - run: |
         wmake -h -u -f Makefile.wat
-        wmake -h -u -f Makefile.wat clean
+        make -f Makefile.wat clean
         make -f Makefile.wat

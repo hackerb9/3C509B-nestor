@@ -18,6 +18,10 @@ jobs:
         cd tasm
         dosbox -c "MOUNT C: ." -c "C:" -c "MAKE" -c exit
         rename 's/\./-tasm./' *LST *COM *MAP
+    - run: |
+        wdis -l=3c509-tasm.lis  tasm/3C509.OBJ
+        wdis -l=head-tasm.lis  tasm/TAIL.OBJ
+        wdis -l=tail-tasm.lis  tasm/HEAD.OBJ
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
@@ -33,6 +37,3 @@ jobs:
           tasm/*.LST
     - run: |
         cmp 3c509.com tasm/3C509-tasm.COM
-        wdis -l=3c509-tasm.lis  tasm/3C509.OBJ
-        wdis -l=head-tasm.lis  tasm/TAIL.OBJ
-        wdis -l=tail-tasm.lis  tasm/HEAD.OBJ

@@ -1,5 +1,0 @@
-# This file is used by Watcom's WMAKE.
-# -h: Hide hideous header
-# -ms: Emulate Microsoft's nmake
-__MAKEOPTS__ = -h -ms
-

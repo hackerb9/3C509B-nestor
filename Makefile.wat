@@ -12,13 +12,9 @@ OBJECTS=head.o 3c509.o tail.o
 	wlink   option quiet  format dos com  \
 		option map  name $@  file {$(OBJECTS)}
 
-clean: .symbolic
+# Note: WMAKE doesn't allow ".symbolic" to be PHONY or a target.
+clean:
 	rm -f *.o
 	rm -f *.err
 	rm -f *.map
 	rm -f 3c509.com
-	rm -f .symbolic
-
-.symbolic:
-	touch .symbolic
-	

@@ -7,5 +7,6 @@
 clean:
 	del *.obj
 	del *.map
+	del *.lst
 	del 3c509.com
 

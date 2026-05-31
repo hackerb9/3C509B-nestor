@@ -32,6 +32,7 @@ jobs:
           3c509.com
           *.map
           *.lst
+          *.lis
           tasm/*.COM
           tasm/*.MAP
           tasm/*.LST

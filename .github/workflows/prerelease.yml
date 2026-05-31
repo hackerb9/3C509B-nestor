@@ -1,10 +1,7 @@
----
 name: "pre-release"
-
 on: [push]
-
 jobs:
-  any-other-name:
+  pre-release:
     name: "Pre Release"
     runs-on: "ubuntu-latest"
     - uses: actions/checkout@v6

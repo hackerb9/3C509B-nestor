@@ -1,4 +1,4 @@
-version	equ	7
+version	equ	6
 ;History:1,1
 ;Fri Mar 08 14:48:42 2002 Merge in Peter Tattum's 3c509b changes.
 ;Mon Jan 22 15:09:36 1996 we were rejecting frames with dribble set and accepting other errored frames.
@@ -967,9 +967,7 @@ etopen_eisa:
 	mov	cx,0fh
 eisa_search:
 	mov	dx,cx			;move it into the first nibble.
-	.286
 	shl	dx,12
-	.8086
 	or	dx,0c80h
 	in	ax,dx			;look for the manufacturer's ID
 	cmp	ax,EISA_MANUFACTURER_ID

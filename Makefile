@@ -14,7 +14,7 @@ OBJECTS=head.o 3c509.o tail.o
 3c509.com: $(OBJECTS)
 	wlink   option quiet  format dos com  \
 		option map  \
-		option noeliminate, nodosseg \
+		option nodosseg \
 		name $@  file {$(OBJECTS)}
 
 # Note: WMAKE doesn't allow ".symbolic" to be PHONY or a target.

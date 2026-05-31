@@ -151,9 +151,6 @@ offs		dw	?
 segm		dw	?
 segmoffs	ends
 
-CY	equ	0001h
-EI	equ	0200h
-
 iocb		struc			; as_send_pkt structure
 buffer		dd	?		; Pointer to the buffer
 len		dw	?		; Its length

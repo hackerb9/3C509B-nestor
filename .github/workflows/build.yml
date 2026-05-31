@@ -18,6 +18,8 @@ jobs:
           CD TASM
           MAKE CLEAN
           MAKE
+        programs: |
+          tasm/TASM.EXE:C:\TASM.EXE
         conf: |
           [dosbox]
           memsize=256

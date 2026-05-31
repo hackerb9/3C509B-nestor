@@ -9,12 +9,15 @@ jobs:
       with:
         version: "2.0"
         target:  "dos"
-    - run: |
+    - name: Build with OpenWacom (wasm)
+      run: |
         make
-    - run: |
-        sudo apt install dosbox
+    - name: Build with TurboAssembler (tasm)
+      run: |
+        sudo apt install dosbox rename
         cd tasm
         dosbox -c "MOUNT C: ." -c "C:" -c "MAKE" -c exit
+        rename 's/\./-tasm./' *LST *COM *MAP
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"

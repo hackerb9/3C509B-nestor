@@ -1,3 +1,8 @@
+# This Makefile can be used by GNU make, MS nmake, or Watcom WMAKE.
+# Watcom WMAKE requires the -ms option to work.
+__MAKEOPTS__ = -h -ms
+
+
 all: 3c509.com
 
 OBJECTS=head.o 3c509.o tail.o

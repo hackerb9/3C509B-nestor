@@ -8,11 +8,11 @@ OBJECTS=head.o 3c509.o tail.o
 
 .SUFFIXES: .asm
 .asm.o:
-	wasm -d0 -e -q $*
+	wasm -mt -d0 -e -q $*
 	wdis -l $*.o -e -p -s=$*.asm
 
 3c509.com: $(OBJECTS)
-	wlink -l=COM   option quiet  format dos com  \
+	wlink   option quiet  format dos com  \
 		option map  \
 		name $@  file {$(OBJECTS)}
 

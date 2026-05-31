@@ -1,6 +1,5 @@
 # This Makefile can be used by GNU make, MS nmake, or Watcom WMAKE.
-# Watcom WMAKE requires the -ms option to work.
-__MAKEOPTS__ = -h -ms
+# Watcom WMAKE requires the -ms option to work. (See makeinit file).
 
 
 all: 3c509.com

@@ -19,7 +19,5 @@ jobs:
         title: "Development Build"
         files: |
           3c509.com
-          Makefile.wat
-          *.asm
 
             

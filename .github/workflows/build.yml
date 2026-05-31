@@ -10,7 +10,16 @@ jobs:
         version: "2.0"
         target:  "dos"
     - run: |
-        wmake -h -u -f Makefile.wat
-        make -f Makefile.wat clean
         make -f Makefile.wat
+    - uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: true
+        title: "Development Build"
+        files: |
+          3c509.com
+          Makefile.wat
+          *.asm
+
             

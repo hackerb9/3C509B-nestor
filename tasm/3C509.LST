@@ -1,0 +1,2311 @@
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 1
+3c509.ASM
+
+
+
+      1	      =0006		     version equ     6
+*Warning* 3c509.ASM(1) Reserved	word used as symbol: VERSION
+      2				     ;History:1,1
+      3				     ;Fri Mar 08 14:48:42 2002 Merge in	Peter Tattum's 3c509b changes.
+      4				     ;Mon Jan 22 15:09:36 1996 we were rejecting frames	with dribble set and accepting other errored+
+      5				     frames.
+      6
+      7					     .8086
+      8
+      9				     ;	Copyright, 1988-1992, Russell Nelson, Crynwr Software
+     10
+     11				     ;	 This program is free software;	you can	redistribute it	and/or modify
+     12				     ;	 it under the terms of the GNU General Public License as published by
+     13				     ;	 the Free Software Foundation, version 1.
+     14				     ;
+     15				     ;	 This program is distributed in	the hope that it will be useful,
+     16				     ;	 but WITHOUT ANY WARRANTY; without even	the implied warranty of
+     17				     ;	 MERCHANTABILITY or FITNESS FOR	A PARTICULAR PURPOSE.  See the
+     18				     ;	 GNU General Public License for	more details.
+     19				     ;
+     20				     ;	 You should have received a copy of the	GNU General Public License
+     21				     ;	 along with this program; if not, write	to the Free Software
+     22				     ;	 Foundation, Inc., 59 Temple Place - Suite 330,	Boston,	MA 02111-1307, USA
+     23
+     24					     include defs.asm
+1    25	      =000B		     majver	     equ     11		     ;version number of	the infrastructure.
+1    26
+1    27	      =0010		     MAX_ADDR_LEN    equ     16		     ;maximum number of	bytes in our address.
+1    28
+1    29	      =000A		     MAX_HANDLE	     equ     10		     ;maximum number of	handles.
+1    30
+1    31	      =0008		     MAX_P_LEN	     equ     8		     ;maximum type length
+1    32
+1    33	      =0008		     MAX_MULTICAST   equ     8		     ;maximum number of	multicast addresses.
+1    34
+1    35				     ;	Copyright, 1988-1992, Russell Nelson, Crynwr Software
+1    36
+1    37				     ;	 This program is free software;	you can	redistribute it	and/or modify
+1    38				     ;	 it under the terms of the GNU General Public License as published by
+1    39				     ;	 the Free Software Foundation, version 1.
+1    40				     ;
+1    41				     ;	 This program is distributed in	the hope that it will be useful,
+1    42				     ;	 but WITHOUT ANY WARRANTY; without even	the implied warranty of
+1    43				     ;	 MERCHANTABILITY or FITNESS FOR	A PARTICULAR PURPOSE.  See the
+1    44				     ;	 GNU General Public License for	more details.
+1    45				     ;
+1    46				     ;	 You should have received a copy of the	GNU General Public License
+1    47				     ;	 along with this program; if not, write	to the Free Software
+1    48				     ;	 Foundation, Inc., 59 Temple Place - Suite 330,	Boston,	MA 02111-1307, USA
+1    49
+1    50	      =0009		     HT	     equ     09h
+1    51	      =000D		     CR	     equ     0dh
+1    52	      =000A		     LF	     equ     0ah
+1    53
+1    54				     ;
+1    55				     ;	Packet Driver Error numbers
+1    56	      =0000		     NO_ERROR	     equ     0		     ;no error at all.
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 2
+3c509.ASM
+
+
+
+1    57	      =0001		     ERR_BAD_HANDLE  equ     1		     ;invalid handle number
+1    58	      =0002		     NO_CLASS	     equ     2		     ;no interfaces of specified class found
+1    59	      =0003		     NO_TYPE	     equ     3		     ;no interfaces of specified type found
+1    60	      =0004		     NO_NUMBER	     equ     4		     ;no interfaces of specified number	found
+1    61	      =0005		     ERR_BAD_TYPE    equ     5		     ;bad packet type specified
+1    62	      =0006		     NO_MULTICAST    equ     6		     ;this interface does not support
+1    63									     ;multicast
+1    64	      =0007		     CANT_TERMINATE  equ     7		     ;this packet driver cannot	terminate
+1    65	      =0008		     BAD_MODE	     equ     8		     ;an invalid receiver mode was specified
+1    66	      =0009		     NO_SPACE	     equ     9		     ;operation	failed because of
+1    67									     ;insufficient space
+1    68	      =000A		     TYPE_INUSE	     equ     10		     ;the type had previously been accessed,
+1    69									     ;and not released.
+1    70	      =000B		     BAD_COMMAND     equ     11		     ;the command was out of range, or not
+1    71									     ;implemented
+1    72	      =000C		     CANT_SEND	     equ     12		     ;the packet couldn't be sent (usually
+1    73									     ;hardware error)
+1    74	      =000D		     CANT_SET	     equ     13		     ;hardware address couldn't	be changed
+1    75									     ;(more than 1 handle open)
+1    76	      =000E		     BAD_ADDRESS     equ     14		     ;hardware address has bad length or
+1    77									     ;format
+1    78	      =000F		     CANT_RESET	     equ     15		     ;Couldn't reset interface (more than
+1    79									     ;1	handle open).
+1    80	      =0010		     BAD_IOCB	     equ     16		     ;an invalid iocb was specified
+1    81
+1    82				     ;a	few useful Ethernet definitions.
+1    83	      =003C		     RUNT	     equ     60		     ;smallest legal size packet, no fcs
+1    84	      =05EA		     GIANT	     equ     1514	     ;largest legal size packet, no fcs
+1    85	      =0006		     EADDR_LEN	     equ     6		     ;Ethernet address length.
+1    86	      =0001		     ARCADDR_LEN     equ     1
+1    87
+1    88	      =0001		     BLUEBOOK	     equ     1
+1    89	      =000B		     IEEE8023	     equ     11
+1    90
+1    91				     ;The following two	macros are used	to manipulate port addresses.
+1    92				     ;Use loadport to initialize dx.  Use setport to set a specific port on
+1    93				     ;the board.  setport remembers what the current port number is, but beware!
+1    94				     ;setport assumes that code	is being executed in the same order as the
+1    95				     ;code is presented	in the source file.  Whenever this assumption is violated,
+1    96				     ;you need to enter	another	loadport.  Some, but not all examples are:
+1    97				     ;in a loop	with multiple setports,	or a backward jump over	a setport, or
+1    98				     ;a	forward	jump over a setport.  If you have any doubt, consult the
+1    99				     ;individual driver	sources	for examples of	usage.	If you suspect that
+1   100				     ;you have too few loadports, define the symbol "no_confidence" to a
+1   101				     ;one.  This will force a loadport before every setport.  If you wish to turn
+1   102				     ;it off for some of your code, redefine it	to a zero.
+1   103
+1   104				     loadport	     macro
+1   105					     mov     dx,io_addr
+1   106				     port_no =	     0
+1   107					     endm
+1   108
+1   109				     ;change the port number from the current value to the new value.
+1   110				     setport macro   new_port_no
+1   111					     ifdef   no_confidence	     ;define if	you suspect that you don't
+1   112					       if    no_confidence
+1   113						     loadport		     ;	have enough loadports, i.e. dx is
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 3
+3c509.ASM
+
+
+
+1   114					       endif
+1   115					     endif			     ;	set to the wrong port.
+1   116					     if	     new_port_no - port_no EQ 1
+1   117						     inc     dx
+1   118					     else
+1   119						     if	     new_port_no - port_no EQ -1
+1   120							     dec     dx
+1   121						     else
+1   122							     if	     new_port_no - port_no NE 0
+1   123								     add     dx,new_port_no - port_no
+1   124							     endif
+1   125						     endif
+1   126					     endif
+1   127				     port_no =	     new_port_no
+1   128					     endm
+1   129
+1   130				     ;this macro does a	"rep movsb" with a static count.
+1   131				     repmov  macro   count
+1   132					     rept    (count) / 2
+1   133					     movsw
+1   134					     endm
+1   135					     rept    (count) MOD 2
+1   136					     movsb
+1   137					     endm
+1   138					     endm
+1   139
+1   140				     ;moves a segment register into another segment register.
+1   141				     movseg  macro   to, from
+1   142					     push    from
+1   143					     pop     to
+1   144					     endm
+1   145
+1   146				     ;add a word to a dword.
+1   147				     add2    macro   n,a		     ; inc a 32	bit integer
+1   148					     add     n.offs,a		     ;increment	the low	word
+1   149					     adc     n.segm,0		     ;increment	the high word
+1   150					     endm
+1   151
+1   152				     ;this macro writes	the given character to the given row and column	on
+1   153				     ;	an CGA.
+1   154				     to_scrn macro   r,	c, ch
+1   155					     local   again
+1   156					     push    bx
+1   157					     push    es
+1   158					     mov     bx,0b800h
+1   159					     mov     es,bx
+1   160					     mov     bx,es:[r*160+c*2]
+1   161				     again:
+1   162					     inc     bh
+1   163					     and     bh,07h
+1   164					     je	     again		     ;;	don't use black.
+1   165					     mov     bl,ch
+1   166					     mov     es:[r*160+c*2],bx
+1   167					     pop     es
+1   168					     pop     bx
+1   169					     endm
+1   170
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 4
+3c509.ASM
+
+
+
+1   171
+1   172
+1   173	*000			     segmoffs	     struc		     ; defines offs as 0, segm as 2
+1   174	*000  01*(????)		     offs	     dw	     ?
+1   175	*002  01*(????)		     segm	     dw	     ?
+1   176	*004			     segmoffs	     ends
+1   177
+1   178	      =0001		     CY	     equ     0001h
+1   179	      =0200		     EI	     equ     0200h
+1   180
+1   181	*000			     iocb	     struc		     ; as_send_pkt structure
+1   182	*000  01*(????????)	     buffer	     dd	     ?		     ; Pointer to the buffer
+1   183	*004  01*(????)		     len	     dw	     ?		     ; Its length
+1   184	*006  01*(??)		     flags	     db	     ?		     ; Some flags
+1   185	*007  01*(??)		     ret_code	     db	     ?		     ; Completion code
+1   186	*008  01*(????????)	     upcall	     dd	     ?		     ; I/O completion upcall
+1   187	*00C  01*(????????)	     next	     dd	     ?		     ; Private next pointer (queue)
+1   188	*010  01*(04*(??))	     resv	     db	     4 dup (?)	     ; Unused private data
+1   189	*014			     iocb	     ends
+1   190
+1   191	      =0001		     DONE    equ     1		     ; I/O complete flag
+1   192	      =0002		     CALLME  equ     2		     ; Please upcall me	flag
+1   193
+1   194
+1   195				     send_queueempty macro
+1   196				     ; Check if	send queue is empty.
+1   197				     ; Enter with interrupts disabled.
+1   198				     ; Exit with zr (zero) if empty, nz	(not zero) if not.
+1   199				     ; Destroys	ax.
+1   200					     mov ax, word ptr send_head	     ; Queue empty?
+1   201					     or	ax,  word ptr send_head+2
+1   202					     endm
+1   203
+1   204				     send_peekqueue  macro
+1   205				     ; Peek into the queue and get the next entry.
+1   206				     ; Enter with interrupts disabled.
+1   207				     ; Exit with es:di -> iocb.
+1   208					     les di, send_head	     ; Get head	segment:offset
+1   209					     endm
+1   210
+1   211				     print_it	     macro
+1   212					     mov	     ah, 9
+1   213					     int	     21h
+1   214					     endm
+1   215
+1   216				     print   macro   message_param
+1   217					     mov	     dx, offset	message_param
+1   218					     print_it
+1   219					     endm
+1   220
+1   221				     ; Bits in sys_features
+1   222	      =0002		     SYS_MCA equ     02		     ; a micro channel computer
+1   223	      =0040		     TWO_8259	     equ     40h	     ; 2nd 8259	exists
+1   224
+1   225				     ; Bits in flagbyte
+1   226	      =0001		     CALLED_ETOPEN   equ     1		     ; have called etopen
+1   227	      =0002		     D_OPTION	     equ     2		     ; delayed initialization
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 5
+3c509.ASM
+
+
+
+1   228	      =0004		     N_OPTION	     equ     4		     ; Novell protocol conversion
+1   229	      =0008		     W_OPTION	     equ     8		     ; Windows upcall checking.
+1   230	      =0010		     U_OPTION	     equ     10h	     ; Terminate the driver.
+1   231	      =0020		     M_OPTION	     equ     20h	     ; Micronetics M
+1   232
+1   233
+    234
+    235	0000			     code    segment word public
+    236					     assume  cs:code, ds:code
+    237
+    238				     ;----------------------------------------------------------------------------;
+    239				     ;										  ;
+    240				     ;	     This source file is the property of 3Com Corporation and may not be  ;
+    241				     ;	     copied or distributed in any isomorphic form without an appropriate  ;
+    242				     ;	     prior licensing arrangement with 3Com Corporation.			  ;
+    243				     ;										  ;
+    244				     ;	     Copyright (c) 1988	3Com Corporation				  ;
+    245				     ;										  ;
+    246				     ;------ Equates -------------------------------------------------------------;
+    247				     ;
+    248				     ; Command code masks
+    249				     ;
+    250	      =F800		     CMD_CMDMASK	 equ 0F800h		     ; command bits
+    251	      =07FF		     CMD_ARGMASK	 equ 007FFh		     ; argument	bits
+    252				     ;
+    253				     ; Command codes, word form
+    254				     ;
+    255	      =0000		     CMD_GLOBALRESET	 equ 00000b shl	11	     ; global reset
+    256	      =0800		     CMD_SELECTWINDOW	 equ 00001B shl	11	     ; select register window
+    257	      =1000		     CMD_STARTINTXCVR	 equ 00010b shl	11	     ; start internal transciver
+    258	      =1800		     CMD_RXDISABLE	 equ 00011b shl	11	     ; rx disable
+    259	      =2000		     CMD_RXENABLE	 equ 00100b shl	11	     ; rx enable
+    260	      =2800		     CMD_RXRESET	 equ 00101b shl	11	     ; rx reset
+    261	      =4000		     CMD_RXDISCARD	 equ 01000b shl	11	     ; rx discard top packet
+    262	      =4800		     CMD_TXENABLE	 equ 01001b shl	11	     ; tx enable
+    263	      =5000		     CMD_TXDISABLE	 equ 01010b shl	11	     ; tx disable
+    264	      =5800		     CMD_TXRESET	 equ 01011b shl	11	     ; tx reset
+    265	      =6000		     CMD_REQUESTINT	 equ 01100b shl	11	     ; request interrupt
+    266	      =6800		     CMD_ACKNOWLEDGE	 equ 01101b shl	11	     ; acknowledge interrupt
+    267	      =7000		     CMD_SETINTMASK	 equ 01110b shl	11	     ; set interrupt mask
+    268	      =7800		     CMD_SETRZMASK	 equ 01111b shl	11	     ; set read	zero mask
+    269	      =8000		     CMD_SETRXFILTER	 equ 10000b shl	11	     ; set rx filter
+    270	      =8800		     CMD_SETRXEARLY	 equ 10001b shl	11	     ; set rx early threshold
+    271	      =9000		     CMD_SETTXAVAILABLE	 equ 10010b shl	11	     ; set tx available	threshold
+    272	      =9800		     CMD_SETTXSTART	 equ 10011b shl	11	     ; set tx start threshold
+    273	      =A800		     CMD_STATSENABLE	 equ 10101b shl	11	     ; statistics enable
+    274	      =B000		     CMD_STATSDISABLE	 equ 10110b shl	11	     ; statistics disable
+    275	      =B800		     CMD_STOPINTXCVR	 equ 10111b shl	11	     ; start internal transciver
+    276				     ;
+    277				     ; Command codes, hibyte form (commands without operands only)
+    278				     ;
+    279	      =0010		     CMDH_STARTINTXCVR	 equ CMD_STARTINTXCVR shr 8
+    280	      =0018		     CMDH_RXDISABLE	 equ CMD_RXDISABLE shr 8
+    281	      =0020		     CMDH_RXENABLE	 equ CMD_RXENABLE shr 8
+    282	      =0040		     CMDH_RXDISCARD	 equ CMD_RXDISCARD shr 8
+    283	      =0048		     CMDH_TXENABLE	 equ CMD_TXENABLE shr 8
+    284	      =0050		     CMDH_TXDISABLE	 equ CMD_TXDISABLE shr 8
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 6
+3c509.ASM
+
+
+
+    285	      =0060		     CMDH_REQUESTINT	 equ CMD_REQUESTINT shr	8
+    286	      =00A8		     CMDH_STATSENABLE	 equ CMD_STATSENABLE shr 8
+    287	      =00B0		     CMDH_STATSDISABLE	 equ CMD_STATSDISABLE shr 8
+    288	      =00B8		     CMDH_STOPINTXCVR	 equ CMD_STOPINTXCVR shr 8
+    289				     ;
+    290				     ; Status register bits (INT for interrupt sources,	ST for the rest)
+    291				     ;
+    292	      =0001		     INT_LATCH		 equ 00001h		     ; interrupt latch
+    293	      =0002		     INT_ADAPTERFAIL	 equ 00002h		     ; adapter failure
+    294	      =0004		     INT_TXCOMPLETE	 equ 00004h		     ; tx complete
+    295	      =0008		     INT_TXAVAILABLE	 equ 00008h		     ; tx available
+    296	      =0010		     INT_RXCOMPLETE	 equ 00010h		     ; rx complete
+    297	      =0020		     INT_RXEARLY	 equ 00020h		     ; rx early
+    298	      =0040		     INT_REQUESTED	 equ 00040h		     ; interrupt requested
+    299	      =0080		     INT_UPDATESTATS	 equ 00080h		     ; update statistics
+    300	      =0800		     ST_FAILED		 equ 00800h		     ; command failed
+    301	      =1000		     ST_BUSY		 equ 01000h		     ; command busy
+    302	      =E000		     ST_WINDOW		 equ 0E000h		     ; window bits (13-15)
+    303
+    304	      =0008		     STH_FAILED		 equ ST_FAILED shr 8
+    305	      =0010		     STH_BUSY		 equ ST_BUSY shr 8
+    306	      =00E0		     STH_WINDOW		 equ ST_WINDOW shr 8
+    307
+    308				     ;
+    309				     ; RxStatus	register bits
+    310				     ;
+    311	      =8000		     RXS_INCOMPLETE	 equ 8000h		     ; not completely received
+    312	      =4000		     RXS_ERROR		 equ 4000h		     ; error in	packet
+    313	      =07FF		     RXS_LENGTH		 equ 07FFh		     ; bytes in	RxFIFO
+    314	      =3800		     RXS_ERRTYPE	 equ 3800h		     ; Rx error	type, bit 13-11
+    315	      =0000		     RXS_OVERRUN	 equ 0000h		     ; overrun error
+    316	      =0800		     RXS_OVERSIZE	 equ 0800h		     ; oversize	packet error
+    317	      =1000		     RXS_DRIBBLE	 equ 1000h		     ; dribble bit (not	an error)
+    318	      =1800		     RXS_RUNT		 equ 1800h		     ; runt packet error
+    319	      =2800		     RXS_CRC		 equ 2800h		     ; CRC error
+    320	      =2000		     RXS_FRAMING	 equ 2000h		     ; framing error
+    321
+    322	      =0080		     RXSH_INCOMPLETE	 equ RXS_INCOMPLETE shr	8
+    323	      =0040		     RXSH_ERROR		 equ RXS_ERROR shr 8
+    324	      =0038		     RXSH_ERRTYPE	 equ RXS_ERRTYPE shr 8
+    325	      =0000		     RXSH_OVERRUN	 equ RXS_OVERRUN shr 8
+    326	      =0010		     RXSH_DRIBBLE	 equ RXS_DRIBBLE shr 8
+    327	      =0028		     RXSH_CRC		 equ RXS_CRC shr 8
+    328	      =0018		     RXSH_RUNT		 equ RXS_RUNT shr 8
+    329	      =0008		     RXSH_OVERSIZE	 equ RXS_OVERSIZE shr 8
+    330	      =0020		     RXSH_FRAMING	 equ RXS_FRAMING shr 8
+    331				     ;
+    332				     ; TxStatus	register bits
+    333				     ;
+    334	      =0080		     TXS_COMPLETE	 equ 80h		     ; tx completed
+    335	      =0040		     TXS_INTREQUESTED	 equ 40h		     ; interrupt on successfull	tx
+    336	      =0038		     TXS_ERRTYPE	 equ 38h		     ; error bits
+    337	      =0020		     TXS_JABBERERROR	 equ 20h		     ; jabber error
+    338	      =0010		     TXS_UNDERRUN	 equ 10h		     ; tx underrun error
+    339	      =0008		     TXS_MAXCOLLISIONS	 equ 08h		     ; max collisions error
+    340	      =0004		     TXS_STATUSOVERFLOW	 equ 04h		     ; TX status stack is full
+    341				     ;
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 7
+3c509.ASM
+
+
+
+    342				     ; Window Numbers
+    343				     ;
+    344	      =0000		     WNO_SETUP		 equ 0			     ; setup/configuration
+    345	      =0001		     WNO_OPERATING	 equ 1			     ; operating set
+    346	      =0002		     WNO_STATIONADDRESS	 equ 2			     ; station address setup/read
+    347	      =0003		     WNO_FIFO		 equ 3			     ; FIFO management
+    348	      =0004		     WNO_DIAGNOSTICS	 equ 4			     ; diagnostics
+    349	      =0005		     WNO_READABLE	 equ 5			     ; registers set by	commands
+    350	      =0006		     WNO_STATISTICS	 equ 6			     ; statistics
+    351				     ;
+    352				     ; Port offsets, Window 1 (WNO_OPERATING)
+    353				     ;
+    354	      =000E		     PORT_CmdStatus	 equ 0Eh		     ; command/status
+    355	      =000C		     PORT_TxFree	 equ 0Ch		     ; free transmit bytes
+    356	      =000B		     PORT_TxStatus	 equ 0Bh		     ; transmit	status (byte)
+    357	      =000A		     PORT_Timer		 equ 0Ah		     ; latency timer (byte)
+    358	      =0008		     PORT_RxStatus	 equ 08h		     ; receive status
+    359	      =0000		     PORT_RxFIFO	 equ 00h		     ; RxFIFO read
+    360	      =0000		     PORT_TxFIFO	 equ 00h		     ; TxFIFO write
+    361				     ;
+    362				     ; Port offsets, Window 0 (WNO_SETUP)
+    363				     ;
+    364	      =000C		     PORT_EEData	 equ 0Ch		     ; EEProm data register
+    365	      =000A		     PORT_EECmd		 equ 0Ah		     ; EEProm command register
+    366	      =0008		     PORT_CfgResource	 equ 08h		     ; resource	configuration
+    367	      =0006		     PORT_CfgAddress	 equ 06h		     ; address configuration
+    368	      =0004		     PORT_CfgControl	 equ 04h		     ; configuration control
+    369	      =0002		     PORT_ProductID	 equ 02h		     ; product id (EISA)
+    370	      =0000		     PORT_Manufacturer	 equ 00h		     ; Manufacturer code (EISA)
+    371				     ;
+    372				     ; Port offsets, Window 2 (WNO_STATIONADDRESS)
+    373				     ;
+    374	      =0000		     PORT_SA0_1		 equ 00h		     ; station address bytes 0,1
+    375	      =0002		     PORT_SA2_3		 equ 02h		     ; station address bytes 2,3
+    376	      =0004		     PORT_SA4_5		 equ 04h		     ; station address bytes 4,5
+    377				     ;
+    378				     ; Port offsets, Window 3 (WNO_FIFO)
+    379				     ;
+    380	      =000C		     PORT_ALT_TxFree	 equ 0Ch		     ; free transmit bytes (dup)
+    381	      =000A		     PORT_RxFree	 equ 0Ah		     ; free receive bytes
+    382				     ;
+    383				     ; Port offsets, Window 4 (WNO_DIAGNOSTICS)
+    384				     ;
+    385	      =000A		     PORT_MediaStatus	 equ 0Ah		     ; media type/status
+    386	      =0008		     PORT_SlingshotStatus equ 08h		     ; Slingshot status
+    387	      =0006		     PORT_NetDiagnostic	 equ 06h		     ; net diagnostic
+    388	      =0004		     PORT_FIFODiagnostic equ 04h		     ; FIFO diagnostic
+    389	      =0002		     PORT_HostDiagnostic equ 02h		     ; host diagnostic
+    390	      =0000		     PORT_TxDiagnostic	 equ 00h		     ; tx diagnostic
+    391				     ;
+    392				     ; Port offsets, Window 5 (WNO_READABLE)
+    393				     ;
+    394	      =000C		     PORT_RZMask	 equ 0Ch		     ; read zero mask
+    395	      =000A		     PORT_IntMask	 equ 0Ah		     ; interrupt mask
+    396	      =0008		     PORT_RxFilter	 equ 08h		     ; receive filter
+    397	      =0006		     PORT_RxEarly	 equ 06h		     ; rx early	threshold
+    398	      =0002		     PORT_TxAvailable	 equ 02h		     ; tx available threshold
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 8
+3c509.ASM
+
+
+
+    399	      =0000		     PORT_TxStart	 equ 00h		     ; tx start	threshold
+    400				     ;
+    401				     ; Port offsets, Window 6 (WNO_STATISTICS)
+    402				     ;
+    403	      =000C		     PORT_TXBYTES	 equ 0Ch		     ; tx bytes	ok
+    404	      =000A		     PORT_RXBYTES	 equ 0Ah		     ; rx bytes	ok
+    405	      =0008		     PORT_TXDEFER	 equ 08h		     ; tx frames deferred (byte)
+    406	      =0007		     PORT_RXFRAMES	 equ 07h		     ; rx frames ok (byte)
+    407	      =0006		     PORT_TXFRAMES	 equ 06h		     ; tx frames ok (byte)
+    408	      =0005		     PORT_RXDISCARDED	 equ 05h		     ; rx frames discarded (byte)
+    409	      =0004		     PORT_TXLATE	 equ 04h		     ; tx frames late coll. (byte)
+    410	      =0003		     PORT_TXSINGLE	 equ 03h		     ; tx frames one coll. (byte)
+    411	      =0002		     PORT_TXMULTIPLE	 equ 02h		     ; tx frames mult. coll. (byte)
+    412	      =0001		     PORT_TXNOCD	 equ 01h		     ; tx frames no CDheartbt (byte)
+    413	      =0000		     PORT_TXCARRIERLOST	 equ 00h		     ; tx frames carrier lost (byte)
+    414				     ;
+    415				     ; Various command arguments
+    416				     ;
+    417	      =0000		     INT_ALLDISABLED	     equ 00000000000b		 ; all interrupts disabled
+    418	      =00FE		     INT_ALLENABLED	     equ 00011111110b		 ; all interrupts enabled
+    419
+    420	      =0001		     FILTER_INDIVIDUAL	     equ 0001b			 ; individual address
+    421	      =0002		     FILTER_MULTICAST	     equ 0010b			 ; multicast/group addresses
+    422	      =0004		     FILTER_BROADCAST	     equ 0100b			 ; broadcast address
+    423	      =0008		     FILTER_PROMISCUOUS	     equ 1000b			 ; promiscuous mode
+    424
+    425	      =07F0		     RXEARLY_DISABLED	     equ 2032			 ; RxEarly to disable
+    426
+    427	      =07F8		     TXAVAIL_DISABLED	     equ 2040			 ; TxAvailable to disable
+    428	      =0004		     TXAVAIL_MIN	     equ 4
+    429
+    430	      =07F8		     TXSTART_DISABLED	     equ 2040			 ; TxStart to disable
+    431	      =0000		     TXSTART_MIN	     equ 0
+    432				     TXSTART_MAX	     equ TXSTART_DISABLED
+    433
+    434	      =0700		     RXLENGTH_MAX	     equ 1792			 ; maximum rxlength
+    435				     ;
+    436				     ; Transmit	Preamble
+    437				     ;
+    438	      =0004		     PREAMBLESIZE	     equ 4			 ; transmit preamble size
+    439	      =8000		     TXP_INTONSUCCESS	     equ 8000h			 ; interrupt on	successful tx
+    440				     ;
+    441				     ; Bits in various diagnostics registers
+    442				     ;
+    443	      =8000		     MEDIA_TP		     equ 8000h			 ; TP transciever
+    444	      =4000		     MEDIA_BNC		     equ 4000h			 ; Thinnet transciever
+    445	      =2000		     MEDIA_INTENDEC	     equ 2000h			 ; internal encoder/decoder
+    446	      =1000		     MEDIA_SQE		     equ 1000h			 ; SQE present
+    447	      =0800		     MEDIA_LBEAT	     equ 0800h			 ; link	beat ok	(TP)
+    448	      =0400		     MEDIA_POLARITY	     equ 0400h			 ; polarity (TP)
+    449	      =0200		     MEDIA_JABBER	     equ 0200h			 ; jabber (TP)
+    450	      =0100		     MEDIA_UNSQUELCH	     equ 0100h			 ; unsquelch (TP)
+    451	      =0080		     MEDIA_LBEATENABLE	     equ 0080h			 ; link	beat enable (TP)
+    452	      =0040		     MEDIA_JABBERENABLE	     equ 0040h			 ; jabber enable (TP)
+    453	      =0020		     MEDIA_CRS		     equ 0020h			 ; carrier sense
+    454	      =0010		     MEDIA_COLLISION	     equ 0010h			 ; collision
+    455	      =0008		     MEDIA_SQEENABLE	     equ 0008h			 ; enable SQE statistics
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 9
+3c509.ASM
+
+
+
+    456
+    457	      =8000		     NETD_EXTLOOPBACK	     equ 8000h			 ; TP external loopback
+    458	      =4000		     NETD_ENDECLOOPBACK	     equ 4000h			 ; ENDEC loopback
+    459	      =2000		     NETD_CORELOOPBACK	     equ 2000h			 ; ethernet core loopback
+    460	      =1000		     NETD_FIFOLOOPBACK	     equ 1000h			 ; FIFO	loopback
+    461	      =0800		     NETD_TXENABLED	     equ 0800h			 ; tx enabled
+    462	      =0400		     NETD_RXENABLED	     equ 0400h			 ; rx enabled
+    463	      =0200		     NETD_TXTRANSMITTING     equ 0200h			 ; tx transmitting
+    464	      =0100		     NETD_TXRESETREQD	     equ 0100h			 ; tx reset required
+    465
+    466	      =8000		     FIFOD_RXRECEIVING	     equ 8000h			 ; rx receiveing
+    467	      =2000		     FIFOD_RXUNDERRUN	     equ 2000h			 ; rx underrun
+    468	      =1000		     FIFOD_RXSTATUSOVER	     equ 1000h			 ; rx status overrun
+    469	      =0800		     FIFOD_RXOVERRUN	     equ 0800h			 ; rx overrun
+    470	      =0400		     FIFOD_TXOVERRUN	     equ 0400h			 ; tx overrun
+    471	      =00FF		     FIFOD_BISTRESULTS	     equ 00FFh			 ; BIST	results	(mask)
+    472
+    473	      =2000		     SLING_TXUNDERRUN	     equ 2000h			 ; Slingshot TxUnderrun	bit
+    474				     ;
+    475				     ; board identification codes, byte	swapped	in Rev 0
+    476				     ;
+    477	      =6D50		     EISA_MANUFACTURER_ID    equ 06D50h			 ; EISA	manufacturer code
+    478	      =9050		     ISA_PRODUCT_ID	     equ 09050h			 ; Product ID for ISA board
+    479	      =F0FF		     PRODUCT_ID_MASK	     equ 0F0FFh			 ; Mask	off revision nibble
+    480				     ;
+    481				     ; EEProm access
+    482				     ;
+    483	      =8000		     EE_BUSY			 equ 8000h		     ; EEProm busy bit in EECmd
+    484	      =0000		     EE_TCOM_NODE_ADDR_WORD0	 equ 00h
+    485	      =0001		     EE_TCOM_NODE_ADDR_WORD1	 equ 01h
+    486	      =0002		     EE_TCOM_NODE_ADDR_WORD2	 equ 02h
+    487	      =0003		     EE_VULCAN_PROD_ID		 equ 03h
+    488	      =0004		     EE_MANUFACTURING_DATA	 equ 04h
+    489	      =0005		     EE_SERIAL_NUMBER_WORD0	 equ 05h
+    490	      =0006		     EE_SERIAL_NUMBER_WORD1	 equ 06h
+    491	      =0007		     EE_MANUFACTURER_CODE	 equ 07h
+    492	      =0008		     EE_ADDR_CONFIGURATION	 equ 08h
+    493	      =0009		     EE_RESOURCE_CONFIGURATION	 equ 09h
+    494	      =000A		     EE_OEM_NODE_ADDR_WORD0	 equ 0Ah
+    495	      =000B		     EE_OEM_NODE_ADDR_WORD1	 equ 0Bh
+    496	      =000C		     EE_OEM_NODE_ADDR_WORD2	 equ 0Ch
+    497	      =000D		     EE_SOFTWARE_CONFIG_INFO	 equ 0Dh
+    498	      =000E		     EE_CWORD			 equ 0Eh
+    499				     ;
+    500				     ; contention logic
+    501				     ;
+    502	      =0080		     READ_EEPROM	     equ 080h
+    503	      =00C0		     ID_GLOBAL_RESET	     equ 0C0h
+    504	      =00D0		     SET_TAG_REGISTER	     equ 0D0h
+    505	      =00D8		     TEST_TAG_REGISTER	     equ 0D8h
+    506	      =00E0		     ACTIVATE_AND_SET_IO     equ 0E0h
+    507	      =00FF		     ACTIVATE_VULCAN	     equ 0FFh
+    508				     ;
+    509				     ; Resource	Configuration Register bits
+    510				     ;
+    511	      =F000		     RCONFIG_IRQ	     equ 0F000h
+    512				     ;
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 10
+3c509.ASM
+
+
+
+    513				     ; Address Configuration Register bits
+    514				     ;
+    515	      =C000		     ACONFIG_XCVR	     equ 0C000h
+    516	      =001F		     ACONFIG_IOBASE	     equ 0001Fh
+    517
+    518	      =001F		     IOBASE_EISA	     equ 0001Fh
+    519
+    520	      =0000		     TP_XCVR		     equ 00000h
+    521	      =C000		     BNC_XCVR		     equ 0C000h
+    522	      =4000		     AUI_XCVR		     equ 04000h
+    523
+    524	      =0200		     MIN_IO_BASE_ADDR	     equ 200h
+    525	      =03F0		     MAX_IO_BASE_ADDR	     equ 3F0h
+    526	      =0010		     REGISTER_SET_SIZE	     equ 10h
+    527				     ;
+    528				     ; Software	Configuration Register bits
+    529				     ;
+    530	      =0030		     SW_OPTIMIZE	     equ 0030h
+    531	      =3F00		     SW_MAXCLI		     equ 3F00h
+    532	      =4000		     SW_LINKBEAT	     equ 4000h
+    533				     ;
+    534				     ; Possibilities for SW_OPTIMIZE
+    535				     ;
+    536	      =0010		     OPTIMIZE_DOS_CLIENT     equ 0010h
+    537	      =0020		     OPTIMIZE_WINDOWS_CLIENT equ 0020h
+    538	      =0030		     OPTIMIZE_SERVER	     equ 0030h
+    539				     ;
+    540				     ; Configuration Control Register bits
+    541				     ;
+    542	      =0001		     ENABLE_ADAPTER	     equ 01h
+    543
+    544				     setwin  macro   win
+    545					     setport PORT_CmdStatus
+    546					     mov     ax,CMD_SELECTWINDOW+win
+    547					     out     dx,ax
+    548					     endm
+    549
+    550					     extrn   is_eisa: byte	     ;=0 if ISA, =1 if EISA
+    551					     extrn   is_186: byte	     ;=0 if 808[68], =1	if 80[1234]86.
+    552					     extrn   is_386: byte	     ;=0 if 80[12]8[68], =1 if 80[34]86.
+    553
+    554					     public  int_no, io_addr
+    555	0000  00 00 00 00	     int_no  db	     0,0,0,0		     ;must be four bytes long for get_number.
+    556	0004  0000 0000		     io_addr dw	     0,0		     ;must be four bytes long for get_number.
+    557
+    558					     public  driver_class, driver_type,	driver_name, driver_function, parameter_list
+    559	0008  01 0B 00		     driver_class    db	     BLUEBOOK,IEEE8023,0     ;null terminated list of classes.
+    560	000B  5E		     driver_type     db	     94
+    561	000C  33 63 35 30 39 00	     driver_name     db	     '3c509',0	     ;name of the driver.
+    562	0012  02		     driver_function db	     2
+    563	0013			     parameter_list  label   byte
+    564	0013  01			     db	     1	     ;major rev	of packet driver specification
+    565	0014  09			     db	     9	     ;minor rev	of packet driver specification
+    566	0015  0E			     db	     14	     ;length of	parameter list
+    567	0016  06			     db	     EADDR_LEN	     ;length of	MAC-layer address
+    568	0017  05EA			     dw	     GIANT   ;MTU, including MAC headers
+    569	0019  0030			     dw	     MAX_MULTICAST * EADDR_LEN	     ;buffer size of multicast addrs
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 11
+3c509.ASM
+
+
+
+    570	001B  0000			     dw	     0	     ;(# of back-to-back MTU rcvs) - 1
+    571	001D  0000			     dw	     0	     ;(# of successive xmits) -	1
+    572	001F  0000		     int_num dw	     0	     ;Interrupt	# to hook for post-EOI
+    573							     ;processing, 0 == none,
+    574
+    575					     public  rcv_modes
+    576	0021  0007		     rcv_modes	     dw	     7		     ;number of	receive	modes in our table.
+    577	0023  0000				     dw	     0		     ;There is no mode zero
+    578	0025  012Cr				     dw	     rcv_mode_1
+    579	0027  012Fr				     dw	     rcv_mode_2
+    580	0029  0132r				     dw	     rcv_mode_3
+    581	002B  0000				     dw	     0		     ;haven't set up perfect filtering yet.
+    582	002D  0135r				     dw	     rcv_mode_5
+    583	002F  0138r				     dw	     rcv_mode_6
+    584
+    585					     include timeout.asm
+1   586				     ;put into the public domain by Russell Nelson, nelson@crynwr.com
+1   587
+1   588				     ;we read the timer	chip's counter zero.  It runs freely, counting down
+1   589				     ;from 65535 to zero.  We sample the count coming in and subract the previous
+1   590				     ;count.  Then we double it	and add	it to our timeout_counter.  When it overflows,
+1   591				     ;then we've waited	a tick of 27.5 ms.
+1   592
+1   593	0031  ????		     timeout	     dw	     ?		     ;number of	ticks to wait.
+1   594	0033  ????		     timeout_counter dw	     ?		     ;old counter zero value.
+1   595	0035  ????		     timeout_value   dw	     ?
+1   596
+1   597					     public  set_timeout, do_timeout
+1   598	0037			     set_timeout:
+1   599				     ;enter with ax = number of	ticks (36.4 ticks per second).
+1   600	0037  40			     inc     ax			     ;the first	times out immediately.
+1   601	0038  2E: A3 0031r		     mov     cs:timeout,ax
+1   602	003C  2E: C7 06	0033r 0000	     mov     cs:timeout_counter,0
+1   603	0043  E8 0005			     call    latch_timer
+1   604	0046  2E: A3 0035r		     mov     cs:timeout_value,ax
+1   605	004A  C3			     ret
+1   606
+1   607	004B			     latch_timer:
+1   608	004B  B0 00			     mov     al,0		     ;latch counter zero.
+1   609	004D  E6 43			     out     43h,al
+1   610	004F  E4 40			     in	     al,40h		     ;read counter zero.
+1   611	0051  8A E0			     mov     ah,al
+1   612	0053  E4 40			     in	     al,40h
+1   613	0055  86 E0			     xchg    ah,al
+1   614	0057  C3			     ret
+1   615
+1   616
+1   617	0058			     do_timeout:
+1   618				     ;call at *least* every 27.5ms when	checking for timeout.  Returns nz
+1   619				     ;if we haven't timed out yet.
+1   620	0058  E8 FFF0			     call    latch_timer
+1   621	005B  2E: 87 06	0035r		     xchg    ax,cs:timeout_value
+1   622	0060  2E: 2B 06	0035r		     sub     ax,cs:timeout_value
+1   623	0065  D1 E0			     shl     ax,1		     ;keep timeout in increments of 27.5 ms.
+1   624	0067  2E: 01 06	0033r		     add     cs:timeout_counter,ax   ;has the counter overflowed yet?
+1   625	006C  73 06			     jnc     do_timeout_1	     ;no.
+1   626	006E  2E: FF 0E	0031r		     dec     cs:timeout		     ;Did we hit the timeout value yet?
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 12
+3c509.ASM
+
+
+
+1   627	0073  C3			     ret
+1   628	0074			     do_timeout_1:
+1   629	0074  0B E4			     or	     sp,sp		     ;ensure nz.
+1   630	0076  C3			     ret
+1   631
+    632
+    633					     public bad_command_intercept
+    634	0077			     bad_command_intercept:
+    635				     ;called with ah=command, unknown to the skeleton.
+    636				     ;exit with	nc if okay, cy,	dh=error if not.
+    637	0077  B6 0B			     mov     dh,BAD_COMMAND
+    638	0079  F9			     stc
+    639	007A  C3			     ret
+    640
+    641					     public  as_send_pkt
+    642				     ; The Asynchronous	Transmit Packet	routine.
+    643				     ; Enter with es:di	-> i/o control block, ds:si -> packet, cx = packet length,
+    644				     ;	 interrupts possibly enabled.
+    645				     ; Exit with nc if ok, or else cy if error,	dh set to error	number.
+    646				     ;	 es:di and interrupt enable flag preserved on exit.
+    647	007B			     as_send_pkt:
+    648	007B  C3			     ret
+    649
+    650					     public  drop_pkt
+    651				     ; Drop a packet from the queue.
+    652				     ; Enter with es:di	-> iocb.
+    653	007C			     drop_pkt:
+    654					     assume  ds:nothing
+    655	007C  C3			     ret
+    656
+    657					     public  xmit
+    658				     ; Process a transmit interrupt with the least possible latency to achieve
+    659				     ;	 back-to-back packet transmissions.
+    660				     ; May only	use ax and dx.
+    661	007D			     xmit:
+    662					     assume  ds:nothing
+    663	007D  C3			     ret
+    664
+    665	007E			     tx_reset:
+    666	007E  50			     push    ax
+    667	007F  52			     push    dx
+    668					     loadport
+1   669	0080  2E: 8B 16	0004r		     mov     dx,io_addr
+    670					     setport PORT_CmdStatus
+1   671	0085  83 C2 0E						     add     dx,PORT_CmdStatus - port_no
+    672	0088  9C			     pushf
+    673	0089  FA			     cli
+    674	008A  B8 5800			     mov     ax,CMD_TXRESET
+    675	008D  EF			     out     dx,ax
+    676	008E			     tx_reset_1:
+    677	008E  ED			     in	     ax,dx		     ;wait for the command to finish.
+    678	008F  A9 1000			     test    ax,ST_BUSY
+    679	0092  75 FA			     jne     tx_reset_1
+    680	0094  9D			     popf
+    681
+    682	0095  B8 4800			     mov     ax,CMD_TXENABLE	     ;yes, re-enable the transmitter.
+    683	0098  EF			     out     dx,ax
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 13
+3c509.ASM
+
+
+
+    684	0099  5A			     pop     dx
+    685	009A  58			     pop     ax
+    686	009B  C3			     ret
+    687
+    688					     public  send_pkt
+    689	009C			     send_pkt:
+    690				     ;enter with es:di->upcall routine,	(0:0) if no upcall is desired.
+    691				     ;	(only if the high-performance bit is set in driver_function)
+    692				     ;enter with ds:si -> packet, cx = packet length.
+    693				     ;if we're a high-performance driver, es:di	-> upcall.
+    694				     ;exit with	nc if ok, or else cy if	error, dh set to error number.
+    695					     assume  ds:nothing
+    696	009C  81 F9 05EA		     cmp     cx,GIANT		     ; Is this packet too large?
+    697	00A0  77 40			     ja	     send_pkt_toobig
+    698
+    699					     loadport
+1   700	00A2  2E: 8B 16	0004r		     mov     dx,io_addr
+    701					     setport PORT_TxStatus	     ;get the previous transmit	status.
+1   702	00A7  83 C2 0B						     add     dx,PORT_TxStatus -	port_no
+    703	00AA  EC			     in	     al,dx
+    704					     setport PORT_CmdStatus
+1   705	00AB  83 C2 03						     add     dx,PORT_CmdStatus - port_no
+    706	00AE  A8 30			     test    al,TXS_UNDERRUN or	TXS_JABBERERROR	     ;do we need to reset transmitter?
+    707	00B0  74 03			     je	     send_pkt_0
+    708	00B2  E8 FFC9			     call    tx_reset
+    709	00B5			     send_pkt_0:
+    710				     ;	      test    al,TXS_COMPLETE
+    711				     ;	      je send_pkt_0_1
+    712				     ;	      out     dx,al
+    713				     ;send_pkt_0_1:
+    714
+    715	00B5  A8 38			     test    al,TXS_ERRTYPE	     ;any errors?
+    716	00B7  74 07			     je	     send_pkt_3		     ;no.
+    717	00B9  E8 0000e			     call    count_out_err	     ;yes, count it.
+    718	00BC  B8 4800			     mov     ax,CMD_TXENABLE	     ;yes, re-enable the transmitter.
+    719	00BF  EF			     out     dx,ax
+    720	00C0			     send_pkt_3:
+    721
+    722	00C0  8B D9			     mov     bx,cx		     ;adjust for the size of the preamble,
+    723	00C2  83 C3 07			     add     bx,4 + 3		     ;and round	BX up to dword boundary.
+    724	00C5  83 E3 FC			     and     bx,not 3
+    725
+    726					     setport PORT_TxFree	     ;wait for enough bytes in transmit	buffer.
+1   727	00C8  83 C2 FE						     add     dx,PORT_TxFree - port_no
+    728	00CB  B8 0012			     mov     ax,18
+    729	00CE  E8 FF66			     call    set_timeout
+    730	00D1			     send_pkt_1:
+    731	00D1  ED			     in	     ax,dx
+    732	00D2  3B C3			     cmp     ax,bx
+    733	00D4  73 10			     jae     send_pkt_2
+    734	00D6  E8 FF7F			     call    do_timeout
+    735	00D9  75 F6			     jne     send_pkt_1
+    736	00DB  E8 FFA0			     call    tx_reset
+    737	00DE  B6 0C			     mov     dh,CANT_SEND	     ;timed out, can't send.
+    738	00E0  F9			     stc
+    739	00E1  C3			     ret
+    740	00E2			     send_pkt_toobig:
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 14
+3c509.ASM
+
+
+
+    741	00E2  B6 09			     mov     dh,NO_SPACE
+    742	00E4  F9			     stc
+    743	00E5  C3			     ret
+    744	00E6			     send_pkt_2:
+    745	00E6  83 EB 04			     sub     bx,4		     ;reduce by	the size of the	preamble.
+    746
+    747					     setport PORT_TxFIFO
+1   748	00E9  83 C2 F4						     add     dx,PORT_TxFIFO - port_no
+    749	00EC  8B C1			     mov     ax,cx		     ;output the count
+    750	00EE  EF			     out     dx,ax		     ;	 (no interrupt requested)
+    751	00EF  EF			     out     dx,ax		     ;output the second	reserved word.
+    752	00F0  8B CB			     mov     cx,bx		     ;output the rest of the packet.
+    753
+    754				     ;	      cmp     is_386,0		      ;can we output dwords?
+    755				     ;	      jne     send_pkt_7	      ;yes.
+    756	00F2  D1 E9			     shr     cx,1		     ;output 16	bits at	a time.
+    757				     ;	      rep     outsw
+    758
+    759				     ;start 8086 code
+    760	00F4			     send_8086:
+    761	00F4  AD			     lodsw
+    762	00F5  EF			     out     dx,ax
+    763	00F6  E2 FC			     loop send_8086
+    764				     ;end 8086 code
+    765
+    766	00F8  EB 00			     jmp     short send_pkt_6
+    767				     ;send_pkt_7:
+    768				     ;	      .386
+    769				     ;	      shr     cx,2		      ;already rounded up.
+    770				     ;	      rep     outsd		      ;output 32 bits at a time.
+    771				     ;	      .286
+    772	00FA			     send_pkt_6:
+    773
+    774	00FA  F8			     clc
+    775	00FB  C3			     ret
+    776
+    777
+    778					     public  set_address
+    779	00FC			     set_address:
+    780				     ;enter with ds:si -> Ethernet address, CX = length	of address.
+    781				     ;exit with	nc if okay, or cy, dh=error if any errors.
+    782					     assume  ds:nothing
+    783	00FC  83 F9 06			     cmp     cx,EADDR_LEN	     ;ensure that their	address	is okay.
+    784	00FF  74 05			     je	     set_address_4
+    785	0101  B6 0E			     mov     dh,BAD_ADDRESS
+    786	0103  F9			     stc
+    787	0104  EB 18			     jmp     short set_address_done
+    788	0106			     set_address_4:
+    789
+    790					     loadport
+1   791	0106  2E: 8B 16	0004r		     mov     dx,io_addr
+    792					     setwin  WNO_STATIONADDRESS
+1   793					     setport PORT_CmdStatus
+2   794	010B  83 C2 0E						     add     dx,PORT_CmdStatus - port_no
+1   795	010E  B8 0802			     mov     ax,CMD_SELECTWINDOW+WNO_STATIONADDRESS
+1   796	0111  EF			     out     dx,ax
+    797					     setport PORT_SA0_1
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 15
+3c509.ASM
+
+
+
+1   798	0112  83 C2 F2						     add     dx,PORT_SA0_1 - port_no
+    799	0115			     set_address_1:
+    800	0115  AC			     lodsb
+    801	0116  EE			     out     dx,al
+    802	0117  42			     inc     dx
+    803	0118  E2 FB			     loop    set_address_1
+    804	011A			     set_address_okay:
+    805	011A  B9 0006			     mov     cx,EADDR_LEN	     ;return their address length.
+    806	011D  F8			     clc
+    807	011E			     set_address_done:
+    808	011E  0E			     push    cs
+    809	011F  1F			     pop     ds
+    810					     assume  ds:code
+    811					     loadport
+1   812	0120  8B 16 0004r		     mov     dx,io_addr
+    813					     setwin  WNO_OPERATING
+1   814					     setport PORT_CmdStatus
+2   815	0124  83 C2 0E						     add     dx,PORT_CmdStatus - port_no
+1   816	0127  B8 0801			     mov     ax,CMD_SELECTWINDOW+WNO_OPERATING
+1   817	012A  EF			     out     dx,ax
+    818	012B  C3			     ret
+    819
+    820
+    821				     ;skip past	the following two bytes	while destroying BX.
+    822				     skip2   macro
+    823					     db	     0bbh		     ;opcode of	"mov bx,0000"
+    824					     endm
+    825
+    826	012C			     rcv_mode_1:
+    827	012C  B0 00			     mov     al,0		     ;receive nothing
+    828					     skip2
+1   829	012E  BB			     db	     0bbh		     ;opcode of	"mov bx,0000"
+    830	012F			     rcv_mode_2:
+    831	012F  B0 01			     mov     al,1		     ;receive individual address
+    832					     skip2
+1   833	0131  BB			     db	     0bbh		     ;opcode of	"mov bx,0000"
+    834	0132			     rcv_mode_3:
+    835	0132  B0 05			     mov     al,5		     ;receive individual address+broadcast
+    836					     skip2
+1   837	0134  BB			     db	     0bbh		     ;opcode of	"mov bx,0000"
+    838	0135			     rcv_mode_5:
+    839	0135  B0 03			     mov     al,3		     ;receive individual address+group addr(multicast)
+    840					     skip2
+1   841	0137  BB			     db	     0bbh		     ;opcode of	"mov bx,0000"
+    842	0138			     rcv_mode_6:
+    843	0138  B0 08			     mov     al,8		     ;receive all packets.
+    844	013A  B4 80			     mov     ah,CMD_SETRXFILTER	shr 8	     ;set receive filter
+    845					     loadport
+1   846	013C  8B 16 0004r		     mov     dx,io_addr
+    847					     setport PORT_CmdStatus
+1   848	0140  83 C2 0E						     add     dx,PORT_CmdStatus - port_no
+    849	0143  EF			     out     dx,ax
+    850	0144  C3			     ret
+    851
+    852
+    853					     public  set_multicast_list
+    854	0145			     set_multicast_list:
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 16
+3c509.ASM
+
+
+
+    855				     ;enter with ds:si ->list of multicast addresses, ax = number of addresses,
+    856				     ;	cx = number of bytes.
+    857				     ;return nc	if we set all of them, or cy,dh=error if we didn't.
+    858	0145  B6 06			     mov     dh,NO_MULTICAST
+    859	0147  F9			     stc
+    860	0148  C3			     ret
+    861
+    862
+    863					     public  terminate
+    864	0149			     terminate:
+    865					     loadport
+1   866	0149  8B 16 0004r		     mov     dx,io_addr
+    867					     setport PORT_CmdStatus
+1   868	014D  83 C2 0E						     add     dx,PORT_CmdStatus - port_no
+    869	0150  B8 0000			     mov     ax,CMD_GLOBALRESET
+    870	0153  EF			     out     dx,ax
+    871	0154  C3			     ret
+    872
+    873
+    874					     public  reset_interface
+    875	0155			     reset_interface:
+    876				     ;reset the	interface.
+    877					     assume  ds:code
+    878	0155  C3			     ret
+    879
+    880
+    881				     ;decide if	we know	this packet's type.
+    882				     ;enter with es:di -> packet type, dl = packet class.
+    883				     ;exit with	nc if we know it, cy if	not.
+    884					     extrn   recv_locate: near
+    885
+    886				     ;do the first upcall, get a pointer to the	packet.
+    887				     ;enter with cx = packet length.
+    888				     ;exit with	cx = packet length, es:di -> buffer for	the packet.
+    889					     extrn   recv_found: near
+    890
+    891				     ;called when we want to determine what to do with a received packet.
+    892				     ;enter with cx = packet length, es:di -> packet type, dl =	packet class.
+    893					     extrn   recv_find:	near
+    894
+    895				     ;called after we have copied the packet into the buffer.
+    896				     ;enter with ds:si ->the packet, cx	= length of the	packet.
+    897					     extrn   recv_copy:	near
+    898
+    899				     ;call this	routine	to schedule a subroutine that gets run after the
+    900				     ;recv_isr.	 This is done by stuffing routine's address in place
+    901				     ;of the recv_isr iret's address.  This routine should push	the flags when it
+    902				     ;is entered, and should jump to recv_exiting_exit to leave.
+    903				     ;enter with ax = address of routine to run.
+    904					     extrn   schedule_exiting: near
+    905
+    906				     ;recv_exiting jumps here to exit, after pushing the flags.
+    907					     extrn   recv_exiting_exit:	near
+    908
+    909					     extrn   count_in_err: near
+    910					     extrn   count_out_err: near
+    911
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 17
+3c509.ASM
+
+
+
+    912	0156  06*(??)		     ether_buff	     db	     EADDR_LEN	dup(?)
+    913	015C  06*(??)				     db	     EADDR_LEN	dup(?)
+    914	0162  08*(??)		     ether_type	     db	     8 dup(?)
+    915	      =0014		     ETHER_BUFF_LEN  equ     $ - ether_buff
+    916				     .erre   (ETHER_BUFF_LEN and 3) eq 0     ;must be an even #	of dwords.
+    917
+    918	016A  0000		     early_bytes     dw	     0		     ;the early	byte gets the worm.
+    919
+    920	016C			     read_header:
+    921				     ;enter with dx -> PORT_RxFIFO
+    922				     ;exit with	es:di -> packet	type.
+    923
+    924	016C  8C D8			     mov     ax,ds
+    925	016E  8E C0			     mov     es,ax
+    926	0170  BF 0156r			     mov     di,offset ether_buff
+    927	0173  B9 0005			     mov     cx,ETHER_BUFF_LEN/4
+    928	0176			     repinsd:
+    929	0176  D1 E1			     shl     cx,1		     ;*** this gets changed into "rep insd"
+    930				     ;	      rep     insw		      ;***   "nop" on a	386 or 486.
+    931
+    932				     ;start 8086 code
+    933	0178			     l_rep:
+    934	0178  ED			     in	     ax,dx
+    935	0179  AB			     stosw
+    936	017A  E2 FC			     loop l_rep
+    937				     ;end 8086 code
+    938
+    939	017C  BF 0162r			     mov     di,offset ether_type
+    940
+    941	017F  B2 01			     mov     dl, BLUEBOOK	     ;assume bluebook Ethernet.
+    942	0181  26: 8B 05			     mov     ax, es:[di]
+    943	0184  86 E0			     xchg    ah, al
+    944	0186  3D 05DC			     cmp     ax, 1500
+    945	0189  77 04			     ja	     read_header_1
+    946	018B  47			     inc     di			     ;set di to	802.2 header
+    947	018C  47			     inc     di
+    948	018D  B2 0B			     mov     dl, IEEE8023
+    949	018F			     read_header_1:
+    950	018F  C3			     ret
+    951
+    952
+    953					     public  recv
+    954	0190			     recv:
+    955				     ;called from the recv isr.	 All registers have been saved,	ds=cs,
+    956				     ;our interrupt has	been acknowledged, and our interrupts have been
+    957				     ;masked at	the interrupt controller.
+    958					     assume  ds:code
+    959	0190			     recv_another:
+    960					     loadport
+1   961	0190  8B 16 0004r		     mov     dx,io_addr
+    962					     setport PORT_CmdStatus
+1   963	0194  83 C2 0E						     add     dx,PORT_CmdStatus - port_no
+    964	0197  ED			     in	     ax,dx		     ;did we get a packet?
+    965	0198  0D 6800			     or	     ax,CMD_ACKNOWLEDGE
+    966	019B  EF			     out     dx,ax
+    967					     setport PORT_RxStatus
+1   968	019C  83 C2 FA						     add     dx,PORT_RxStatus -	port_no
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 18
+3c509.ASM
+
+
+
+    969	019F  A8 10			     test    al,INT_RXCOMPLETE
+    970	01A1  75 29			     jne     recv_complete
+    971	01A3  A8 20			     test    al,INT_RXEARLY	     ;are we getting it	early?
+    972	01A5  75 03			     jne     recv_early
+    973	01A7  E9 00D3			     jmp     recv_exit			     ;no.
+    974	01AA			     recv_early:
+    975	01AA  ED			     in	     ax,dx		     ;get the amount we	can read.
+    976	01AB  25 07FF			     and     ax,RXS_LENGTH
+    977	01AE  3D 0014			     cmp     ax,ETHER_BUFF_LEN	     ;do we have enough	to read	early?
+    978	01B1  72 14			     jb	     recv_early_1	     ;no, give up.
+    979
+    980	01B3  C7 06 016Ar 0014		     mov     early_bytes,ETHER_BUFF_LEN
+    981
+    982					     setport PORT_RxFIFO
+1   983	01B9  83 C2 F8						     add     dx,PORT_RxFIFO - port_no
+    984	01BC  E8 FFAD			     call    read_header
+    985	01BF  E8 0000e			     call    recv_locate	     ;see if this is a type we want.
+    986	01C2  73 03			     jnc     recv_early_1	     ;it is, just exit.
+    987	01C4  E9 0099			     jmp     recv_discard	     ;it isn't.
+    988
+    989	01C7			     recv_early_1:
+    990	01C7  EB C7			     jmp     recv_another
+    991
+    992				     ;yes, this	is dead	code.  It's only in here to ensure that	the setport macro
+    993				     ;has the right value.
+    994					     setport PORT_RxStatus
+1   995	01C9  83 C2 08						     add     dx,PORT_RxStatus -	port_no
+    996	01CC			     recv_complete:
+    997	01CC  ED			     in	     ax,dx		     ;get the size.
+    998	01CD  A9 4000			     test    ax,RXS_ERROR	     ;any errors?
+    999	01D0  74 0F			     je	     recv_complete_2	     ;no, it's fine.
+   1000
+   1001	01D2  25 3800			     and     ax,RXS_ERRTYPE	     ;get just the error type bits.
+   1002	01D5  3D 1000			     cmp     ax,RXS_DRIBBLE	     ;dribble is just a	warning.
+   1003	01D8  74 06			     je	     recv_complete_1	     ;if only dribble is set, that's okay.
+   1004
+   1005	01DA			     recv_err:
+   1006	01DA  E8 0000e			     call    count_in_err
+   1007	01DD  E9 0080			     jmp     recv_discard
+   1008
+   1009	01E0			     recv_complete_1:
+   1010	01E0  ED			     in	     ax,dx		     ;get the size again.
+   1011	01E1			     recv_complete_2:
+   1012				     ;Put it on	the receive queue
+   1013	01E1  25 07FF			     and     ax,RXS_LENGTH
+   1014	01E4  8B C8			     mov     cx,ax
+   1015
+   1016	01E6  83 3E 016Ar 00		     cmp     early_bytes,0	     ;did we read the header in	already?
+   1017	01EB  75 1A			     jne     recv_complete_3	     ;yes, we've already got it.
+   1018
+   1019	01ED  83 F9 3C			     cmp     cx,RUNT		     ;check legal packet size
+   1020	01F0  72 E8			     jb	     recv_err
+   1021	01F2  81 F9 05EA		     cmp     cx,GIANT
+   1022	01F6  77 E2			     ja	     recv_err
+   1023
+   1024	01F8  51			     push    cx
+   1025					     setport PORT_RxFIFO
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 19
+3c509.ASM
+
+
+
+1  1026	01F9  83 C2 F8						     add     dx,PORT_RxFIFO - port_no
+   1027	01FC  E8 FF6D			     call    read_header
+   1028	01FF  59			     pop     cx
+   1029
+   1030	0200  51			     push    cx
+   1031	0201  E8 0000e			     call    recv_find
+   1032	0204  59			     pop     cx
+   1033	0205  EB 14			     jmp     short   recv_complete_4
+   1034
+   1035	0207			     recv_complete_3:
+   1036	0207  03 0E 016Ar		     add     cx,early_bytes	     ;add in the early bytes we	got.
+   1037
+   1038	020B  83 F9 3C			     cmp     cx,RUNT		     ;check legal packet size
+   1039	020E  72 CA			     jb	     recv_err
+   1040	0210  81 F9 05EA		     cmp     cx,GIANT
+   1041	0214  77 C4			     ja	     recv_err
+   1042
+   1043	0216  51			     push    cx
+   1044	0217  E8 0000e			     call    recv_found		     ;do the first upcall.
+   1045	021A  59			     pop     cx
+   1046
+   1047	021B			     recv_complete_4:
+   1048	021B  8C C0			     mov     ax,es		     ;is this pointer null?
+   1049	021D  0B C7			     or	     ax,di
+   1050	021F  74 3F			     je	     recv_discard	     ;yes - just free the frame.
+   1051
+   1052	0221  06			     push    es			     ;remember where the buffer	pointer	is.
+   1053	0222  57			     push    di
+   1054
+   1055	0223  8B D9			     mov     bx,cx		     ;save the count.
+   1056	0225  B9 000A			     mov     cx,ETHER_BUFF_LEN/2     ;move the data over.
+   1057	0228  BE 0156r			     mov     si,offset ether_buff
+   1058	022B  F3> A5			     rep     movsw
+   1059
+   1060					     loadport			     ;restore the I/O port.
+1  1061	022D  8B 16 0004r		     mov     dx,io_addr
+   1062					     setport PORT_RxFIFO
+   1063	0231  8B CB			     mov     cx,bx		     ;restore the count.
+   1064	0233  83 E9 14			     sub     cx,ETHER_BUFF_LEN	     ;but leave	off what we've already copied.
+   1065
+   1066				     ;	      cmp     is_386,0
+   1067				     ;	      jne     io_input_386
+   1068	0236			     io_input_286:
+   1069	0236  51			     push    cx
+   1070	0237  D1 E9			     shr     cx,1
+   1071				     ;	      rep     insw
+   1072
+   1073				     ;start 8086 code
+   1074	0239			     l_input:
+   1075	0239  ED			     in	     ax, dx
+   1076	023A  AB			     stosw
+   1077	023B  E2 FC			     loop l_input
+   1078				     ;end 8086 code
+   1079
+   1080	023D  59			     pop     cx
+   1081	023E  73 0C			     jnc     io_input_286_1	     ;go if the	count was even.
+   1082				     ;	      insb			      ;get that	last byte.
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 20
+3c509.ASM
+
+
+
+   1083
+   1084				     ;start 8086 code
+   1085	0240  EC			     in	al, dx
+   1086	0241  AA			     stosb
+   1087				     ;end 8086 code
+   1088
+   1089	0242  EC			     in	     al,dx		     ;and get the pad byte.
+   1090	0243  F7 C1 0002		     test    cx,2		     ;even number of words?
+   1091	0247  75 0C			     jne     io_input_done	     ;no.
+   1092	0249  ED			     in	     ax,dx		     ;yes, get the pad word.
+   1093	024A  EB 09			     jmp     short io_input_done
+   1094	024C			     io_input_286_1:
+   1095	024C  F7 C1 0002		     test    cx,2		     ;odd number of words?
+   1096	0250  74 03			     je	     io_input_done	     ;no.
+   1097	0252  ED			     in	     ax,dx		     ;yes, get the pad word.
+   1098	0253  EB 00			     jmp     short io_input_done
+   1099
+   1100				     ;io_input_386:
+   1101				     ;	      .386
+   1102				     ;	      push    eax
+   1103				     ;	      push    cx		      ;first, get all the full words.
+   1104				     ;	      shr     cx,2
+   1105				     ;	      rep     insd
+   1106				     ;	      pop     cx
+   1107				     ;	      test    cx,3		      ;even number of dwords?
+   1108				     ;	      je      io_input_386_one_byte   ;yes.
+   1109				     ;	      in      eax,dx		      ;no, get the partial word.
+   1110				     ;	      test    cx,2		      ;a full word to be stored?
+   1111				     ;	      je      io_input_386_one_word
+   1112				     ;	      stosw			      ;yes, store it,
+   1113				     ;	      shr     eax,16		      ;and move	over by	a word.
+   1114				     ;io_input_386_one_word:
+   1115
+   1116				     ;	      test    cx,1		      ;a full byte to be stored?
+   1117				     ;	      je      io_input_386_one_byte
+   1118				     ;	      stosb			      ;yes, store it.
+   1119				     ;io_input_386_one_byte:
+   1120				     ;	      pop     eax
+   1121				     ;	      .286
+   1122
+   1123	0255			     io_input_done:
+   1124
+   1125	0255  8B CB			     mov     cx,bx		     ;restore the count.
+   1126	0257  5E			     pop     si
+   1127	0258  1F			     pop     ds
+   1128					     assume  ds:nothing
+   1129	0259  E8 0000e			     call    recv_copy		     ;tell them	that we	copied it.
+   1130
+   1131	025C  8C C8			     mov     ax,cs		     ;restore our ds.
+   1132	025E  8E D8			     mov     ds,ax
+   1133					     assume  ds:code
+   1134
+   1135	0260			     recv_discard:
+   1136					     loadport
+1  1137	0260  8B 16 0004r		     mov     dx,io_addr
+   1138					     setport PORT_CmdStatus
+1  1139	0264  83 C2 0E						     add     dx,PORT_CmdStatus - port_no
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 21
+3c509.ASM
+
+
+
+   1140	0267  9C			     pushf
+   1141	0268  FA			     cli
+   1142	0269  B8 4000			     mov     ax,CMD_RXDISCARD
+   1143	026C  EF			     out     dx,ax
+   1144	026D			     recv_discard_1:
+   1145	026D  ED			     in	     ax,dx		     ;wait for the command to finish.
+   1146	026E  A9 1000			     test    ax,ST_BUSY
+   1147	0271  75 FA			     jne     recv_discard_1
+   1148	0273  9D			     popf
+   1149
+   1150	0274  C7 06 016Ar 0000		     mov     early_bytes,0
+   1151
+   1152	027A  E9 FF13			     jmp     recv_another
+   1153	027D			     recv_exit:
+   1154	027D  C3			     ret
+   1155
+   1156
+   1157					     public  timer_isr
+   1158	027E			     timer_isr:
+   1159				     ;if the first instruction is an iret, then	the timer is not hooked
+   1160	027E  CF			     iret
+   1161
+   1162				     ;any code after this will not be kept.  Buffers used by the program, if any,
+   1163				     ;are allocated from the memory between end_resident and end_free_mem.
+   1164					     public end_resident,end_free_mem
+   1165	027F			     end_resident    label   byte
+   1166	027F			     end_free_mem    label   byte
+   1167
+   1168
+   1169					     public  usage_msg,	mca_usage_msg
+   1170	027F			     mca_usage_msg   label   byte
+   1171	027F  75 73 61 67 65 3A	20+  usage_msg	     db	     "usage: 3c509 [options] <packet_int_no> [id_port]",CR,LF,'$'
+   1172	      33 63 35 30 39 20	5B+
+   1173	      6F 70 74 69 6F 6E	73+
+   1174	      5D 20 3C 70 61 63	6B+
+   1175	      65 74 5F 69 6E 74	5F+
+   1176	      6E 6F 3E 20 5B 69	64+
+   1177	      5F 70 6F 72 74 5D	0D+
+   1178	      0A 24
+   1179
+   1180					     public  copyright_msg
+   1181	02B2  50 61 63 6B 65 74	20+  copyright_msg   db	     "Packet driver for	a 3c509, version ",'0'+(majver / 10),'0'+(majver mod+
+   1182	      64 72 69 76 65 72	20+  10),".",'0'+version,CR,LF
+   1183	      66 6F 72 20 61 20	33+
+   1184	      63 35 30 39 2C 20	76+
+   1185	      65 72 73 69 6F 6E	20+
+   1186	      31 31 2E 36 0D 0A
+   1187	02DB  50 6F 72 74 69 6F	6E+		     db	     "Portions Copyright 1992, Crynwr Software",CR,LF
+   1188	      73 20 43 6F 70 79	72+
+   1189	      69 67 68 74 20 31	39+
+   1190	      39 32 2C 20 43 72	79+
+   1191	      6E 77 72 20 53 6F	66+
+   1192	      74 77 61 72 65 0D	0A
+   1193	0305  38 30 38 38 2F 38	30+		     db	     "8088/8086	support	by Nestor a.k.a. DistWave",CR,LF,'$'
+   1194	      38 36 20 73 75 70	70+
+   1195	      6F 72 74 20 62 79	20+
+   1196	      4E 65 73 74 6F 72	20+
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 22
+3c509.ASM
+
+
+
+   1197	      61 2E 6B 2E 61 2E	20+
+   1198	      44 69 73 74 57 61	76+
+   1199	      65 0D 0A 24
+   1200	0333  0D 0A		     no_isa_msg	     db	     CR,LF
+   1201	0335  4E 6F 20 33 63 35	30+		     db	     "No 3c509 found.  Use a different id_port value.  Default is 0x110.",  +
+   1202	      39 20 66 6F 75 6E	64+  CR,LF,'$'
+   1203	      2E 20 20 55 73 65	20+
+   1204	      61 20 64 69 66 66	65+
+   1205	      72 65 6E 74 20 69	64+
+   1206	      5F 70 6F 72 74 20	76+
+   1207	      61 6C 75 65 2E 20	20+
+   1208	      44 65 66 61 75 6C	74+
+   1209	      20 69 73 20 30 78	31+
+   1210	      31 30 2E 0D 0A 24
+   1211	037A  52 65 61 64 69 6E	67+  reading_msg     db	     "Reading EEPROM.",'$'
+   1212	      20 45 45 50 52 4F	4D+
+   1213	      2E 24
+   1214
+   1215	038A  4D 75 6C 74 69 70	6C+  multiple_msg    db	     "Multiple 3C509s found, specify i/o port",CR,LF,'$'
+   1216	      65 20 33 43 35 30	39+
+   1217	      73 20 66 6F 75 6E	64+
+   1218	      2C 20 73 70 65 63	69+
+   1219	      66 79 20 69 2F 6F	20+
+   1220	      70 6F 72 74 0D 0A	24
+   1221	03B4  4E 6F 20 33 43 35	30+  wrong_port_msg  db	     "No 3C509 board found at specified	i/o port",CR,LF,'$'
+   1222	      39 20 62 6F 61 72	64+
+   1223	      20 66 6F 75 6E 64	20+
+   1224	      61 74 20 73 70 65	63+
+   1225	      69 66 69 65 64 20	69+
+   1226	      2F 6F 20 70 6F 72	74+
+   1227	      0D 0A 24
+   1228	03E1  45 49 53 41 20 63	6F+  eisa_in_isa_msg db	     "EISA configured board in ISA slot",CR,LF,'$'
+   1229	      6E 66 69 67 75 72	65+
+   1230	      64 20 62 6F 61 72	64+
+   1231	      20 69 6E 20 49 53	41+
+   1232	      20 73 6C 6F 74 0D	0A+
+   1233	      24
+   1234
+   1235	0405  49 6E 74 65 72 72	75+  int_no_name     db	     "Interrupt	number ",'$'
+   1236	      70 74 20 6E 75 6D	62+
+   1237	      65 72 20 24
+   1238	0417  49 2F 4F 20 70 6F	72+  io_addr_name    db	     "I/O port ",'$'
+   1239	      74 20 24
+   1240	0421  55 73 69 6E 67 20	41+  aui_xcvr_msg    db	     "Using AUI	transceiver",CR,LF,'$'
+   1241	      55 49 20 74 72 61	6E+
+   1242	      73 63 65 69 76 65	72+
+   1243	      0D 0A 24
+   1244	0439  55 73 69 6E 67 20	42+  bnc_xcvr_msg    db	     "Using BNC	(10Base2) transceiver",CR,LF,'$'
+   1245	      4E 43 20 28 31 30	42+
+   1246	      61 73 65 32 29 20	74+
+   1247	      72 61 6E 73 63 65	69+
+   1248	      76 65 72 0D 0A 24
+   1249	045B  55 73 69 6E 67 20	54+  tp_xcvr_msg     db	     "Using Twisted Pair (10BaseT) transceiver",CR,LF,'$'
+   1250	      77 69 73 74 65 64	20+
+   1251	      50 61 69 72 20 28	31+
+   1252	      30 42 61 73 65 54	29+
+   1253	      20 74 72 61 6E 73	63+
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 23
+3c509.ASM
+
+
+
+   1254	      65 69 76 65 72 0D	0A+
+   1255	      24
+   1256	0486  49 44 20 70 6F 72	74+  id_port_name    db	     "ID port ",'$'
+   1257	      20 24
+   1258
+   1259				     ;called when you're ready to receive interrupts.
+   1260					     extrn   set_recv_isr: near
+   1261
+   1262				     ;enter with si -> argument	string,	di -> dword to store.
+   1263				     ;if there is no number, don't change the number.
+   1264					     extrn   get_number: near
+   1265
+   1266				     ;enter with dx -> argument	string,	di -> dword to print.
+   1267					     extrn   print_number: near
+   1268
+   1269				     ;-> the unique Ethernet address of	the card.  Filled in by	the etopen routine.
+   1270					     extrn   rom_address: byte
+   1271
+   1272				     ;-> current address.  Normally the	same as	rom_address, unless changed
+   1273				     ;by the set_address() call.
+   1274					     extrn   my_address: byte
+   1275
+   1276	048F  ????		     address_configuration   dw	     ?
+   1277	0491  ????		     resource_configuration  dw	     ?
+   1278
+   1279	0493  00		     is_10base2	     db	     0
+   1280	0494  00		     is_10baseT	     db	     0
+   1281
+   1282	0495  0110 0000		     id_port	     dw	     110h,0
+   1283	0499  0000 0000		     scratch	     dw	     0,0	     ;for multi-board support
+   1284	049D  00		     board_number    db	     0
+   1285
+   1286				     ;print the	character in al.
+   1287					     extrn   chrout: near
+   1288
+   1289				     ;print a crlf
+   1290					     extrn   crlf: near
+   1291
+   1292				     ;parse_args is called with	si -> first parameter (CR if none).
+   1293					     public  parse_args
+   1294	049E			     parse_args:
+   1295				     ;exit with	nc if all went well, cy	otherwise.
+   1296	049E  BF 0495r			     mov     di,offset id_port
+   1297	04A1  E8 0000e			     call    get_number
+   1298	04A4  F8			     clc
+   1299	04A5  C3			     ret
+   1300
+   1301
+   1302					     public  etopen
+   1303	04A6			     etopen:
+   1304				     ;initialize the driver.  Fill in rom_address with the assigned address of
+   1305				     ;the board.  Exit with nc if all went well, or cy,	dx -> $	terminated error msg.
+   1306				     ;if all is	okay,
+   1307				     ;	      cmp     is_186,0		      ;this version requires a 186 or better.
+   1308				     ;	      jne     etopen_1
+   1309				     ;	      mov     dx,offset	needs_186_msg
+   1310				     ;	      stc
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 24
+3c509.ASM
+
+
+
+   1311				     ;	      ret
+   1312				     ;etopen_1:
+   1313
+   1314				     ;	      cmp     is_386,0		      ;can we do a real	insd?
+   1315				     ;	      je      etopen_2
+   1316				     ;overlay the repinsd routine with a real "rep insd;nop"
+   1317				     ;	      mov     word ptr repinsd+0,066h+0f3h*256
+   1318				     ;	      mov     word ptr repinsd+2,06dh+090h*256
+   1319				     ;etopen_2:
+   1320
+   1321	04A6  80 3E 0000e 00		     cmp     is_eisa,0
+   1322	04AB  75 03			     jne     etopen_eisa
+   1323	04AD  EB 65 90			     jmp     etopen_isa
+   1324	04B0			     etopen_eisa:
+   1325	04B0  B9 000F			     mov     cx,0fh
+   1326	04B3			     eisa_search:
+   1327	04B3  8B D1			     mov     dx,cx		     ;move it into the first nibble.
+   1328	04B5  D1 E2 D1 E2 D1 E2	D1+	     shl     dx,12
+   1329	      E2 D1 E2 D1 E2 D1	E2+
+   1330	      D1 E2 D1 E2 D1 E2	D1+
+   1331	      E2 D1 E2
+   1332	04CD  81 CA 0C80		     or	     dx,0c80h
+   1333	04D1  ED			     in	     ax,dx		     ;look for the manufacturer's ID
+   1334	04D2  3D 6D50			     cmp     ax,EISA_MANUFACTURER_ID
+   1335	04D5  75 0B			     jne     eisa_search_1
+   1336	04D7  42			     inc     dx
+   1337	04D8  42			     inc     dx
+   1338	04D9  ED			     in	     ax,dx		     ;look for the product ID
+   1339	04DA  25 F0FF			     and     ax,PRODUCT_ID_MASK
+   1340	04DD  3D 9050			     cmp     ax,ISA_PRODUCT_ID
+   1341	04E0  74 05			     je	     eisa_found
+   1342	04E2			     eisa_search_1:
+   1343	04E2  E2 CF			     loop    eisa_search
+   1344	04E4  EB 2E 90			     jmp     etopen_isa		     ;;; if it's not EISA-configured, try ISA.
+   1345
+   1346	04E7			     eisa_found:
+   1347	04E7  81 E2 F000		     and     dx,0f000h
+   1348	04EB  89 16 0004r		     mov     io_addr,dx
+   1349
+   1350					     loadport
+1  1351	04EF  8B 16 0004r		     mov     dx,io_addr
+   1352					     setwin  WNO_SETUP
+1  1353					     setport PORT_CmdStatus
+2  1354	04F3  83 C2 0E						     add     dx,PORT_CmdStatus - port_no
+1  1355	04F6  B8 0800			     mov     ax,CMD_SELECTWINDOW+WNO_SETUP
+1  1356	04F9  EF			     out     dx,ax
+   1357
+   1358					     setport PORT_CfgAddress
+1  1359	04FA  83 C2 F8						     add     dx,PORT_CfgAddress	- port_no
+   1360	04FD  ED			     in	     ax,dx
+   1361	04FE  A3 048Fr			     mov     address_configuration,ax
+   1362
+   1363					     setport PORT_CfgResource
+1  1364	0501  83 C2 02						     add     dx,PORT_CfgResource - port_no
+   1365	0504  ED			     in	     ax,dx
+   1366	0505  A3 0491r			     mov     resource_configuration,ax
+   1367
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 25
+3c509.ASM
+
+
+
+   1368					     setport PORT_EECmd
+1  1369	0508  83 C2 02						     add     dx,PORT_EECmd - port_no
+   1370	050B  BE 0675r			     mov     si,offset read_ee_eisa
+   1371	050E  E8 0149			     call    read_eaddr
+   1372
+   1373	0511  E9 00A2			     jmp     have_configuration
+   1374
+   1375	0514			     etopen_isa:
+   1376	0514  81 26 0495r 01F0		     and     id_port,01f0h	     ;isolate only the bits we can use.
+   1377	051A  E8 0126			     call    write_id_pat
+   1378
+   1379	051D  B0 C0			     mov     al,ID_GLOBAL_RESET	     ;reset the	adapter.
+   1380	051F  EE			     out     dx,al
+   1381	0520  E8 0178			     call    delay_27_5ms	     ;wait for 310 us.
+   1382
+   1383	0523  E8 011D			     call    write_id_pat
+   1384
+   1385	0526  B0 D0			     mov     al,SET_TAG_REGISTER
+   1386	0528  EE			     out     dx,al
+   1387
+   1388	0529  52			     push    dx
+   1389	052A  BA 037Ar			     mov     dx,offset reading_msg
+   1390	052D  B4 09			     mov     ah,9
+   1391	052F  CD 21			     int     21h
+   1392	0531  5A			     pop     dx
+   1393
+   1394	0532  32 C0			     xor     al,al
+   1395	0534  33 FF			     xor     di,di
+   1396	0536  B9 0010			     mov     cx,16
+   1397	0539			     read_isa_checksum:
+   1398	0539  50			     push    ax
+   1399	053A  51			     push    cx
+   1400	053B  E8 0148			     call    read_ee_isa
+   1401	053E  8B D8			     mov     bx,ax
+   1402	0540  B0 2E			     mov     al,'.'
+   1403	0542  E8 0000e			     call    chrout
+   1404	0545  59			     pop     cx
+   1405	0546  58			     pop     ax
+   1406	0547  3C 03			     cmp     al,3
+   1407	0549  75 0C			     jne     read_isa_checksum_not_3
+   1408	054B  53			     push    bx
+   1409	054C  81 E3 F0FF		     and     bx,0f0ffh
+   1410	0550  81 FB 9050		     cmp     bx,09050h
+   1411	0554  5B			     pop     bx
+   1412	0555  75 31			     jne     not_found_isa
+   1413	0557			     read_isa_checksum_not_3:
+   1414	0557  3C 07			     cmp     al,7
+   1415	0559  75 06			     jne     read_isa_checksum_not_7
+   1416	055B  81 FB 6D50		     cmp     bx,6d50h
+   1417	055F  75 27			     jne     not_found_isa
+   1418	0561			     read_isa_checksum_not_7:
+   1419	0561  3C 08			     cmp     al,8
+   1420	0563  74 12			     je	     read_isa_checksum_1
+   1421	0565  3C 09			     cmp     al,9
+   1422	0567  74 0E			     je	     read_isa_checksum_1
+   1423	0569  3C 0D			     cmp     al,0dh
+   1424	056B  74 0A			     je	     read_isa_checksum_1
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 26
+3c509.ASM
+
+
+
+   1425	056D  3C 0F			     cmp     al,0fh		     ;if it's the checksum itself, just	xor.
+   1426	056F  74 0A			     je	     read_isa_checksum_2
+   1427	0571  32 FB			     xor     bh,bl		     ;accumulate checksum in high byte.
+   1428	0573  32 DB			     xor     bl,bl		     ;leave low	byte alone.
+   1429	0575  EB 04			     jmp     short read_isa_checksum_2
+   1430	0577			     read_isa_checksum_1:
+   1431	0577  32 DF			     xor     bl,bh		     ;accumulate checksum in low byte.
+   1432	0579  32 FF			     xor     bh,bh		     ;leave high byte alone.
+   1433	057B			     read_isa_checksum_2:
+   1434	057B  33 FB			     xor     di,bx		     ;include previous checksum.
+   1435
+   1436	057D  FE C0			     inc     al			     ;and go to	the next register.
+   1437	057F  E2 B8			     loop    read_isa_checksum
+   1438
+   1439	0581  E8 0000e			     call    crlf
+   1440
+   1441	0584  0B FF			     or	     di,di		     ;did the checksum compare?
+   1442	0586  74 05			     je	     found_isa		     ;yes.
+   1443	0588			     not_found_isa:
+   1444	0588  BA 0333r			     mov     dx,offset no_isa_msg
+   1445	058B  F9			     stc
+   1446	058C  C3			     ret
+   1447
+   1448	058D			     found_isa:
+   1449	058D  BE 0686r			     mov     si,offset read_ee_isa
+   1450	0590  E8 00C7			     call    read_eaddr
+   1451
+   1452	0593  B0 08			     mov     al,EE_ADDR_CONFIGURATION
+   1453	0595  E8 00EE			     call    read_ee_isa
+   1454	0598  A3 048Fr			     mov     address_configuration,ax
+   1455
+   1456	059B  B0 09			     mov     al,EE_RESOURCE_CONFIGURATION
+   1457	059D  E8 00E6			     call    read_ee_isa
+   1458	05A0  A3 0491r			     mov     resource_configuration,ax
+   1459
+   1460	05A3  B0 FF			     mov     al,ACTIVATE_VULCAN
+   1461	05A5  EE			     out     dx,al
+   1462
+   1463	05A6  A1 048Fr			     mov     ax,address_configuration
+   1464	05A9  25 001F			     and     ax,1fh
+   1465	05AC  B1 04			     mov     cl,4
+   1466	05AE  D3 E0			     shl     ax,cl
+   1467	05B0  05 0200			     add     ax,MIN_IO_BASE_ADDR
+   1468	05B3  A3 0004r			     mov     io_addr,ax
+   1469
+   1470	05B6			     have_configuration:
+   1471	05B6  A1 048Fr			     mov     ax,address_configuration
+   1472	05B9  25 C000			     and     ax,BNC_XCVR or TP_XCVR or AUI_XCVR	     ;include all the bits.
+   1473	05BC  3D C000			     cmp     ax,BNC_XCVR	     ;does it match BNC?
+   1474	05BF  75 04			     jne     not_10base2
+   1475	05C1  FE 06 0493r		     inc     is_10base2
+   1476	05C5			     not_10base2:
+   1477	05C5  3D 0000			     cmp     ax,TP_XCVR		     ;does it match TP?
+   1478	05C8  75 04			     jne     not_10baseT
+   1479	05CA  FE 06 0494r		     inc     is_10baseT
+   1480	05CE			     not_10baseT:
+   1481
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 27
+3c509.ASM
+
+
+
+   1482	05CE  8B 1E 0491r		     mov     bx,resource_configuration
+   1483	05D2  B1 0C			     mov     cl,12		     ;move it over where we need it.
+   1484	05D4  D3 EB			     shr     bx,cl
+   1485	05D6  88 1E 0000r		     mov     int_no,bl
+   1486
+   1487					     loadport
+1  1488	05DA  8B 16 0004r		     mov     dx,io_addr
+   1489					     setwin  WNO_DIAGNOSTICS
+1  1490					     setport PORT_CmdStatus
+2  1491	05DE  83 C2 0E						     add     dx,PORT_CmdStatus - port_no
+1  1492	05E1  B8 0804			     mov     ax,CMD_SELECTWINDOW+WNO_DIAGNOSTICS
+1  1493	05E4  EF			     out     dx,ax
+   1494					     setport PORT_MediaStatus
+1  1495	05E5  83 C2 FC						     add     dx,PORT_MediaStatus - port_no
+   1496	05E8  ED			     in	     ax,dx
+   1497	05E9  0D 00C0			     or	     ax,MEDIA_LBEATENABLE or MEDIA_JABBERENABLE
+   1498	05EC  EF			     out     dx,ax
+   1499
+   1500					     setwin  WNO_SETUP		     ;select Window 0
+1  1501					     setport PORT_CmdStatus
+2  1502	05ED  83 C2 04						     add     dx,PORT_CmdStatus - port_no
+1  1503	05F0  B8 0800			     mov     ax,CMD_SELECTWINDOW+WNO_SETUP
+1  1504	05F3  EF			     out     dx,ax
+   1505
+   1506	05F4  B8 4800			     mov     ax,CMD_TXENABLE	     ;Enable the transmitter
+   1507	05F7  EF			     out     dx,ax
+   1508
+   1509	05F8  B8 2000			     mov     ax,CMD_RXENABLE	     ;Enable the receiver
+   1510	05FB  EF			     out     dx,ax
+   1511
+   1512				     ;Enable RX	Complete interrupts
+   1513	05FC  B8 7010			     mov     ax,CMD_SETINTMASK + INT_RXCOMPLETE
+   1514					     ;mov    ax,CMD_SETINTMASK + INT_RXCOMPLETE	+ INT_RXEARLY
+   1515	05FF  EF			     out     dx,ax
+   1516
+   1517	0600  B8 78FE			     mov     ax,CMD_SETRZMASK +	0feh ;Enable all the status bits.
+   1518	0603  EF			     out     dx,ax
+   1519
+   1520	0604  B8 9800			     mov     ax,CMD_SETTXSTART + 0   ;start transmitting after this many bytes.
+   1521	0607  EF			     out     dx,ax
+   1522
+   1523	0608  B8 8800			     mov     ax,CMD_SETRXEARLY + 0   ;receive after this many bytes.
+   1524	060B  EF			     out     dx,ax
+   1525
+   1526	060C  80 3E 0493r 00		     cmp     is_10base2,0	     ;coax?
+   1527	0611  74 07			     je	     not_10base2_1	     ;no.
+   1528	0613  B8 1000			     mov     ax,CMD_STARTINTXCVR     ;start internal transciever
+   1529	0616  EF			     out     dx,ax
+   1530	0617  E8 0081			     call    delay_27_5ms
+   1531	061A			     not_10base2_1:
+   1532
+   1533					     setport PORT_CfgControl	     ;position to the CCR
+1  1534	061A  83 C2 F6						     add     dx,PORT_CfgControl	- port_no
+   1535	061D  B0 01			     mov     al,ENABLE_ADAPTER	     ;Enable the adapter.
+   1536	061F  EE			     out     dx,al
+   1537
+   1538	0620  E8 FB0F			     call    rcv_mode_3
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 28
+3c509.ASM
+
+
+
+   1539
+   1540	0623  BE 0000e			     mov     si,offset rom_address   ;set our address.
+   1541	0626  B9 0006			     mov     cx,EADDR_LEN
+   1542	0629  E8 FADA			     call    set_address_4
+   1543				     ;sets the window to WNO_OPERATING.
+   1544
+   1545	062C  E8 0000e			     call    set_recv_isr
+   1546
+   1547	062F  A0 0000r			     mov     al, int_no		     ; Get board's interrupt vector
+   1548	0632  04 08			     add     al, 8
+   1549	0634  3C 10			     cmp     al, 8+8		     ; Is it a slave 8259 interrupt?
+   1550	0636  72 02			     jb	     set_int_num	     ; No.
+   1551	0638  04 60			     add     al, 70h - 8 - 8	     ; Map it to the real interrupt.
+   1552	063A			     set_int_num:
+   1553	063A  32 E4			     xor     ah, ah		     ; Clear high byte
+   1554	063C  A3 001Fr			     mov     int_num, ax	     ; Set parameter_list int num.
+   1555
+   1556	063F  F8			     clc
+   1557	0640  C3			     ret
+   1558				     ;if we got	an error,
+   1559	0641  F9			     stc
+   1560	0642  C3			     ret
+   1561
+   1562
+   1563	0643			     write_id_pat:
+   1564				     ;write the	3c509 ID pattern to the	ID port.
+   1565	0643  8B 16 0495r		     mov     dx,id_port
+   1566	0647  32 C0			     xor     al,al
+   1567	0649  EE			     out     dx,al		     ;select the ID port.
+   1568	064A  EE			     out     dx,al		     ;reset hardware pattern generator
+   1569	064B  B9 00FF			     mov     cx,0ffh
+   1570	064E  B0 FF			     mov     al,0ffh
+   1571	0650			     write_id_pat_1:
+   1572	0650  EE			     out     dx,al		     ;keep writing matching values...
+   1573	0651  D0 E0			     shl     al,1
+   1574	0653  73 02			     jnc     write_id_pat_2
+   1575	0655  34 CF			     xor     al,0cfh
+   1576	0657			     write_id_pat_2:
+   1577	0657  E2 F7			     loop    write_id_pat_1
+   1578	0659  C3			     ret
+   1579
+   1580	065A			     read_eaddr:
+   1581				     ;enter with dx = eeprom register, si -> routine to	read eeprom.
+   1582	065A  0E			     push    cs
+   1583	065B  07			     pop     es
+   1584	065C  BF 0000e			     mov     di,offset rom_address
+   1585
+   1586	065F  B0 00			     mov     al,EE_TCOM_NODE_ADDR_WORD0	     ;read the Ethernet	address.
+   1587	0661  FF D6			     call    si
+   1588	0663  86 E0			     xchg    ah,al
+   1589	0665  AB			     stosw
+   1590	0666  B0 01			     mov     al,EE_TCOM_NODE_ADDR_WORD1
+   1591	0668  FF D6			     call    si
+   1592	066A  86 E0			     xchg    ah,al
+   1593	066C  AB			     stosw
+   1594	066D  B0 02			     mov     al,EE_TCOM_NODE_ADDR_WORD2
+   1595	066F  FF D6			     call    si
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 29
+3c509.ASM
+
+
+
+   1596	0671  86 E0			     xchg    ah,al
+   1597	0673  AB			     stosw
+   1598	0674  C3			     ret
+   1599
+   1600
+   1601	0675			     read_ee_eisa:
+   1602				     ;enter with al = EEPROM address to	read, dx = PORT_EECmd
+   1603				     ;exit with	ax = data.
+   1604	0675  0C 80			     or	     al,READ_EEPROM
+   1605	0677  EE			     out     dx,al
+   1606	0678			     read_ee_eisa_1:
+   1607	0678  ED			     in	     ax,dx
+   1608	0679  A9 8000			     test    ax,EE_BUSY
+   1609	067C  75 FA			     jnz     read_ee_eisa_1
+   1610	067E  83 C2 02			     add     dx,PORT_EEData - PORT_EECmd     ;move to data register.
+   1611	0681  ED			     in	     ax,dx
+   1612	0682  83 C2 FE			     add     dx,PORT_EECmd - PORT_EEData     ;move back	to command register.
+   1613	0685  C3			     ret
+   1614
+   1615
+   1616	0686			     read_ee_isa:
+   1617				     ;enter with al = EEPROM address to	read, dx = address of ID port.
+   1618				     ;exit with	ax = data, cx =	0.
+   1619	0686  53			     push    bx
+   1620	0687  0C 80			     or	     al,READ_EEPROM
+   1621	0689  EE			     out     dx,al
+   1622				     ;wait 400 us here.
+   1623	068A  E8 000E			     call    delay_27_5ms
+   1624	068D  B9 0010			     mov     cx,16
+   1625	0690			     read_ee_isa_1:
+   1626	0690  EC			     in	     al,dx
+   1627	0691  D0 E8			     shr     al,1		     ;put it into the carry.
+   1628	0693  D1 D3			     rcl     bx,1		     ;shift it into bx.
+   1629	0695  E2 F9			     loop    read_ee_isa_1
+   1630	0697  8B C3			     mov     ax,bx
+   1631	0699  5B			     pop     bx
+   1632	069A  C3			     ret
+   1633
+   1634
+   1635	069B			     delay_27_5ms:
+   1636				     ;delay one	timeout	period,	which is 27.5 ms.
+   1637	069B  B8 0001			     mov     ax,1
+   1638	069E			     delay:
+   1639				     ;delay AX timeout periods,	each of	which is 27.5 ms.
+   1640	069E  E8 F996			     call    set_timeout
+   1641	06A1			     delay_1:
+   1642	06A1  E8 F9B4			     call    do_timeout
+   1643	06A4  75 FB			     jnz     delay_1
+   1644	06A6  C3			     ret
+   1645
+   1646
+   1647					     public  print_parameters
+   1648	06A7			     print_parameters:
+   1649				     ;echo our command-line parameters
+   1650	06A7  BF 0000r			     mov     di,offset int_no
+   1651	06AA  BA 0405r			     mov     dx,offset int_no_name
+   1652	06AD  E8 0000e			     call    print_number
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 30
+3c509.ASM
+
+
+
+   1653	06B0  BF 0004r			     mov     di,offset io_addr
+   1654	06B3  BA 0417r			     mov     dx,offset io_addr_name
+   1655	06B6  E8 0000e			     call    print_number
+   1656	06B9  BA 0421r			     mov     dx,offset aui_xcvr_msg
+   1657	06BC  80 3E 0493r 00		     cmp     is_10base2,0	     ;coax?
+   1658	06C1  74 03			     je	     print_parameters_1
+   1659	06C3  BA 0439r			     mov     dx,offset bnc_xcvr_msg
+   1660	06C6			     print_parameters_1:
+   1661	06C6  80 3E 0494r 00		     cmp     is_10baseT,0	     ;tp?
+   1662	06CB  74 03			     je	     print_parameters_2
+   1663	06CD  BA 045Br			     mov     dx,offset tp_xcvr_msg
+   1664	06D0			     print_parameters_2:
+   1665	06D0  B4 09			     mov     ah,9
+   1666	06D2  CD 21			     int     21h
+   1667	06D4  BF 0495r			     mov     di,offset id_port
+   1668	06D7  BA 0486r			     mov     dx,offset id_port_name
+   1669	06DA  E8 0000e			     call    print_number
+   1670	06DD  C3			     ret
+   1671
+   1672	06DE			     code    ends
+   1673
+   1674					     end
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 31
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "05/31/26"
+??FILENAME			  Text	 "3c509	  "
+??TIME				  Text	 "09:03:10"
+??VERSION			  Number 040A
+@CPU				  Text	 0101H
+@CURSEG				  Text	 CODE
+@FILENAME			  Text	 3C509
+@WORDSIZE			  Text	 2
+ACONFIG_IOBASE			  Number 001F
+ACONFIG_XCVR			  Number C000
+ACTIVATE_AND_SET_IO		  Number 00E0
+ACTIVATE_VULCAN			  Number 00FF
+ADDRESS_CONFIGURATION		  Word	 CODE:048F
+ARCADDR_LEN			  Number 0001
+AS_SEND_PKT			  Near	 CODE:007B
+AUI_XCVR			  Number 4000
+AUI_XCVR_MSG			  Byte	 CODE:0421
+BAD_ADDRESS			  Number 000E
+BAD_COMMAND			  Number 000B
+BAD_COMMAND_INTERCEPT		  Near	 CODE:0077
+BAD_IOCB			  Number 0010
+BAD_MODE			  Number 0008
+BLUEBOOK			  Number 0001
+BNC_XCVR			  Number C000
+BNC_XCVR_MSG			  Byte	 CODE:0439
+BOARD_NUMBER			  Byte	 CODE:049D
+CALLED_ETOPEN			  Number 0001
+CALLME				  Number 0002
+CANT_RESET			  Number 000F
+CANT_SEND			  Number 000C
+CANT_SET			  Number 000D
+CANT_TERMINATE			  Number 0007
+CHROUT				  Near	 CODE:---- Extern
+CMDH_REQUESTINT			  Number 0060
+CMDH_RXDISABLE			  Number 0018
+CMDH_RXDISCARD			  Number 0040
+CMDH_RXENABLE			  Number 0020
+CMDH_STARTINTXCVR		  Number 0010
+CMDH_STATSDISABLE		  Number 00B0
+CMDH_STATSENABLE		  Number 00A8
+CMDH_STOPINTXCVR		  Number 00B8
+CMDH_TXDISABLE			  Number 0050
+CMDH_TXENABLE			  Number 0048
+CMD_ACKNOWLEDGE			  Number 6800
+CMD_ARGMASK			  Number 07FF
+CMD_CMDMASK			  Number F800
+CMD_GLOBALRESET			  Number 0000
+CMD_REQUESTINT			  Number 6000
+CMD_RXDISABLE			  Number 1800
+CMD_RXDISCARD			  Number 4000
+CMD_RXENABLE			  Number 2000
+CMD_RXRESET			  Number 2800
+CMD_SELECTWINDOW		  Number 0800
+CMD_SETINTMASK			  Number 7000
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 32
+Symbol Table
+
+
+
+CMD_SETRXEARLY			  Number 8800
+CMD_SETRXFILTER			  Number 8000
+CMD_SETRZMASK			  Number 7800
+CMD_SETTXAVAILABLE		  Number 9000
+CMD_SETTXSTART			  Number 9800
+CMD_STARTINTXCVR		  Number 1000
+CMD_STATSDISABLE		  Number B000
+CMD_STATSENABLE			  Number A800
+CMD_STOPINTXCVR			  Number B800
+CMD_TXDISABLE			  Number 5000
+CMD_TXENABLE			  Number 4800
+CMD_TXRESET			  Number 5800
+COPYRIGHT_MSG			  Byte	 CODE:02B2
+COUNT_IN_ERR			  Near	 CODE:---- Extern
+COUNT_OUT_ERR			  Near	 CODE:---- Extern
+CR				  Number 000D
+CRLF				  Near	 CODE:---- Extern
+CY				  Number 0001
+DELAY				  Near	 CODE:069E
+DELAY_1				  Near	 CODE:06A1
+DELAY_27_5MS			  Near	 CODE:069B
+DONE				  Number 0001
+DO_TIMEOUT			  Near	 CODE:0058
+DO_TIMEOUT_1			  Near	 CODE:0074
+DRIVER_CLASS			  Byte	 CODE:0008
+DRIVER_FUNCTION			  Byte	 CODE:0012
+DRIVER_NAME			  Byte	 CODE:000C
+DRIVER_TYPE			  Byte	 CODE:000B
+DROP_PKT			  Near	 CODE:007C
+D_OPTION			  Number 0002
+EADDR_LEN			  Number 0006
+EARLY_BYTES			  Word	 CODE:016A
+EE_ADDR_CONFIGURATION		  Number 0008
+EE_BUSY				  Number 8000
+EE_CWORD			  Number 000E
+EE_MANUFACTURER_CODE		  Number 0007
+EE_MANUFACTURING_DATA		  Number 0004
+EE_OEM_NODE_ADDR_WORD0		  Number 000A
+EE_OEM_NODE_ADDR_WORD1		  Number 000B
+EE_OEM_NODE_ADDR_WORD2		  Number 000C
+EE_RESOURCE_CONFIGURATION	  Number 0009
+EE_SERIAL_NUMBER_WORD0		  Number 0005
+EE_SERIAL_NUMBER_WORD1		  Number 0006
+EE_SOFTWARE_CONFIG_INFO		  Number 000D
+EE_TCOM_NODE_ADDR_WORD0		  Number 0000
+EE_TCOM_NODE_ADDR_WORD1		  Number 0001
+EE_TCOM_NODE_ADDR_WORD2		  Number 0002
+EE_VULCAN_PROD_ID		  Number 0003
+EI				  Number 0200
+EISA_FOUND			  Near	 CODE:04E7
+EISA_IN_ISA_MSG			  Byte	 CODE:03E1
+EISA_MANUFACTURER_ID		  Number 6D50
+EISA_SEARCH			  Near	 CODE:04B3
+EISA_SEARCH_1			  Near	 CODE:04E2
+ENABLE_ADAPTER			  Number 0001
+END_FREE_MEM			  Byte	 CODE:027F
+END_RESIDENT			  Byte	 CODE:027F
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 33
+Symbol Table
+
+
+
+ERR_BAD_HANDLE			  Number 0001
+ERR_BAD_TYPE			  Number 0005
+ETHER_BUFF			  Byte	 CODE:0156
+ETHER_BUFF_LEN			  Number 0014
+ETHER_TYPE			  Byte	 CODE:0162
+ETOPEN				  Near	 CODE:04A6
+ETOPEN_EISA			  Near	 CODE:04B0
+ETOPEN_ISA			  Near	 CODE:0514
+FIFOD_BISTRESULTS		  Number 00FF
+FIFOD_RXOVERRUN			  Number 0800
+FIFOD_RXRECEIVING		  Number 8000
+FIFOD_RXSTATUSOVER		  Number 1000
+FIFOD_RXUNDERRUN		  Number 2000
+FIFOD_TXOVERRUN			  Number 0400
+FILTER_BROADCAST		  Number 0004
+FILTER_INDIVIDUAL		  Number 0001
+FILTER_MULTICAST		  Number 0002
+FILTER_PROMISCUOUS		  Number 0008
+FOUND_ISA			  Near	 CODE:058D
+GET_NUMBER			  Near	 CODE:---- Extern
+GIANT				  Number 05EA
+HAVE_CONFIGURATION		  Near	 CODE:05B6
+HT				  Number 0009
+ID_GLOBAL_RESET			  Number 00C0
+ID_PORT				  Word	 CODE:0495
+ID_PORT_NAME			  Byte	 CODE:0486
+IEEE8023			  Number 000B
+INT_ADAPTERFAIL			  Number 0002
+INT_ALLDISABLED			  Number 0000
+INT_ALLENABLED			  Number 00FE
+INT_LATCH			  Number 0001
+INT_NO				  Byte	 CODE:0000
+INT_NO_NAME			  Byte	 CODE:0405
+INT_NUM				  Word	 CODE:001F
+INT_REQUESTED			  Number 0040
+INT_RXCOMPLETE			  Number 0010
+INT_RXEARLY			  Number 0020
+INT_TXAVAILABLE			  Number 0008
+INT_TXCOMPLETE			  Number 0004
+INT_UPDATESTATS			  Number 0080
+IOBASE_EISA			  Number 001F
+IO_ADDR				  Word	 CODE:0004
+IO_ADDR_NAME			  Byte	 CODE:0417
+IO_INPUT_286			  Near	 CODE:0236
+IO_INPUT_286_1			  Near	 CODE:024C
+IO_INPUT_DONE			  Near	 CODE:0255
+ISA_PRODUCT_ID			  Number 9050
+IS_10BASE2			  Byte	 CODE:0493
+IS_10BASET			  Byte	 CODE:0494
+IS_186				  Byte	 CODE:---- Extern
+IS_386				  Byte	 CODE:---- Extern
+IS_EISA				  Byte	 CODE:---- Extern
+LATCH_TIMER			  Near	 CODE:004B
+LF				  Number 000A
+L_INPUT				  Near	 CODE:0239
+L_REP				  Near	 CODE:0178
+MAJVER				  Number 000B
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 34
+Symbol Table
+
+
+
+MAX_ADDR_LEN			  Number 0010
+MAX_HANDLE			  Number 000A
+MAX_IO_BASE_ADDR		  Number 03F0
+MAX_MULTICAST			  Number 0008
+MAX_P_LEN			  Number 0008
+MCA_USAGE_MSG			  Byte	 CODE:027F
+MEDIA_BNC			  Number 4000
+MEDIA_COLLISION			  Number 0010
+MEDIA_CRS			  Number 0020
+MEDIA_INTENDEC			  Number 2000
+MEDIA_JABBER			  Number 0200
+MEDIA_JABBERENABLE		  Number 0040
+MEDIA_LBEAT			  Number 0800
+MEDIA_LBEATENABLE		  Number 0080
+MEDIA_POLARITY			  Number 0400
+MEDIA_SQE			  Number 1000
+MEDIA_SQEENABLE			  Number 0008
+MEDIA_TP			  Number 8000
+MEDIA_UNSQUELCH			  Number 0100
+MIN_IO_BASE_ADDR		  Number 0200
+MULTIPLE_MSG			  Byte	 CODE:038A
+MY_ADDRESS			  Byte	 CODE:---- Extern
+M_OPTION			  Number 0020
+NETD_CORELOOPBACK		  Number 2000
+NETD_ENDECLOOPBACK		  Number 4000
+NETD_EXTLOOPBACK		  Number 8000
+NETD_FIFOLOOPBACK		  Number 1000
+NETD_RXENABLED			  Number 0400
+NETD_TXENABLED			  Number 0800
+NETD_TXRESETREQD		  Number 0100
+NETD_TXTRANSMITTING		  Number 0200
+NOT_10BASE2			  Near	 CODE:05C5
+NOT_10BASE2_1			  Near	 CODE:061A
+NOT_10BASET			  Near	 CODE:05CE
+NOT_FOUND_ISA			  Near	 CODE:0588
+NO_CLASS			  Number 0002
+NO_ERROR			  Number 0000
+NO_ISA_MSG			  Byte	 CODE:0333
+NO_MULTICAST			  Number 0006
+NO_NUMBER			  Number 0004
+NO_SPACE			  Number 0009
+NO_TYPE				  Number 0003
+N_OPTION			  Number 0004
+OPTIMIZE_DOS_CLIENT		  Number 0010
+OPTIMIZE_SERVER			  Number 0030
+OPTIMIZE_WINDOWS_CLIENT		  Number 0020
+PARAMETER_LIST			  Byte	 CODE:0013
+PARSE_ARGS			  Near	 CODE:049E
+PORT_ALT_TXFREE			  Number 000C
+PORT_CFGADDRESS			  Number 0006
+PORT_CFGCONTROL			  Number 0004
+PORT_CFGRESOURCE		  Number 0008
+PORT_CMDSTATUS			  Number 000E
+PORT_EECMD			  Number 000A
+PORT_EEDATA			  Number 000C
+PORT_FIFODIAGNOSTIC		  Number 0004
+PORT_HOSTDIAGNOSTIC		  Number 0002
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 35
+Symbol Table
+
+
+
+PORT_INTMASK			  Number 000A
+PORT_MANUFACTURER		  Number 0000
+PORT_MEDIASTATUS		  Number 000A
+PORT_NETDIAGNOSTIC		  Number 0006
+PORT_NO				  Number 0004
+PORT_PRODUCTID			  Number 0002
+PORT_RXBYTES			  Number 000A
+PORT_RXDISCARDED		  Number 0005
+PORT_RXEARLY			  Number 0006
+PORT_RXFIFO			  Number 0000
+PORT_RXFILTER			  Number 0008
+PORT_RXFRAMES			  Number 0007
+PORT_RXFREE			  Number 000A
+PORT_RXSTATUS			  Number 0008
+PORT_RZMASK			  Number 000C
+PORT_SA0_1			  Number 0000
+PORT_SA2_3			  Number 0002
+PORT_SA4_5			  Number 0004
+PORT_SLINGSHOTSTATUS		  Number 0008
+PORT_TIMER			  Number 000A
+PORT_TXAVAILABLE		  Number 0002
+PORT_TXBYTES			  Number 000C
+PORT_TXCARRIERLOST		  Number 0000
+PORT_TXDEFER			  Number 0008
+PORT_TXDIAGNOSTIC		  Number 0000
+PORT_TXFIFO			  Number 0000
+PORT_TXFRAMES			  Number 0006
+PORT_TXFREE			  Number 000C
+PORT_TXLATE			  Number 0004
+PORT_TXMULTIPLE			  Number 0002
+PORT_TXNOCD			  Number 0001
+PORT_TXSINGLE			  Number 0003
+PORT_TXSTART			  Number 0000
+PORT_TXSTATUS			  Number 000B
+PREAMBLESIZE			  Number 0004
+PRINT_NUMBER			  Near	 CODE:---- Extern
+PRINT_PARAMETERS		  Near	 CODE:06A7
+PRINT_PARAMETERS_1		  Near	 CODE:06C6
+PRINT_PARAMETERS_2		  Near	 CODE:06D0
+PRODUCT_ID_MASK			  Number F0FF
+RCONFIG_IRQ			  Number F000
+RCV_MODES			  Word	 CODE:0021
+RCV_MODE_1			  Near	 CODE:012C
+RCV_MODE_2			  Near	 CODE:012F
+RCV_MODE_3			  Near	 CODE:0132
+RCV_MODE_5			  Near	 CODE:0135
+RCV_MODE_6			  Near	 CODE:0138
+READING_MSG			  Byte	 CODE:037A
+READ_EADDR			  Near	 CODE:065A
+READ_EEPROM			  Number 0080
+READ_EE_EISA			  Near	 CODE:0675
+READ_EE_EISA_1			  Near	 CODE:0678
+READ_EE_ISA			  Near	 CODE:0686
+READ_EE_ISA_1			  Near	 CODE:0690
+READ_HEADER			  Near	 CODE:016C
+READ_HEADER_1			  Near	 CODE:018F
+READ_ISA_CHECKSUM		  Near	 CODE:0539
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 36
+Symbol Table
+
+
+
+READ_ISA_CHECKSUM_1		  Near	 CODE:0577
+READ_ISA_CHECKSUM_2		  Near	 CODE:057B
+READ_ISA_CHECKSUM_NOT_3		  Near	 CODE:0557
+READ_ISA_CHECKSUM_NOT_7		  Near	 CODE:0561
+RECV				  Near	 CODE:0190
+RECV_ANOTHER			  Near	 CODE:0190
+RECV_COMPLETE			  Near	 CODE:01CC
+RECV_COMPLETE_1			  Near	 CODE:01E0
+RECV_COMPLETE_2			  Near	 CODE:01E1
+RECV_COMPLETE_3			  Near	 CODE:0207
+RECV_COMPLETE_4			  Near	 CODE:021B
+RECV_COPY			  Near	 CODE:---- Extern
+RECV_DISCARD			  Near	 CODE:0260
+RECV_DISCARD_1			  Near	 CODE:026D
+RECV_EARLY			  Near	 CODE:01AA
+RECV_EARLY_1			  Near	 CODE:01C7
+RECV_ERR			  Near	 CODE:01DA
+RECV_EXIT			  Near	 CODE:027D
+RECV_EXITING_EXIT		  Near	 CODE:---- Extern
+RECV_FIND			  Near	 CODE:---- Extern
+RECV_FOUND			  Near	 CODE:---- Extern
+RECV_LOCATE			  Near	 CODE:---- Extern
+REGISTER_SET_SIZE		  Number 0010
+REPINSD				  Near	 CODE:0176
+RESET_INTERFACE			  Near	 CODE:0155
+RESOURCE_CONFIGURATION		  Word	 CODE:0491
+ROM_ADDRESS			  Byte	 CODE:---- Extern
+RUNT				  Number 003C
+RXEARLY_DISABLED		  Number 07F0
+RXLENGTH_MAX			  Number 0700
+RXSH_CRC			  Number 0028
+RXSH_DRIBBLE			  Number 0010
+RXSH_ERROR			  Number 0040
+RXSH_ERRTYPE			  Number 0038
+RXSH_FRAMING			  Number 0020
+RXSH_INCOMPLETE			  Number 0080
+RXSH_OVERRUN			  Number 0000
+RXSH_OVERSIZE			  Number 0008
+RXSH_RUNT			  Number 0018
+RXS_CRC				  Number 2800
+RXS_DRIBBLE			  Number 1000
+RXS_ERROR			  Number 4000
+RXS_ERRTYPE			  Number 3800
+RXS_FRAMING			  Number 2000
+RXS_INCOMPLETE			  Number 8000
+RXS_LENGTH			  Number 07FF
+RXS_OVERRUN			  Number 0000
+RXS_OVERSIZE			  Number 0800
+RXS_RUNT			  Number 1800
+SCHEDULE_EXITING		  Near	 CODE:---- Extern
+SCRATCH				  Word	 CODE:0499
+SEND_8086			  Near	 CODE:00F4
+SEND_PKT			  Near	 CODE:009C
+SEND_PKT_0			  Near	 CODE:00B5
+SEND_PKT_1			  Near	 CODE:00D1
+SEND_PKT_2			  Near	 CODE:00E6
+SEND_PKT_3			  Near	 CODE:00C0
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 37
+Symbol Table
+
+
+
+SEND_PKT_6			  Near	 CODE:00FA
+SEND_PKT_TOOBIG			  Near	 CODE:00E2
+SET_ADDRESS			  Near	 CODE:00FC
+SET_ADDRESS_1			  Near	 CODE:0115
+SET_ADDRESS_4			  Near	 CODE:0106
+SET_ADDRESS_DONE		  Near	 CODE:011E
+SET_ADDRESS_OKAY		  Near	 CODE:011A
+SET_INT_NUM			  Near	 CODE:063A
+SET_MULTICAST_LIST		  Near	 CODE:0145
+SET_RECV_ISR			  Near	 CODE:---- Extern
+SET_TAG_REGISTER		  Number 00D0
+SET_TIMEOUT			  Near	 CODE:0037
+SLING_TXUNDERRUN		  Number 2000
+STH_BUSY			  Number 0010
+STH_FAILED			  Number 0008
+STH_WINDOW			  Number 00E0
+ST_BUSY				  Number 1000
+ST_FAILED			  Number 0800
+ST_WINDOW			  Number E000
+SW_LINKBEAT			  Number 4000
+SW_MAXCLI			  Number 3F00
+SW_OPTIMIZE			  Number 0030
+SYS_MCA				  Number 0002
+TERMINATE			  Near	 CODE:0149
+TEST_TAG_REGISTER		  Number 00D8
+TIMEOUT				  Word	 CODE:0031
+TIMEOUT_COUNTER			  Word	 CODE:0033
+TIMEOUT_VALUE			  Word	 CODE:0035
+TIMER_ISR			  Near	 CODE:027E
+TP_XCVR				  Number 0000
+TP_XCVR_MSG			  Byte	 CODE:045B
+TWO_8259			  Number 0040
+TXAVAIL_DISABLED		  Number 07F8
+TXAVAIL_MIN			  Number 0004
+TXP_INTONSUCCESS		  Number 8000
+TXSTART_DISABLED		  Number 07F8
+TXSTART_MAX			  Alias	 TXSTART_DISABLED
+TXSTART_MIN			  Number 0000
+TXS_COMPLETE			  Number 0080
+TXS_ERRTYPE			  Number 0038
+TXS_INTREQUESTED		  Number 0040
+TXS_JABBERERROR			  Number 0020
+TXS_MAXCOLLISIONS		  Number 0008
+TXS_STATUSOVERFLOW		  Number 0004
+TXS_UNDERRUN			  Number 0010
+TX_RESET			  Near	 CODE:007E
+TX_RESET_1			  Near	 CODE:008E
+TYPE_INUSE			  Number 000A
+USAGE_MSG			  Byte	 CODE:027F
+U_OPTION			  Number 0010
+VERSION				  Number 0006
+WNO_DIAGNOSTICS			  Number 0004
+WNO_FIFO			  Number 0003
+WNO_OPERATING			  Number 0001
+WNO_READABLE			  Number 0005
+WNO_SETUP			  Number 0000
+WNO_STATIONADDRESS		  Number 0002
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 38
+Symbol Table
+
+
+
+WNO_STATISTICS			  Number 0006
+WRITE_ID_PAT			  Near	 CODE:0643
+WRITE_ID_PAT_1			  Near	 CODE:0650
+WRITE_ID_PAT_2			  Near	 CODE:0657
+WRONG_PORT_MSG			  Byte	 CODE:03B4
+W_OPTION			  Number 0008
+XMIT				  Near	 CODE:007D
+
+Macro Name
+
+ADD2
+LOADPORT
+MOVSEG
+PRINT
+PRINT_IT
+REPMOV
+SEND_PEEKQUEUE
+SEND_QUEUEEMPTY
+SETPORT
+SETWIN
+SKIP2
+TO_SCRN
+
+Structure Name			  Type	Offset
+
+IOCB
+ BUFFER				  Dword	 0000
+ LEN				  Word	 0004
+ FLAGS				  Byte	 0006
+ RET_CODE			  Byte	 0007
+ UPCALL				  Dword	 0008
+ NEXT				  Dword	 000C
+ RESV				  Byte	 0010
+SEGMOFFS
+ OFFS				  Word	 0000
+ SEGM				  Word	 0002
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+CODE				  16  06DE Word	  Public
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:11	    Page 39
+Error Summary
+
+
+
+*Warning* 3c509.ASM(1) Reserved	word used as symbol: VERSION
+

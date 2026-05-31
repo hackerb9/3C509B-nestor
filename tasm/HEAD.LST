@@ -1,0 +1,2183 @@
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 1
+head.ASM
+
+
+
+      1					     include defs.asm
+1     2	      =000B		     majver	     equ     11		     ;version number of	the infrastructure.
+1     3
+1     4	      =0010		     MAX_ADDR_LEN    equ     16		     ;maximum number of	bytes in our address.
+1     5
+1     6	      =000A		     MAX_HANDLE	     equ     10		     ;maximum number of	handles.
+1     7
+1     8	      =0008		     MAX_P_LEN	     equ     8		     ;maximum type length
+1     9
+1    10	      =0008		     MAX_MULTICAST   equ     8		     ;maximum number of	multicast addresses.
+1    11
+1    12				     ;	Copyright, 1988-1992, Russell Nelson, Crynwr Software
+1    13
+1    14				     ;	 This program is free software;	you can	redistribute it	and/or modify
+1    15				     ;	 it under the terms of the GNU General Public License as published by
+1    16				     ;	 the Free Software Foundation, version 1.
+1    17				     ;
+1    18				     ;	 This program is distributed in	the hope that it will be useful,
+1    19				     ;	 but WITHOUT ANY WARRANTY; without even	the implied warranty of
+1    20				     ;	 MERCHANTABILITY or FITNESS FOR	A PARTICULAR PURPOSE.  See the
+1    21				     ;	 GNU General Public License for	more details.
+1    22				     ;
+1    23				     ;	 You should have received a copy of the	GNU General Public License
+1    24				     ;	 along with this program; if not, write	to the Free Software
+1    25				     ;	 Foundation, Inc., 59 Temple Place - Suite 330,	Boston,	MA 02111-1307, USA
+1    26
+1    27	      =0009		     HT	     equ     09h
+1    28	      =000D		     CR	     equ     0dh
+1    29	      =000A		     LF	     equ     0ah
+1    30
+1    31				     ;
+1    32				     ;	Packet Driver Error numbers
+1    33	      =0000		     NO_ERROR	     equ     0		     ;no error at all.
+1    34	      =0001		     ERR_BAD_HANDLE  equ     1		     ;invalid handle number
+1    35	      =0002		     NO_CLASS	     equ     2		     ;no interfaces of specified class found
+1    36	      =0003		     NO_TYPE	     equ     3		     ;no interfaces of specified type found
+1    37	      =0004		     NO_NUMBER	     equ     4		     ;no interfaces of specified number	found
+1    38	      =0005		     ERR_BAD_TYPE    equ     5		     ;bad packet type specified
+1    39	      =0006		     NO_MULTICAST    equ     6		     ;this interface does not support
+1    40									     ;multicast
+1    41	      =0007		     CANT_TERMINATE  equ     7		     ;this packet driver cannot	terminate
+1    42	      =0008		     BAD_MODE	     equ     8		     ;an invalid receiver mode was specified
+1    43	      =0009		     NO_SPACE	     equ     9		     ;operation	failed because of
+1    44									     ;insufficient space
+1    45	      =000A		     TYPE_INUSE	     equ     10		     ;the type had previously been accessed,
+1    46									     ;and not released.
+1    47	      =000B		     BAD_COMMAND     equ     11		     ;the command was out of range, or not
+1    48									     ;implemented
+1    49	      =000C		     CANT_SEND	     equ     12		     ;the packet couldn't be sent (usually
+1    50									     ;hardware error)
+1    51	      =000D		     CANT_SET	     equ     13		     ;hardware address couldn't	be changed
+1    52									     ;(more than 1 handle open)
+1    53	      =000E		     BAD_ADDRESS     equ     14		     ;hardware address has bad length or
+1    54									     ;format
+1    55	      =000F		     CANT_RESET	     equ     15		     ;Couldn't reset interface (more than
+1    56									     ;1	handle open).
+1    57	      =0010		     BAD_IOCB	     equ     16		     ;an invalid iocb was specified
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 2
+head.ASM
+
+
+
+1    58
+1    59				     ;a	few useful Ethernet definitions.
+1    60	      =003C		     RUNT	     equ     60		     ;smallest legal size packet, no fcs
+1    61	      =05EA		     GIANT	     equ     1514	     ;largest legal size packet, no fcs
+1    62	      =0006		     EADDR_LEN	     equ     6		     ;Ethernet address length.
+1    63	      =0001		     ARCADDR_LEN     equ     1
+1    64
+1    65	      =0001		     BLUEBOOK	     equ     1
+1    66	      =000B		     IEEE8023	     equ     11
+1    67
+1    68				     ;The following two	macros are used	to manipulate port addresses.
+1    69				     ;Use loadport to initialize dx.  Use setport to set a specific port on
+1    70				     ;the board.  setport remembers what the current port number is, but beware!
+1    71				     ;setport assumes that code	is being executed in the same order as the
+1    72				     ;code is presented	in the source file.  Whenever this assumption is violated,
+1    73				     ;you need to enter	another	loadport.  Some, but not all examples are:
+1    74				     ;in a loop	with multiple setports,	or a backward jump over	a setport, or
+1    75				     ;a	forward	jump over a setport.  If you have any doubt, consult the
+1    76				     ;individual driver	sources	for examples of	usage.	If you suspect that
+1    77				     ;you have too few loadports, define the symbol "no_confidence" to a
+1    78				     ;one.  This will force a loadport before every setport.  If you wish to turn
+1    79				     ;it off for some of your code, redefine it	to a zero.
+1    80
+1    81				     loadport	     macro
+1    82					     mov     dx,io_addr
+1    83				     port_no =	     0
+1    84					     endm
+1    85
+1    86				     ;change the port number from the current value to the new value.
+1    87				     setport macro   new_port_no
+1    88					     ifdef   no_confidence	     ;define if	you suspect that you don't
+1    89					       if    no_confidence
+1    90						     loadport		     ;	have enough loadports, i.e. dx is
+1    91					       endif
+1    92					     endif			     ;	set to the wrong port.
+1    93					     if	     new_port_no - port_no EQ 1
+1    94						     inc     dx
+1    95					     else
+1    96						     if	     new_port_no - port_no EQ -1
+1    97							     dec     dx
+1    98						     else
+1    99							     if	     new_port_no - port_no NE 0
+1   100								     add     dx,new_port_no - port_no
+1   101							     endif
+1   102						     endif
+1   103					     endif
+1   104				     port_no =	     new_port_no
+1   105					     endm
+1   106
+1   107				     ;this macro does a	"rep movsb" with a static count.
+1   108				     repmov  macro   count
+1   109					     rept    (count) / 2
+1   110					     movsw
+1   111					     endm
+1   112					     rept    (count) MOD 2
+1   113					     movsb
+1   114					     endm
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 3
+head.ASM
+
+
+
+1   115					     endm
+1   116
+1   117				     ;moves a segment register into another segment register.
+1   118				     movseg  macro   to, from
+1   119					     push    from
+1   120					     pop     to
+1   121					     endm
+1   122
+1   123				     ;add a word to a dword.
+1   124				     add2    macro   n,a		     ; inc a 32	bit integer
+1   125					     add     n.offs,a		     ;increment	the low	word
+1   126					     adc     n.segm,0		     ;increment	the high word
+1   127					     endm
+1   128
+1   129				     ;this macro writes	the given character to the given row and column	on
+1   130				     ;	an CGA.
+1   131				     to_scrn macro   r,	c, ch
+1   132					     local   again
+1   133					     push    bx
+1   134					     push    es
+1   135					     mov     bx,0b800h
+1   136					     mov     es,bx
+1   137					     mov     bx,es:[r*160+c*2]
+1   138				     again:
+1   139					     inc     bh
+1   140					     and     bh,07h
+1   141					     je	     again		     ;;	don't use black.
+1   142					     mov     bl,ch
+1   143					     mov     es:[r*160+c*2],bx
+1   144					     pop     es
+1   145					     pop     bx
+1   146					     endm
+1   147
+1   148
+1   149
+1   150	*000			     segmoffs	     struc		     ; defines offs as 0, segm as 2
+1   151	*000  01*(????)		     offs	     dw	     ?
+1   152	*002  01*(????)		     segm	     dw	     ?
+1   153	*004			     segmoffs	     ends
+1   154
+1   155	      =0001		     CY	     equ     0001h
+1   156	      =0200		     EI	     equ     0200h
+1   157
+1   158	*000			     iocb	     struc		     ; as_send_pkt structure
+1   159	*000  01*(????????)	     buffer	     dd	     ?		     ; Pointer to the buffer
+1   160	*004  01*(????)		     len	     dw	     ?		     ; Its length
+1   161	*006  01*(??)		     flags	     db	     ?		     ; Some flags
+1   162	*007  01*(??)		     ret_code	     db	     ?		     ; Completion code
+1   163	*008  01*(????????)	     upcall	     dd	     ?		     ; I/O completion upcall
+1   164	*00C  01*(????????)	     next	     dd	     ?		     ; Private next pointer (queue)
+1   165	*010  01*(04*(??))	     resv	     db	     4 dup (?)	     ; Unused private data
+1   166	*014			     iocb	     ends
+1   167
+1   168	      =0001		     DONE    equ     1		     ; I/O complete flag
+1   169	      =0002		     CALLME  equ     2		     ; Please upcall me	flag
+1   170
+1   171
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 4
+head.ASM
+
+
+
+1   172				     send_queueempty macro
+1   173				     ; Check if	send queue is empty.
+1   174				     ; Enter with interrupts disabled.
+1   175				     ; Exit with zr (zero) if empty, nz	(not zero) if not.
+1   176				     ; Destroys	ax.
+1   177					     mov ax, word ptr send_head	     ; Queue empty?
+1   178					     or	ax,  word ptr send_head+2
+1   179					     endm
+1   180
+1   181				     send_peekqueue  macro
+1   182				     ; Peek into the queue and get the next entry.
+1   183				     ; Enter with interrupts disabled.
+1   184				     ; Exit with es:di -> iocb.
+1   185					     les di, send_head	     ; Get head	segment:offset
+1   186					     endm
+1   187
+1   188				     print_it	     macro
+1   189					     mov	     ah, 9
+1   190					     int	     21h
+1   191					     endm
+1   192
+1   193				     print   macro   message_param
+1   194					     mov	     dx, offset	message_param
+1   195					     print_it
+1   196					     endm
+1   197
+1   198				     ; Bits in sys_features
+1   199	      =0002		     SYS_MCA equ     02		     ; a micro channel computer
+1   200	      =0040		     TWO_8259	     equ     40h	     ; 2nd 8259	exists
+1   201
+1   202				     ; Bits in flagbyte
+1   203	      =0001		     CALLED_ETOPEN   equ     1		     ; have called etopen
+1   204	      =0002		     D_OPTION	     equ     2		     ; delayed initialization
+1   205	      =0004		     N_OPTION	     equ     4		     ; Novell protocol conversion
+1   206	      =0008		     W_OPTION	     equ     8		     ; Windows upcall checking.
+1   207	      =0010		     U_OPTION	     equ     10h	     ; Terminate the driver.
+1   208	      =0020		     M_OPTION	     equ     20h	     ; Micronetics M
+1   209
+1   210
+    211
+    212				     ;	Copyright, 1988-1993, Russell Nelson, Crynwr Software
+    213
+    214				     ;	 This program is free software;	you can	redistribute it	and/or modify
+    215				     ;	 it under the terms of the GNU General Public License as published by
+    216				     ;	 the Free Software Foundation, version 1.
+    217				     ;
+    218				     ;	 This program is distributed in	the hope that it will be useful,
+    219				     ;	 but WITHOUT ANY WARRANTY; without even	the implied warranty of
+    220				     ;	 MERCHANTABILITY or FITNESS FOR	A PARTICULAR PURPOSE.  See the
+    221				     ;	 GNU General Public License for	more details.
+    222				     ;
+    223				     ;	 You should have received a copy of the	GNU General Public License
+    224				     ;	 along with this program; if not, write	to the Free Software
+    225				     ;	 Foundation, Inc., 59 Temple Place - Suite 330,	Boston,	MA 02111-1307, USA
+    226
+    227	0000			     code    segment word public
+    228					     assume  cs:code, ds:code
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 5
+head.ASM
+
+
+
+    229
+    230					     public  phd_environ
+    231					     org     2ch
+    232	002C  ????		     phd_environ     dw	     ?
+    233
+    234					     public  phd_dioa
+    235					     org     80h
+    236	0080			     phd_dioa	     label   byte
+    237
+    238					     org     100h
+    239	0100			     start:
+    240	0100  E9 0000e			     jmp     start_1
+    241					     extrn   start_1: near
+    242	0103  50 4B			     db	     "PK"
+    243					     extrn   branding_msg: byte
+    244	0105  0000e			     dw	     branding_msg
+    245
+    246	0107  90			     even			     ;put the stack on a word boundary.
+    247	0108  80*(????)			     dw	     128 dup(?)		     ;128 words	of stack.
+    248	0208			     our_stack	     label   byte
+    249
+    250
+    251					     extrn   int_no: byte
+    252
+    253					     public  entry_point, sys_features,	flagbyte, is_186, is_286, is_386
+    254	0208  ?? ?? ?? ??	     entry_point     db	     ?,?,?,?	     ; interrupt to communicate.
+    255	020C  00		     sys_features    db	     0		     ; 2h = MC	 40h = 2nd 8259
+    256	020D  00		     is_186	     db	     0		     ;=0 if 808[68], =1	if 80[123]86.
+    257	020E  00		     is_286	     db	     0		     ;=0 if 80[1]8[68],	=1 if 80[234]86.
+    258	020F  00		     is_386	     db	     0		     ;=0 if 80[12]8[68], =1 if 80[34]86.
+    259	0210  00		     flagbyte	     db	     0
+    260	0211  00		     original_mask   db	     0		     ;=0 if interrupt was originally on.
+    261					     even
+    262
+    263	0212			     functions	     label   word
+    264	0212  0482r			     dw	     f_not_implemented	     ;0
+    265	0214  0486r			     dw	     f_driver_info	     ;1
+    266	0216  0578r			     dw	     f_access_type	     ;2
+    267	0218  062Br			     dw	     f_release_type	     ;3
+    268	021A  0677r			     dw	     f_send_pkt		     ;4
+    269	021C  0727r			     dw	     f_terminate	     ;5
+    270	021E  0789r			     dw	     f_get_address	     ;6
+    271	0220  07F0r			     dw	     f_reset_interface	     ;7
+    272	0222  07F8r			     dw	     f_stop		     ;8
+    273	0224  0482r			     dw	     f_not_implemented	     ;9
+    274	0226  080Ar			     dw	     f_get_parameters	     ;10
+    275	0228  0482r			     dw	     f_not_implemented	     ;11
+    276	022A  06B3r			     dw	     f_as_send_pkt	     ;12
+    277	022C  06EAr			     dw	     f_drop_pkt		     ;13
+    278	022E  0482r			     dw	     f_not_implemented	     ;14
+    279	0230  0482r			     dw	     f_not_implemented	     ;15
+    280	0232  0482r			     dw	     f_not_implemented	     ;16
+    281	0234  0482r			     dw	     f_not_implemented	     ;17
+    282	0236  0482r			     dw	     f_not_implemented	     ;18
+    283	0238  0482r			     dw	     f_not_implemented	     ;19
+    284	023A  04D3r			     dw	     f_set_rcv_mode	     ;20
+    285	023C  0507r			     dw	     f_get_rcv_mode	     ;21
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 6
+head.ASM
+
+
+
+    286	023E  0512r			     dw	     f_set_multicast_list    ;22
+    287	0240  0547r			     dw	     f_get_multicast_list    ;23
+    288	0242  055Br			     dw	     f_get_statistics	     ;24
+    289	0244  07A1r			     dw	     f_set_address	     ;25
+    290
+    291				     ;external data supplied by	device-dependent module:
+    292					     extrn   driver_class: byte
+    293					     extrn   driver_type: byte
+    294					     extrn   driver_name: byte
+    295					     extrn   driver_function: byte
+    296					     extrn   parameter_list: byte
+    297					     extrn   rcv_modes:	word	     ;count of modes followed by mode handles.
+    298
+    299				     ;external code supplied by	device-dependent module:
+    300					     extrn   send_pkt: near
+    301					     extrn   as_send_pkt: near
+    302					     extrn   drop_pkt: near
+    303					     extrn   set_address: near
+    304					     extrn   terminate:	near
+    305					     extrn   reset_interface: near
+    306					     extrn   xmit: near
+    307					     extrn   recv: near
+    308					     extrn   etopen: near
+    309					     extrn   set_multicast_list: near
+    310					     extrn   timer_isr:	near
+    311
+    312	*246			     per_handle	     struc
+    313	*000  01*(????)		     next_type	     dw	     ?		     ;points to	the next type to look at.
+    314	*002  01*(00)		     in_use	     db	     0		     ;non-zero if this handle is in use.
+    315	*003  01*(08*(00))	     packet_type     db	     MAX_P_LEN dup(0);associated packet	type.
+    316	*00B  01*(0000)		     packet_type_len dw	     0		     ;associated packet	type length.
+    317	*00D  01*(00000000)	     receiver	     dd	     0		     ;receiver handler.
+    318	*011  01*(08*(??))	     receiver_sig    db	     8 dup(?)	     ;signature	at the receiver	handler.
+    319	*019  01*(??)		     class	     db	     ?		     ;interface	class
+    320	*01A			     per_handle	     ends
+    321
+    322
+    323	0246  0A*(02*(??) 00 08*  +  handles	     per_handle	MAX_HANDLE dup(<>)
+    324	      (00) 0000	00000000  +
+    325	      09*(??))
+    326	034A			     end_handles     label   byte
+    327
+    328					     public  multicast_count, multicast_addrs, multicast_broad
+    329	034A  0000		     multicast_count dw	     0		     ;count of stored multicast	addresses.
+    330	034C  FF FF FF FF FF FF	     multicast_broad db	     0ffh,0ffh,0ffh,0ffh,0ffh,0ffh   ; entry for broadcast
+    331	0352  30*(??)		     multicast_addrs db	     MAX_MULTICAST*EADDR_LEN dup(?)
+    332
+    333				     ;the device-dependent code	reads the board's address from ROM in the
+    334				     ;initialization code.
+    335					     public  address_len, rom_address, my_address
+    336	0382  0006		     address_len     dw	     EADDR_LEN		     ;default to Ethernet.
+    337	0384  10*(??)		     rom_address     db	     MAX_ADDR_LEN dup(?)     ;our address in ROM.
+    338	0394  10*(??)		     my_address	     db	     MAX_ADDR_LEN dup(?)     ;our current address.
+    339
+    340	03A4  0003		     rcv_mode_num    dw	     3
+    341
+    342	03A6  0000		     found_handle    dw	     0		     ; temp, handle for	our packet
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 7
+head.ASM
+
+
+
+    343	03A8  00000000		     receive_ptr     dd	     0		     ; the pkt receive service routine
+    344
+    345					     public  send_head,	send_tail
+    346	03AC  00000000		     send_head	     dd	     0		     ; head of transmit	queue
+    347	03B0  00000000		     send_tail	     dd	     0		     ; tail of transmit	queue
+    348
+    349	03B4			     statistics_list label   dword
+    350	03B4  ???? ????		     packets_in	     dw	     ?,?
+    351	03B8  ???? ????		     packets_out     dw	     ?,?
+    352	03BC  ???? ????		     bytes_in	     dw	     ?,?
+    353	03C0  ???? ????		     bytes_out	     dw	     ?,?
+    354	03C4  ???? ????		     errors_in	     dw	     ?,?
+    355	03C8  ???? ????		     errors_out	     dw	     ?,?
+    356	03CC  ???? ????		     packets_dropped dw	     ?,?	     ;dropped due to no	type handler.
+    357
+    358	03D0			     savespss	     label   dword
+    359	03D0  ????		     savesp	     dw	     ?		     ;saved during the stack swap.
+    360	03D2  ????		     savess	     dw	     ?
+    361
+    362					     public  their_timer
+    363	03D4  00000000		     their_timer     dd	     0		     ;original owner of	timer int
+    364	03D8  00000000		     their_recv_isr  dd	     0		     ;original owner of	board int.
+    365
+    366				     ;
+    367				     ; The following structure is used to access the registers pushed by the
+    368				     ; packet driver interrupt handler.	 Don't change this structure without also
+    369				     ; changing	the "bytes" structure given below.
+    370				     ;
+    371	*3DC			     regs    struc			     ; stack offsets of	incoming regs
+    372	*000  01*(????)		     _ES     dw	     ?
+    373	*002  01*(????)		     _DS     dw	     ?
+    374	*004  01*(????)		     _BP     dw	     ?
+    375	*006  01*(????)		     _DI     dw	     ?
+    376	*008  01*(????)		     _SI     dw	     ?
+    377	*00A  01*(????)		     _DX     dw	     ?
+    378	*00C  01*(????)		     _CX     dw	     ?
+    379	*00E  01*(????)		     _BX     dw	     ?
+    380	*010  01*(????)		     _AX     dw	     ?
+    381	*012  01*(????)		     _IP     dw	     ?
+    382	*014  01*(????)		     _CS     dw	     ?
+    383	*016  01*(????)		     _F	     dw	     ?			     ; flags, Carry flag is bit	0
+    384	*018			     regs    ends
+    385
+    386				     ;
+    387				     ; bits in the _F register.
+    388				     ;
+    389	      =0001		     CY	     equ     0001h
+    390	      =0200		     EI	     equ     0200h
+    391
+    392
+    393				     ;
+    394				     ; This structure is a bytewise version of the "regs" structure above.
+    395				     ;
+    396	*3DC			     bytes   struc			     ; stack offsets of	incoming regs
+    397	*000  01*(????)			     dw	     ?			     ; es, ds, bp, di, si are 16 bits
+    398	*002  01*(????)			     dw	     ?
+    399	*004  01*(????)			     dw	     ?
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 8
+head.ASM
+
+
+
+    400	*006  01*(????)			     dw	     ?
+    401	*008  01*(????)			     dw	     ?
+    402	*00A  01*(??)		     _DL     db	     ?
+    403	*00B  01*(??)		     _DH     db	     ?
+    404	*00C  01*(??)		     _CL     db	     ?
+    405	*00D  01*(??)		     _CH     db	     ?
+    406	*00E  01*(??)		     _BL     db	     ?
+    407	*00F  01*(??)		     _BH     db	     ?
+    408	*010  01*(??)		     _AL     db	     ?
+    409	*011  01*(??)		     _AH     db	     ?
+    410	*012			     bytes   ends
+    411
+    412					     public  their_isr
+    413	03DC  00000000		     their_isr	     dd	     0		     ; original	owner of pkt driver int
+    414
+    415					     public  our_isr
+    416	03E0			     our_isr:
+    417	03E0  EB 46			     jmp     short our_isr_0	     ;the required signature.
+    418	03E2  90			     nop
+    419	03E3  50 4B 54 20 44 52	56+	     db	     'PKT DRVR',0
+    420	      52 00
+    421
+    422
+    423	03EC			     our_isr_open:
+    424	03EC  50			     push    ax			     ; save lots of registers
+    425	03ED  53			     push    bx
+    426	03EE  51			     push    cx
+    427	03EF  52			     push    dx
+    428	03F0  56			     push    si
+    429	03F1  57			     push    di
+    430	03F2  55			     push    bp
+    431	03F3  1E			     push    ds
+    432	03F4  06			     push    es
+    433
+    434	03F5  E8 0000e			     call    etopen		     ; init the	card
+    435	03F8  72 1A			     jc	     our_isr_no_init
+    436
+    437	03FA  BE 0384r			     mov     si,offset rom_address   ;copy their original address to
+    438					     movseg  es,ds
+1   439	03FD  1E			     push    ds
+1   440	03FE  07			     pop     es
+    441	03FF  BF 0394r			     mov     di,offset my_address    ;	their current address.
+    442	0402  B9 0008			     mov     cx,MAX_ADDR_LEN/2
+    443	0405  F3> A5			     rep     movsw
+    444
+    445	0407  83 3E 0008e 00		     cmp     rcv_modes+2[3*2],0	     ;does mode	3 exist?
+    446	040C  F9			     stc			     ;make sure	we generate an error!
+    447	040D  74 05			     je	     our_isr_no_init	     ;no.
+    448	040F  FF 16 0008e		     call    rcv_modes+2[3*2]	     ;	call it.
+    449	0413  F8			     clc
+    450
+    451	0414			     our_isr_no_init:
+    452	0414  07			     pop     es			     ; restore lots of registers
+    453	0415  1F			     pop     ds
+    454	0416  5D			     pop     bp
+    455	0417  5F			     pop     di
+    456	0418  5E			     pop     si
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 9
+head.ASM
+
+
+
+    457	0419  5A			     pop     dx
+    458	041A  59			     pop     cx
+    459	041B  5B			     pop     bx
+    460	041C  58			     pop     ax
+    461	041D  B6 0F			     mov     dh,CANT_RESET	     ; (actually can't initialize)
+    462	041F  72 3D			     jc	     our_isr_error
+    463	0421  80 0E 0210r 01		     or	     flagbyte,CALLED_ETOPEN  ; remember	this fact
+    464	0426  EB 1B			     jmp     short our_isr_cont
+    465
+    466
+    467	0428			     our_isr_0:
+    468					     assume  ds:nothing
+    469	0428  50			     push    ax
+    470	0429  53			     push    bx
+    471	042A  51			     push    cx
+    472	042B  52			     push    dx
+    473	042C  56			     push    si
+    474	042D  57			     push    di
+    475	042E  55			     push    bp
+    476	042F  1E			     push    ds
+    477	0430  06			     push    es
+    478	0431  FC			     cld
+    479	0432  8C CB			     mov     bx,cs		     ;set up ds.
+    480	0434  8E DB			     mov     ds,bx
+    481					     assume  ds:code
+    482	0436  8B EC			     mov     bp,sp		     ;we use bp	to access the original regs.
+    483	0438  83 66 16 FE		     and     _F[bp],not	CY	     ;start by clearing	the carry flag.
+    484
+    485
+    486	043C  F6 06 0210r 01		     test    flagbyte,CALLED_ETOPEN  ; have we initialized the card?
+    487	0441  74 A9			     jz	     our_isr_open	     ; no
+    488	0443			     our_isr_cont:
+    489	0443  8A DC			     mov     bl,ah		     ;jump to the correct function.
+    490	0445  32 FF			     xor     bh,bh
+    491	0447  83 FB 19			     cmp     bx,25		     ;only twenty five functions right now.
+    492	044A  77 1D			     ja	     f_bad_command
+    493	044C  03 DB			     add     bx,bx		     ;*2
+    494				     ;
+    495				     ; The functions are called	with all the original registers	except
+    496				     ; BX, DH, and BP.	They do	not need to preserve any of them.  If the
+    497				     ; function	returns	with cy	clear, all is well.  Otherwise dh=error	number.
+    498				     ;
+    499	044E  FF 97 0212r		     call    functions[bx]
+    500					     assume  ds:nothing
+    501	0452  72 0A			     jc	     our_isr_error
+    502	0454			     our_isr_return:
+    503	0454  07			     pop     es
+    504	0455  1F			     pop     ds
+    505	0456  5D			     pop     bp
+    506	0457  5F			     pop     di
+    507	0458  5E			     pop     si
+    508	0459  5A			     pop     dx
+    509	045A  59			     pop     cx
+    510	045B  5B			     pop     bx
+    511	045C  58			     pop     ax
+    512	045D  CF			     iret
+    513
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 10
+head.ASM
+
+
+
+    514	045E			     our_isr_error:
+    515					     assume  ds:nothing
+    516	045E  8B EC			     mov     bp,sp		     ;we use bp	to access the original regs.
+    517	0460  88 76 0B			     mov     _DH[bp],dh
+    518	0463  83 4E 16 01		     or	     _F[bp],CY		     ;return their carry flag.
+    519	0467  EB EB			     jmp     short our_isr_return
+    520
+    521	0469			     f_bad_command:
+    522					     assume  ds:code
+    523					     extrn   bad_command_intercept: near
+    524	0469  8B 5E 0E			     mov     bx,_BX[bp]
+    525	046C  E8 0000e			     call    bad_command_intercept
+    526	046F  89 5E 0E			     mov     _BX[bp],bx
+    527	0472  89 56 0A			     mov     _DX[bp],dx
+    528	0475  73 DD			     jnc     our_isr_return
+    529	0477  EB E5			     jmp     our_isr_error
+    530
+    531					     public  re_enable_interrupts
+    532	0479			     re_enable_interrupts:
+    533				     ; Possibly	re-enable interrupts.  We put this here	so that	other routines
+    534				     ; don't need to know how we put things on the stack.
+    535	0479  F7 46 16 0200		     test    _F[bp], EI		     ; Were interrupts enabled on pkt driver entry?
+    536	047E  74 01			     je	     re_enable_interrupts_1  ; No.
+    537	0480  FB			     sti			     ; Yes, re-enable interrupts now.
+    538	0481			     re_enable_interrupts_1:
+    539	0481  C3			     ret
+    540
+    541
+    542	0482			     f_not_implemented:
+    543	0482  B6 0B			     mov     dh,BAD_COMMAND
+    544	0484  F9			     stc
+    545	0485  C3			     ret
+    546
+    547
+    548	0486			     f_driver_info:
+    549				     ;	     As	of 1.08, the handle is optional, so we no longer verify	it.
+    550				     ;	     call    verify_handle
+    551	0486  80 7E 10 FF		     cmp     _AL[bp],0ffh	     ; correct calling convention?
+    552	048A  75 45			     jne     f_driver_info_1	     ; ne = incorrect, fail
+    553
+    554									     ;For enhanced PD, if they call
+    555	048C  81 7E 0E 0246r		     cmp     _BX[bp],offset handles  ;with a handle, give them the
+    556									     ;class they think it is
+    557	0491  72 18			     jb	     default_handle
+    558	0493  81 7E 0E 034Ar		     cmp     _BX[bp],offset end_handles	;otherwise default to first class
+    559	0498  73 11			     jae     default_handle
+    560	049A  8B 5E 0E			     mov     bx, _BX[bp]
+    561	049D  80 7F 02 00		     cmp     [bx].in_use,0	     ;if it's not in use, it's bad.
+    562	04A1  74 08			     je	     default_handle
+    563	04A3  8A 47 19			     mov     al, [bx].class
+    564	04A6  88 46 0D			     mov     _CH[bp], al
+    565	04A9  EB 06			     jmp     short got_handle
+    566
+    567	04AB			     default_handle:
+    568	04AB  A0 0000e			     mov     al,driver_class
+    569	04AE  88 46 0D			     mov     _CH[bp],al
+    570	04B1			     got_handle:
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 11
+head.ASM
+
+
+
+    571
+    572	04B1  C7 46 0E 000B		     mov     _BX[bp],majver	     ;version
+    573	04B6  A0 0000e			     mov     al,driver_type
+    574	04B9  98			     cbw
+    575	04BA  89 46 0A			     mov     _DX[bp],ax
+    576	04BD  C6 46 0C 00		     mov     _CL[bp],0		     ;number zero.
+    577	04C1  8C 5E 02			     mov     _DS[bp],ds		     ; point to	our name in their ds:si
+    578	04C4  C7 46 08 0000e		     mov     _SI[bp],offset driver_name
+    579	04C9  A0 0000e			     mov     al,driver_function
+    580	04CC  88 46 10			     mov     _AL[bp],al
+    581	04CF  F8			     clc
+    582	04D0  C3			     ret
+    583	04D1			     f_driver_info_1:
+    584	04D1  F9			     stc
+    585	04D2  C3			     ret
+    586
+    587
+    588	04D3			     f_set_rcv_mode:
+    589	04D3  E8 035B			     call    verify_handle
+    590	04D6  3B 0E 03A4r		     cmp     cx,rcv_mode_num	     ;are we already using that	mode?
+    591	04DA  74 25			     je	     f_set_rcv_mode_4	     ;yes, no need to check anything.
+    592
+    593	04DC  8B D3			     mov     dx,bx		     ;remember our handle.
+    594
+    595	04DE  E8 033E			     call    count_handles	     ;is ours the only open handle?
+    596	04E1  80 F9 01			     cmp     cl,1
+    597	04E4  75 1D			     jne     f_set_rcv_mode_1	     ;no, don't	change the receive mode.
+    598
+    599	04E6  8B 4E 0C			     mov     cx,_CX[bp]		     ;get the desired receive mode.
+    600	04E9  3B 0E 0000e		     cmp     cx,rcv_modes	     ;do they have this	many modes?
+    601	04ED  73 14			     jae     f_set_rcv_mode_1	     ;no - must	be a bad mode for us.
+    602	04EF  8B D9			     mov     bx,cx
+    603	04F1  03 DB			     add     bx,bx		     ;we're accessing words, not bytes.
+    604	04F3  8B 87 0002e		     mov     ax,rcv_modes[bx]+2	     ;get the handler for this mode.
+    605	04F7  0B C0			     or	     ax,ax		     ;do they have one?
+    606	04F9  74 08			     je	     f_set_rcv_mode_1	     ;no - must	be a bad mode for us.
+    607	04FB  89 0E 03A4r		     mov     rcv_mode_num,cx	     ;yes - remember the number	and
+    608	04FF  FF D0			     call    ax			     ;	call it.
+    609	0501			     f_set_rcv_mode_4:
+    610	0501  F8			     clc
+    611	0502  C3			     ret
+    612	0503			     f_set_rcv_mode_1:
+    613	0503  B6 08			     mov     dh,BAD_MODE
+    614	0505  F9			     stc
+    615	0506  C3			     ret
+    616
+    617
+    618	0507			     f_get_rcv_mode:
+    619	0507  E8 0327			     call    verify_handle
+    620	050A  A1 03A4r			     mov     ax,rcv_mode_num	     ;return the current receive mode.
+    621	050D  89 46 10			     mov     _AX[bp],ax
+    622	0510  F8			     clc
+    623	0511  C3			     ret
+    624
+    625
+    626	0512			     f_set_multicast_list:
+    627				     ;following	instruction not	needed because cx hasn't been changed.
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 12
+head.ASM
+
+
+
+    628				     ;	     mov     cx,_CX[bp]		     ;Tell them	how much room they have.
+    629
+    630				     ;verify that they supplied	an even	number of EADDR's.
+    631	0512  8B C1			     mov     ax,cx
+    632	0514  33 D2			     xor     dx,dx
+    633	0516  BB 0006			     mov     bx,EADDR_LEN
+    634	0519  F7 F3			     div     bx
+    635	051B  0B D2			     or	     dx,dx		     ;zero remainder?
+    636	051D  75 20			     jne     f_set_multicast_list_2  ;no, we don't have	an even	number of
+    637									     ;	addresses.
+    638
+    639	051F  3D 0008			     cmp     ax,MAX_MULTICAST	     ;is this too many?
+    640	0522  77 1F			     ja	     f_set_multicast_list_3  ;yes - return NO_SPACE
+    641	0524			     f_set_multicast_list_1:
+    642	0524  A3 034Ar			     mov     multicast_count,ax	     ;remember the number of addresses.
+    643					     movseg  es,cs
+1   644	0527  0E			     push    cs
+1   645	0528  07			     pop     es
+    646	0529  BF 0352r			     mov     di,offset multicast_addrs
+    647	052C  1E			     push    ds
+    648	052D  8E 5E 00			     mov     ds,_ES[bp]		     ; get ds:si -> new	list.
+    649	0530  8B 76 06			     mov     si,_DI[bp]
+    650	0533  51			     push    cx
+    651	0534  F3> A4			     rep     movsb
+    652	0536  59			     pop     cx
+    653	0537  1F			     pop     ds
+    654
+    655	0538  BE 0352r			     mov     si,offset multicast_addrs
+    656	053B  E8 0000e			     call    set_multicast_list
+    657	053E  C3			     ret
+    658	053F			     f_set_multicast_list_2:
+    659	053F  B6 0E			     mov     dh,BAD_ADDRESS
+    660	0541  F9			     stc
+    661	0542  C3			     ret
+    662	0543			     f_set_multicast_list_3:
+    663	0543  B6 09			     mov     dh,NO_SPACE
+    664	0545  F9			     stc
+    665	0546  C3			     ret
+    666
+    667
+    668	0547			     f_get_multicast_list:
+    669	0547  8C 5E 00			     mov     _ES[bp],ds		     ;return what we have remembered.
+    670	054A  C7 46 06 0352r		     mov     _DI[bp],offset multicast_addrs
+    671	054F  B8 0006			     mov     ax,EADDR_LEN	     ;multiply the count by the	length.
+    672	0552  F7 26 034Ar		     mul     multicast_count
+    673	0556  89 46 0C			     mov     _CX[bp],ax		     ;because they want	total bytes.
+    674	0559  F8			     clc
+    675	055A  C3			     ret
+    676
+    677
+    678	055B			     f_get_statistics:
+    679	055B  E8 02D3			     call    verify_handle	     ;just in case.
+    680	055E  8C 5E 02			     mov     _DS[bp],ds
+    681	0561  C7 46 08 03B4r		     mov     _SI[bp],offset statistics_list
+    682	0566  F8			     clc
+    683	0567  C3			     ret
+    684
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 13
+head.ASM
+
+
+
+    685
+    686	0568			     access_type_class:
+    687	0568  B6 02			     mov     dh,NO_CLASS
+    688	056A  F9			     stc
+    689	056B  C3			     ret
+    690
+    691	056C			     access_type_type:
+    692	056C  B6 03			     mov     dh,NO_TYPE
+    693	056E  F9			     stc
+    694	056F  C3			     ret
+    695
+    696	0570			     access_type_number:
+    697	0570  B6 04			     mov     dh,NO_NUMBER
+    698	0572  F9			     stc
+    699	0573  C3			     ret
+    700
+    701	0574			     access_type_bad:
+    702	0574  B6 05			     mov     dh,ERR_BAD_TYPE
+    703	0576  F9			     stc
+    704	0577  C3			     ret
+    705
+    706				     ;register caller of pkt TYPE
+    707	0578			     f_access_type:
+    708	0578  BB 0000e			     mov     bx, offset	driver_class
+    709	057B			     access_type_9:
+    710	057B  8A 07			     mov     al, [bx]		     ;get the next class.
+    711	057D  43			     inc     bx
+    712	057E  0A C0			     or	     al,al		     ;end of the list?
+    713	0580  74 E6			     je	     access_type_class	     ;class failed (story of my	life)
+    714	0582  38 46 10			     cmp     _AL[bp],al		     ;our class?
+    715	0585  75 F4			     jne     access_type_9	     ;no, try again
+    716	0587			     access_type_1:
+    717	0587  83 7E 0E FF		     cmp     _BX[bp],-1		     ;generic type?
+    718	058B  74 09			     je	     access_type_2	     ;yes.
+    719	058D  A0 0000e			     mov     al,driver_type
+    720	0590  98			     cbw
+    721	0591  39 46 0E			     cmp     _BX[bp],ax		     ;our type?
+    722	0594  75 D6			     jne     access_type_type	     ;no.
+    723	0596			     access_type_2:
+    724	0596  80 7E 0A 00		     cmp     _DL[bp],0		     ;generic number?
+    725	059A  74 06			     je	     access_type_3
+    726	059C  80 7E 0A 01		     cmp     _DL[bp],1		     ;our number?
+    727	05A0  75 CE			     jne     access_type_number
+    728	05A2			     access_type_3:
+    729	05A2  83 7E 0C 08		     cmp     _CX[bp],MAX_P_LEN	     ;is the type length too long?
+    730	05A6  77 CC			     ja	     access_type_bad	     ;yes - can't be ours.
+    731
+    732				     ; now we do two things--look for an open handle, and check	the existing
+    733				     ; handles to see if they're replicating a packet type.
+    734
+    735	05A8  BB 0246r			     mov     bx,offset handles
+    736	05AB  33 D2			     xor     dx,dx		     ;keep the free handle here.
+    737	05AD			     access_type_4:
+    738	05AD  80 7F 02 00		     cmp     [bx].in_use,0	     ;is this handle in	use?
+    739	05B1  74 21			     je	     access_type_5	     ;no.
+    740	05B3  8A 46 10			     mov     al, _AL[bp]	     ;is this handle the same class as
+    741	05B6  3A 47 19			     cmp     al, [bx].class	     ;	they're	want?
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 14
+head.ASM
+
+
+
+    742	05B9  75 1B			     jne     access_type_6	     ;no.
+    743	05BB  8B 4E 0C			     mov     cx,_CX[bp]		     ;same length type?
+    744	05BE  3B 4F 0B			     cmp     cx,[bx].packet_type_len
+    745	05C1  75 13			     jne     access_type_6	     ;no.
+    746	05C3  8E 46 02			     mov     es,_DS[bp]		     ;get a pointer to their type
+    747	05C6  8B 7E 08			     mov     di,_SI[bp]		     ;	from their ds:si to our	es:di
+    748	05C9  8D 77 03			     lea     si,[bx].packet_type
+    749	05CC  F3> A6			     repe    cmpsb
+    750	05CE  75 06			     jne     short access_type_6     ;go look at the next one.
+    751	05D0  B6 0A			     mov     dh,TYPE_INUSE	     ;a	handle has been	assigned for TYPE
+    752	05D2  F9			     stc			     ;and we can't assign another
+    753	05D3  C3			     ret
+    754	05D4			     access_type_5:			     ;handle is	not in use
+    755	05D4  8B D3			     mov     dx,bx		     ;remember a free handle
+    756	05D6			     access_type_6:
+    757	05D6  83 C3 1A			     add     bx,(size per_handle)    ;go to the	next handle.
+    758	05D9  81 FB 034Ar		     cmp     bx,offset end_handles   ;examined all handles?
+    759	05DD  72 CE			     jb	     access_type_4	     ;no, continue.
+    760
+    761	05DF  8B DA			     mov     bx,dx		     ;did we find a free handle?
+    762	05E1  0B DB			     or	     bx,bx
+    763	05E3  74 42			     je	     access_type_space	     ;no - return error.
+    764
+    765	05E5  C6 47 02 01		     mov     [bx].in_use,1	     ;remember that we're using	it.
+    766
+    767	05E9  8B 46 06			     mov     ax,_DI[bp]		     ;remember the receiver type.
+    768	05EC  89 47 0D			     mov     [bx].receiver.offs,ax
+    769	05EF  8B 46 00			     mov     ax,_ES[bp]
+    770	05F2  89 47 0F			     mov     [bx].receiver.segm,ax
+    771
+    772	05F5  1E			     push    ds
+    773	05F6  8C D8			     mov     ax,ds
+    774	05F8  8E C0			     mov     es,ax
+    775	05FA  8E 5E 02			     mov     ds,_DS[bp]		     ;remember their type.
+    776	05FD  8B 76 08			     mov     si,_SI[bp]
+    777	0600  8B 4E 0C			     mov     cx,_CX[bp]
+    778	0603  26: 89 4F	0B		     mov     es:[bx].packet_type_len,cx	     ; remember	the TYPE length
+    779	0607  8D 7F 03			     lea     di,[bx].packet_type
+    780	060A  F3> A4			     rep     movsb
+    781
+    782	060C  26: C5 77	0D		     lds     si,es:[bx].receiver     ;copy the first 8 bytes
+    783	0610  8D 7F 11			     lea     di,[bx].receiver_sig    ; to the receiver signature.
+    784	0613  B9 0004			     mov     cx,8/2
+    785	0616  F3> A5			     rep     movsw
+    786
+    787	0618  1F			     pop     ds
+    788
+    789	0619  8A 46 10			     mov     al, _AL[bp]
+    790	061C  88 47 19			     mov     [bx].class, al
+    791
+    792	061F  89 5E 10			     mov     _AX[bp],bx		     ;return the handle	to them.
+    793
+    794	0622  E8 001C			     call    sort_type_list	     ;keep the type_list sorted.
+    795
+    796	0625  F8			     clc
+    797	0626  C3			     ret
+    798
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 15
+head.ASM
+
+
+
+    799
+    800	0627			     access_type_space:
+    801	0627  B6 09			     mov     dh,NO_SPACE
+    802	0629  F9			     stc
+    803	062A  C3			     ret
+    804
+    805	062B			     f_release_type:
+    806	062B  E8 0203			     call    verify_handle	     ;mark this	handle as being	unused.
+    807	062E  C6 47 02 00		     mov     [bx].in_use,0
+    808
+    809	0632  E8 000C			     call    sort_type_list	     ;keep the type_list sorted.
+    810
+    811	0635  E8 01E7			     call    count_handles	     ;All handles gone now?
+    812	0638  80 F9 00			     cmp     cl,0
+    813	063B  75 00			     jne     f_release_type_1	     ;no, don't	change the receive mode.
+    814
+    815	063D			     f_release_type_1:
+    816	063D  F8			     clc
+    817	063E  C3			     ret
+    818
+    819
+    820	063F  0000		     type_list	     dw	     0
+    821
+    822	0641			     sort_type_list:
+    823				     ;we get called after every	call to	f_access_type and f_release_type.
+    824				     ;we build a linked	list out of per_handle entries,	sorted by decreasing
+    825				     ;	order of packet_type_len values.
+    826	0641  C7 06 063Fr 0000		     mov     type_list.next_type,0   ;there are	none as	yet.
+    827	0647  BB 0246r			     mov     bx,offset handles
+    828	064A			     sort_type_list_1:
+    829	064A  80 7F 02 00		     cmp     [bx].in_use,0	     ;is this one in use?
+    830	064E  74 1D			     je	     sort_type_list_2	     ;yes.
+    831
+    832				     ;we do an insertion sort here, using si->current and di->next.  We
+    833				     ;insert this newly	found handle into the linked list just before the
+    834				     ;place where we find a packet_type_len that's not more specific than us.
+    835	0650  BF 063Fr			     mov     di,offset type_list     ;start with the head as the next.
+    836	0653  8B 47 0B			     mov     ax,[bx].packet_type_len ;look for the first length	<= ours.
+    837	0656  EB 09			     jmp     short sort_type_list_5  ;jump into	the middle of the list.
+    838	0658			     sort_type_list_3:
+    839	0658  0B FF			     or	     di,di		     ;are there	no more	to look	at?
+    840	065A  74 0B			     je	     sort_type_list_4	     ;yes, insert it here.
+    841	065C  39 45 0B			     cmp     [di].packet_type_len,ax ;is this length less than ours?
+    842	065F  76 06			     jbe     sort_type_list_4
+    843	0661			     sort_type_list_5:
+    844	0661  8B F7			     mov     si,di		     ;go to the	next entry.
+    845	0663  8B 3C			     mov     di,[si].next_type	     ;keep di pointing to the next one.
+    846	0665  EB F1			     jmp     sort_type_list_3
+    847	0667			     sort_type_list_4:
+    848	0667  8B 04			     mov     ax,[si].next_type
+    849	0669  89 07			     mov     [bx].next_type,ax
+    850	066B  89 1C			     mov     [si].next_type,bx
+    851				     ;end of the insertion sort.
+    852
+    853	066D			     sort_type_list_2:
+    854	066D  83 C3 1A			     add     bx,(size per_handle)    ;go to the	next handle.
+    855	0670  81 FB 034Ar		     cmp     bx,offset end_handles   ;examined all handles?
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 16
+head.ASM
+
+
+
+    856	0674  72 D4			     jb	     sort_type_list_1
+    857	0676  C3			     ret
+    858
+    859
+    860	0677			     f_send_pkt:
+    861				     ;ds:si -> buffer, cx = length
+    862				     ; XXX Should re-enable interrupts here, but some drivers are broken.
+    863				     ; Possibly	re-enable interrupts.
+    864				     ;	     test _F[bp], EI	     ; Were interrupts enabled on pkt driver entry?
+    865				     ;	     je	     f_send_pkt_1    ; No.
+    866				     ;	     sti		     ; Yes, re-enable interrupts now.
+    867				     ;f_send_pkt_1:
+    868
+    869				     ;following	two instructions not needed because si and cx haven't been changed.
+    870				     ;	     mov     si,_SI[bp]
+    871				     ;	     mov     cx,_CX[bp]	     ; count of	bytes in the packet.
+    872					     add2    packets_out,1
+1   873	0677  83 06 03B8r 01		     add     packets_out.offs,1		     ;increment	the low	word
+1   874	067C  83 16 03BAr 00		     adc     packets_out.segm,0		     ;increment	the high word
+    875					     add2    bytes_out,cx	     ;add up the received bytes.
+1   876	0681  01 0E 03C0r		     add     bytes_out.offs,cx		     ;increment	the low	word
+1   877	0685  83 16 03C2r 00		     adc     bytes_out.segm,0		     ;increment	the high word
+    878
+    879	068A  8E 5E 02			     mov     ds,_DS[bp]	     ; address of buffer from caller's ds.
+    880					     assume  ds:nothing, es:nothing
+    881
+    882				     ; If -n option take Ethernet encapsulated Novell IPX packets (from	BYU's
+    883				     ; PDSHELL)	and change them	to be IEEE 802.3 encapsulated.
+    884	      =000C		     EPROT_OFF	     equ     EADDR_LEN*2
+    885	068D  2E: F6 06	0210r 04	     test    cs:flagbyte,N_OPTION
+    886	0693  75 04			     jnz     f_send_pkt_2
+    887	0695  E8 0000e			     call    send_pkt
+    888	0698  C3			     ret
+    889
+    890	0699			     f_send_pkt_2:
+    891	0699  81 7C 0C 3781		     cmp     ds:[si].EPROT_OFF,3781h ; if not Novell (prot 8137)
+    892	069E  75 0F			     jne     f_send_pkt_3	     ;	don't tread on it
+    893	06A0  50			     push    ax			     ; get scratch reg
+    894	06A1  8B 44 10			     mov     ax,[si].EPROT_OFF+4     ; get len
+    895	06A4  86 E0			     xchg    ah,al
+    896	06A6  40			     inc     ax			     ; make even (rounding up)
+    897	06A7  24 FE			     and     al,0feh
+    898	06A9  86 E0			     xchg    ah,al
+    899	06AB  89 44 0C			     mov     ds:[si].EPROT_OFF,ax    ; save in prot field
+    900	06AE  58			     pop     ax			     ; restore old contents
+    901	06AF			     f_send_pkt_3:
+    902	06AF  E8 0000e			     call    send_pkt
+    903	06B2  C3			     ret
+    904					     assume  ds:code
+    905
+    906
+    907	06B3			     f_as_send_pkt:
+    908				     ;es:di -> iocb.
+    909	06B3  F6 06 0000e 04		     test    driver_function,4	     ; is this a high-performance driver?
+    910	06B8  74 2C			     je	     f_as_send_pkt_2	     ; no.
+    911				     ; Possibly	re-enable interrupts.
+    912	06BA  F7 46 16 0200		     test _F[bp], EI		     ; Were interrupts enabled on pkt driver entry?
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 17
+head.ASM
+
+
+
+    913	06BF  74 01			     je	     f_as_send_pkt_1	     ; No.
+    914	06C1  FB			     sti			     ; Yes, re-enable interrupts now.
+    915	06C2			     f_as_send_pkt_1:
+    916	06C2  1E			     push    ds			     ; set up proper ds	for the	buffer
+    917	06C3  26: C5 35			     lds     si,es:[di].buffer	     ; ds:si ->	buffer
+    918					     assume  ds:nothing
+    919	06C6  26: 8B 4D	04		     mov     cx,es:[di].len	     ; cx = length
+    920					     add2    packets_out,1
+1   921	06CA  2E: 83 06	03B8r 01	     add     packets_out.offs,1		     ;increment	the low	word
+1   922	06D0  2E: 83 16	03BAr 00	     adc     packets_out.segm,0		     ;increment	the high word
+    923					     add2    bytes_out,cx	     ; add up the received bytes.
+1   924	06D6  2E: 01 0E	03C0r		     add     bytes_out.offs,cx		     ;increment	the low	word
+1   925	06DB  2E: 83 16	03C2r 00	     adc     bytes_out.segm,0		     ;increment	the high word
+    926
+    927				     ;ds:si -> buffer, cx = length, es:di -> iocb.
+    928	06E1  E8 0000e			     call    as_send_pkt
+    929	06E4  1F			     pop     ds
+    930					     assume  ds:code
+    931	06E5  C3			     ret
+    932	06E6			     f_as_send_pkt_2:
+    933	06E6  B6 0B			     mov dh, BAD_COMMAND	     ; return an error.
+    934	06E8  F9			     stc
+    935	06E9  C3			     ret
+    936
+    937
+    938	06EA			     f_drop_pkt:
+    939				     ; es:di ->	iocb.
+    940	06EA  F6 06 0000e 04		     test    driver_function,4	     ; is this a high-performance driver?
+    941	06EF  74 F5			     je	     f_as_send_pkt_2	     ; no.
+    942	06F1  1E			     push    ds			     ; Preserve	ds
+    943	06F2  BE 03ACr			     mov     si,offset send_head     ; Get head	offset
+    944	06F5			     dp_loop:
+    945	06F5  8B 04			     mov     ax,ds:[si]		     ; Get offset
+    946	06F7  8B 54 02			     mov     dx,ds:[si+2]	     ; Get segment
+    947	06FA  8B D8			     mov     bx,ax
+    948	06FC  0B DA			     or	     bx,dx		     ; End of list?
+    949	06FE  74 22			     je	     dp_endlist		     ; Yes
+    950	0700  3B C7			     cmp     ax,di		     ; Offsets equal?
+    951	0702  75 15			     jne     dp_getnext		     ; No
+    952	0704  8C C3			     mov     bx,es
+    953	0706  3B D3			     cmp     dx,bx		     ; Segments	equal?
+    954	0708  75 0F			     jne     dp_getnext		     ; No
+    955	070A  E8 0000e			     call    drop_pkt		     ; Pass to driver
+    956	070D  26: C4 7D	0C		     les     di,es:[di].next	     ; Get next	segment:offset
+    957	0711  89 3C			     mov     ds:[si],di		     ; Set next	offset
+    958	0713  8C 44 02			     mov     ds:[si+2],es	     ; Set next	segment
+    959	0716  1F			     pop     ds			     ; Restore ds
+    960	0717  F8			     clc
+    961	0718  C3			     ret
+    962	0719			     dp_getnext:
+    963	0719  8E DA			     mov     ds,dx		     ; Get next	segment
+    964	071B  8B F0			     mov     si,ax		     ; Get next	iocb offset
+    965	071D  8D 74 0C			     lea     si,ds:[si].next	     ; Get next	iocb next ptr offset
+    966	0720  EB D3			     jmp     dp_loop		     ; Try again
+    967	0722			     dp_endlist:
+    968	0722  1F			     pop     ds			     ; Restore ds
+    969	0723  B6 10			     mov     dh,BAD_IOCB	     ; Return error
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 18
+head.ASM
+
+
+
+    970	0725  F9			     stc			     ; Set carry
+    971	0726  C3			     ret
+    972
+    973
+    974	0727			     f_terminate:
+    975	0727  E8 0107			     call    verify_handle	     ; must have a handle
+    976
+    977	072A  C6 47 02 00		     mov     [bx].in_use,0	     ; mark handle as free
+    978	072E  E8 00EE			     call    count_handles	     ; all handles gone?
+    979	0731  0A C9			     or	     cl,cl
+    980	0733  75 50			     jne     f_terminate_4	     ; no, can't exit completely
+    981
+    982				     ;
+    983				     ; Now disable interrupts
+    984				     ;
+    985	0735  A0 0000e			     mov     al,int_no
+    986	0738  0A C0			     or	     al,al		     ;are they using a hardware	interrupt?
+    987	073A  74 1F			     je	     f_terminate_no_irq	     ;no.
+    988	073C  80 3E 0211r 00		     cmp     original_mask,0	     ;was it enabled?
+    989	0741  74 03			     je	     f_terminate_no_mask     ;yes, don't mask it now.
+    990	0743  E8 0213			     call    maskint
+    991	0746			     f_terminate_no_mask:
+    992
+    993				     ;
+    994				     ; Now return the interrupt	to their handler.
+    995				     ;
+    996	0746  B4 25			     mov     ah,25h		     ;get the old interrupt into es:bx
+    997	0748  A0 0000e			     mov     al,int_no
+    998	074B  04 08			     add     al,8
+    999	074D  3C 10			     cmp     al,8+8		     ;is it a slave 8259 interrupt?
+   1000	074F  72 02			     jb	     f_terminate_3	     ;no.
+   1001	0751  04 60			     add     al,70h - (8+8)	     ;map it to	the real interrupt.
+   1002	0753			     f_terminate_3:
+   1003	0753  1E			     push    ds
+   1004	0754  C5 16 03D8r		     lds     dx,their_recv_isr
+   1005	0758  CD 21			     int     21h
+   1006	075A  1F			     pop     ds
+   1007
+   1008	075B			     f_terminate_no_irq:
+   1009	075B  83 3E 03D6r 00		     cmp     their_timer.segm,0	     ;did we hook the timer interrupt?
+   1010	0760  74 0B			     je	     f_terminate_no_timer
+   1011
+   1012	0762  B8 2508			     mov     ax,2508h		     ;restore the timer	interrupt.
+   1013	0765  1E			     push    ds
+   1014	0766  C5 16 03D4r		     lds     dx,their_timer
+   1015	076A  CD 21			     int     21h
+   1016	076C  1F			     pop     ds
+   1017
+   1018	076D			     f_terminate_no_timer:
+   1019
+   1020	076D  E8 0000e			     call    terminate		     ;terminate	the hardware.
+   1021
+   1022	0770  A0 0208r			     mov     al,entry_point  ;release our_isr.
+   1023	0773  B4 25			     mov     ah,25h
+   1024	0775  1E			     push    ds
+   1025	0776  C5 16 03DCr		     lds     dx,their_isr
+   1026	077A  CD 21			     int     21h
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 19
+head.ASM
+
+
+
+   1027	077C  1F			     pop     ds
+   1028
+   1029				     ;
+   1030				     ; Now free	our memory
+   1031				     ;
+   1032					     movseg  es,cs
+1  1033	077D  0E			     push    cs
+1  1034	077E  07			     pop     es
+   1035	077F  B4 49			     mov     ah,49h
+   1036	0781  CD 21			     int     21h
+   1037	0783  F8			     clc
+   1038	0784  C3			     ret
+   1039	0785			     f_terminate_4:
+   1040	0785  B6 07			     mov     dh, CANT_TERMINATE
+   1041	0787  F9			     stc
+   1042	0788  C3			     ret
+   1043
+   1044
+   1045	0789			     f_get_address:
+   1046				     ;	     call    verify_handle
+   1047				     ;	     mov     es,_ES[bp]		     ; get new one
+   1048				     ;	     mov     di,_DI[bp]		     ; get pointer, es:di is ready
+   1049				     ;	     mov     cx,_CX[bp]		     ;Tell them	how much room they have.
+   1050	0789  3B 0E 0382r		     cmp     cx,address_len	     ;is there enough room for our address?
+   1051	078D  72 0E			     jb	     get_address_space	     ;no.
+   1052	078F  8B 0E 0382r		     mov     cx,address_len	     ;yes - get	our address length.
+   1053	0793  89 4E 0C			     mov     _CX[bp],cx		     ;Tell them	how long our address is.
+   1054	0796  BE 0394r			     mov     si,offset my_address    ;copy it into their area.
+   1055	0799  F3> A4			     rep     movsb
+   1056	079B  F8			     clc
+   1057	079C  C3			     ret
+   1058
+   1059	079D			     get_address_space:
+   1060	079D  B6 09			     mov     dh,NO_SPACE
+   1061	079F  F9			     stc
+   1062	07A0  C3			     ret
+   1063
+   1064
+   1065	07A1			     f_set_address:
+   1066	07A1  E8 007B			     call    count_handles
+   1067	07A4  80 F9 01			     cmp     cl,1		     ;more than	one handle in use?
+   1068	07A7  77 33			     ja	     f_set_address_inuse     ;yes - we can't set the address
+   1069
+   1070	07A9  8B 4E 0C			     mov     cx,_CX[bp]		     ;get the desired address length.
+   1071	07AC  80 FD 00			     cmp     ch,0
+   1072	07AF  3A 0E 0003e		     cmp     cl,parameter_list[3]    ;is it the	right length?
+   1073	07B3  77 2B			     ja	     f_set_address_too_long  ;no.
+   1074
+   1075	07B5  8E 5E 00			     mov     ds,_ES[bp]		     ; set new one
+   1076					     assume  ds:nothing
+   1077	07B8  8B 76 06			     mov     si,_DI[bp]		     ; set pointer, ds:si is ready
+   1078	07BB  8C C8			     mov     ax,cs
+   1079	07BD  8E C0			     mov     es,ax
+   1080	07BF  BF 0394r			     mov     di,offset my_address
+   1081	07C2  F3> A4			     rep     movsb
+   1082	07C4  8E D8			     mov     ds,ax		     ;restore ds.
+   1083					     assume  ds:code
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 20
+head.ASM
+
+
+
+   1084
+   1085	07C6  8B 4E 0C			     mov     cx,_CX[bp]		     ;get the desired address length.
+   1086	07C9  BE 0394r			     mov     si,offset my_address
+   1087	07CC  E8 0000e			     call    set_address
+   1088	07CF  72 13			     jc	     f_set_address_err	     ;Did it work?
+   1089
+   1090	07D1  8A 0E 0003e		     mov     cl,parameter_list[3]
+   1091	07D5  32 ED			     xor     ch,ch
+   1092	07D7  89 4E 0C			     mov     _CX[bp],cx		     ;yes - return our address length.
+   1093
+   1094	07DA  F8			     clc
+   1095	07DB  C3			     ret
+   1096	07DC			     f_set_address_inuse:
+   1097	07DC  B6 0D			     mov     dh,CANT_SET
+   1098	07DE  F9			     stc
+   1099	07DF  C3			     ret
+   1100	07E0			     f_set_address_too_long:
+   1101	07E0  B6 09			     mov     dh,NO_SPACE
+   1102	07E2  F9			     stc
+   1103	07E3  C3			     ret
+   1104	07E4			     f_set_address_err:
+   1105				     ;we get here with cy set -	leave it set.
+   1106	07E4  BE 0384r			     mov     si,offset rom_address   ;we can't set the address,	restore
+   1107	07E7  BF 0394r			     mov     di,offset my_address    ;	to original.
+   1108	07EA  B9 0008			     mov     cx,MAX_ADDR_LEN/2
+   1109	07ED  F3> A5			     rep     movsw
+   1110	07EF  C3			     ret
+   1111
+   1112
+   1113	07F0			     f_reset_interface:
+   1114	07F0  E8 003E			     call    verify_handle
+   1115	07F3  E8 0000e			     call    reset_interface
+   1116	07F6  F8			     clc
+   1117	07F7  C3			     ret
+   1118
+   1119
+   1120				     ; Stop the	packet driver doing upcalls. Also a following terminate	will
+   1121				     ; always succed (no in use	handles	any longer).
+   1122	07F8			     f_stop:
+   1123	07F8  BB 0246r			     mov     bx,offset handles
+   1124	07FB			     f_stop_2:
+   1125	07FB  C6 47 02 00		     mov     [bx].in_use,0
+   1126	07FF  83 C3 1A			     add     bx,(size per_handle)    ; next handle
+   1127	0802  81 FB 034Ar		     cmp     bx,offset end_handles
+   1128	0806  72 F3			     jb	     f_stop_2
+   1129	0808  F8			     clc
+   1130	0809  C3			     ret
+   1131
+   1132
+   1133	080A			     f_get_parameters:
+   1134				     ;strictly speaking, this function only works for high-performance drivers.
+   1135	080A  F6 06 0000e 04		     test    driver_function,4	     ;is this a	high-performance driver?
+   1136	080F  75 04			     jne     f_get_parameters_1	     ;yes.
+   1137	0811  B6 0B			     mov     dh,BAD_COMMAND	     ;no - return an error.
+   1138	0813  F9			     stc
+   1139	0814  C3			     ret
+   1140	0815			     f_get_parameters_1:
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 21
+head.ASM
+
+
+
+   1141	0815  8C 4E 00			     mov     _ES[bp],cs
+   1142	0818  C7 46 06 0000e		     mov     _DI[bp],offset parameter_list
+   1143	081D  F8			     clc
+   1144	081E  C3			     ret
+   1145
+   1146
+   1147	081F			     count_handles:
+   1148				     ;exit with	cl = number of handles currently in use.
+   1149	081F  BB 0246r			     mov     bx,offset handles
+   1150	0822  B1 00			     mov     cl,0		     ;number of	handles	in use.
+   1151	0824			     count_handles_1:
+   1152	0824  02 4F 02			     add     cl,[bx].in_use	     ;is this handle in	use?
+   1153	0827  83 C3 1A			     add     bx,(size per_handle)    ;go to the	next handle.
+   1154	082A  81 FB 034Ar		     cmp     bx,offset end_handles
+   1155	082E  72 F4			     jb	     count_handles_1
+   1156	0830  C3			     ret
+   1157
+   1158
+   1159	0831			     verify_handle:
+   1160				     ;Ensure that their	handle is real.	 If it isn't, we pop off our return
+   1161				     ;address, and return to *their* return address with cy set.
+   1162	0831  8B 5E 0E			     mov     bx,_BX[bp]		     ;get the handle they gave us
+   1163	0834  81 FB 0246r		     cmp     bx,offset handles
+   1164	0838  72 0D			     jb	     verify_handle_bad	     ;no - must	be bad.
+   1165	083A  81 FB 034Ar		     cmp     bx,offset end_handles
+   1166	083E  73 07			     jae     verify_handle_bad	     ;no - must	be bad.
+   1167	0840  80 7F 02 01		     cmp     [bx].in_use,1	     ;if it's not in use, it's bad.
+   1168	0844  75 01			     jne     verify_handle_bad
+   1169	0846  C3			     ret
+   1170	0847			     verify_handle_bad:
+   1171	0847  B6 01			     mov     dh,ERR_BAD_HANDLE
+   1172	0849  83 C4 02			     add     sp,2		     ;pop off our return address.
+   1173	084C  F9			     stc
+   1174	084D  C3			     ret
+   1175
+   1176
+   1177					     public  set_recv_isr
+   1178	084E			     set_recv_isr:
+   1179	084E  B4 35			     mov     ah,35h		     ;get the old interrupt into es:bx
+   1180	0850  A0 0000e			     mov     al,int_no		     ; board's interrupt vector
+   1181	0853  0A C0			     or	     al,al
+   1182	0855  74 3D			     je	     set_isr_no_irq
+   1183	0857  04 08			     add     al,8
+   1184	0859  3C 10			     cmp     al,8+8		     ;is it a slave 8259 interrupt?
+   1185	085B  72 02			     jb	     set_recv_isr_1	     ;no.
+   1186	085D  04 60			     add     al,70h - 8	- 8	     ;map it to	the real interrupt.
+   1187	085F			     set_recv_isr_1:
+   1188	085F  CD 21			     int     21h
+   1189	0861  89 1E 03D8r		     mov     their_recv_isr.offs,bx  ;remember the old seg:off.
+   1190	0865  8C 06 03DAr		     mov     their_recv_isr.segm,es
+   1191
+   1192	0869  B4 25			     mov     ah,25h		     ;now set our recv interrupt.
+   1193	086B  BA 08B0r			     mov     dx,offset recv_isr
+   1194	086E  CD 21			     int     21h
+   1195
+   1196	0870  80 3E 0000e CF		     cmp     byte ptr timer_isr,0cfh ;is there just an iret at their handler?
+   1197	0875  74 14			     je	     set_isr_no_timer	     ;yes, don't bother	hooking	the timer.
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 22
+head.ASM
+
+
+
+   1198
+   1199	0877  B8 3508			     mov     ax,3508h		     ;get the old interrupt into es:bx
+   1200	087A  CD 21			     int     21h
+   1201	087C  89 1E 03D4r		     mov     their_timer.offs,bx     ;remember the old seg:off.
+   1202	0880  8C 06 03D6r		     mov     their_timer.segm,es
+   1203
+   1204	0884  B4 25			     mov     ah,25h		     ;now set our recv interrupt.
+   1205	0886  BA 0000e			     mov     dx,offset timer_isr
+   1206	0889  CD 21			     int     21h
+   1207
+   1208	088B			     set_isr_no_timer:
+   1209	088B  A0 0000e			     mov     al,int_no		     ; Now enable interrupts
+   1210	088E  E8 00EB			     call    unmaskint
+   1211	0891  A2 0211r			     mov     original_mask,al
+   1212
+   1213	0894			     set_isr_no_irq:
+   1214	0894  C3			     ret
+   1215
+   1216					     public  count_in_err
+   1217	0895			     count_in_err:
+   1218					     assume  ds:nothing
+   1219					     add2    errors_in,1
+1  1220	0895  2E: 83 06	03C4r 01	     add     errors_in.offs,1		     ;increment	the low	word
+1  1221	089B  2E: 83 16	03C6r 00	     adc     errors_in.segm,0		     ;increment	the high word
+   1222	08A1  C3			     ret
+   1223
+   1224					     public  count_out_err
+   1225	08A2			     count_out_err:
+   1226					     assume  ds:nothing
+   1227					     add2    errors_out,1
+1  1228	08A2  2E: 83 06	03C8r 01	     add     errors_out.offs,1		     ;increment	the low	word
+1  1229	08A8  2E: 83 16	03CAr 00	     adc     errors_out.segm,0		     ;increment	the high word
+   1230	08AE  C3			     ret
+   1231
+   1232	*8AF			     recv_isr_frame  struc
+   1233	*000  01*(????)		     recv_isr_ds     dw	     ?
+   1234	*002  01*(????)		     recv_isr_dx     dw	     ?
+   1235	*004  01*(????)		     recv_isr_ax     dw	     ?
+   1236	*006  01*(????)		     recv_isr_ip     dw	     ?
+   1237	*008  01*(????)		     recv_isr_cs     dw	     ?
+   1238	*00A  01*(????)		     recv_isr_f	     dw	     ?
+   1239	*00C			     recv_isr_frame  ends
+   1240
+   1241				     ;
+   1242				     ; I have had a problem with some hardware which under extreme LAN loading
+   1243				     ; conditions will re-enter	the recv_isr. Since the	8259 interrupts	for
+   1244				     ; the card	are masked off,	and the	card's interrupt mask register is
+   1245				     ; cleared (in 8390.asm at least) disabling	the card from interrupting, this
+   1246				     ; is clearly a hardware problem. Due to the low frequencey	of occurance, and
+   1247				     ; extreme conditions under	which this happens, it is not lilely to	be fixed
+   1248				     ; in hardware any time soon, plus retrofitting of hardware	in the field will
+   1249				     ; not happen. To protect the driver from the adverse effects of this I am
+   1250				     ; adding a	simple re-entrancy trap	here.  - gft - 910617
+   1251				     ;
+   1252
+   1253	08AF  00		     in_recv_isr     db	     0	     ; flag to trap re-entrancy
+   1254
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 23
+head.ASM
+
+
+
+   1255	08B0			     recv_isr:
+   1256	08B0  2E: 80 3E	08AFr 00	     cmp     in_recv_isr, 0
+   1257	08B6  75 64			     jne     recv_iret
+   1258
+   1259	08B8  2E: C6 06	08AFr 01	     mov     in_recv_isr, 1
+   1260
+   1261				     ; I realize this re-entrancy trap is not perfect, you could be re-entered
+   1262				     ; anytime before the above	instruction. However since the stacks have not
+   1263				     ; been swapped re-entrancy	here will only appear to be a spurious interrupt.
+   1264				     ; - gft - 910617
+   1265
+   1266				     ; In order	to achieve back-to-back	packet transmissions, we handle	the
+   1267				     ; latency-critical	portion	of transmit interrupts first.  The xmit
+   1268				     ; interrupt routine should	only start the next transmission, but do
+   1269				     ; no other	work.  It may only touch ax and	dx (the	only register necessary
+   1270				     ; for doing "out" instructions) unless it first pushes any	other registers
+   1271				     ; itself.
+   1272	08BE  50			     push    ax
+   1273	08BF  52			     push    dx
+   1274	08C0  E8 0000e			     call    xmit
+   1275
+   1276				     ; Now switch stacks, push remaining registers, and	do remaining interrupt work.
+   1277	08C3  1E			     push    ds
+   1278	08C4  8C C8			     mov     ax,cs		     ;ds = cs.
+   1279	08C6  8E D8			     mov     ds,ax
+   1280					     assume  ds:code
+   1281
+   1282	08C8  89 26 03D0r		     mov     savesp,sp
+   1283	08CC  8C 16 03D2r		     mov     savess,ss
+   1284
+   1285	08D0  8E D0			     mov     ss,ax
+   1286	08D2  BC 0208r			     mov     sp,offset our_stack
+   1287	08D5  FC			     cld
+   1288
+   1289	08D6  53			     push    bx
+   1290	08D7  51			     push    cx
+   1291	08D8  56			     push    si
+   1292	08D9  57			     push    di
+   1293	08DA  55			     push    bp
+   1294	08DB  06			     push    es
+   1295
+   1296				     ; The following comment is	wrong in that we now do	a specific EOI command,
+   1297				     ; and because we don't enable interrupts (even though we should).
+   1298
+   1299				     ; Chips & Technologies 8259 clone chip seems to be	very broken.  If you
+   1300				     ; send it a Non Specific EOI command, it clears all In Service Register
+   1301				     ; bits instead of just the	one with the highest priority (as the Intel
+   1302				     ; chip does and clones should do).	 This bug causes our interrupt
+   1303				     ; routine to be reentered if: 1. we reenable processor interrupts;
+   1304				     ; 2. we reenable device interrupts; 3. a timer or other higher priority
+   1305				     ; device interrupt	now comes in; 4. the new interrupting device uses
+   1306				     ; a Non Specific EOI; 5. our device interrupts again.  Because of
+   1307				     ; this bug, we now	completely mask	our interrupts around the call
+   1308				     ; to "recv", the real device interrupt handler.  This allows us
+   1309				     ; to send an EOI instruction to the 8259 early, before we actually
+   1310				     ; reenable	device interrupts.  Since the interrupt	is masked, we
+   1311				     ; are still guaranteed not	to get another interrupt from our device
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 24
+head.ASM
+
+
+
+   1312				     ; until the interrupt handler returns.  This has another benefit:
+   1313				     ; we now no longer	prevent	other devices from interrupting	while our
+   1314				     ; interrupt handler is running.  This is especially useful	if we have
+   1315				     ; other (multiple)	packet drivers trying to do low-latency	transmits.
+   1316	08DC  A0 0000e			     mov     al,int_no	     ; Disable further device interrupts
+   1317	08DF  E8 0077			     call    maskint
+   1318
+   1319				     ; The following is	from Bill Rust,	<wjr@ftp.com>
+   1320				     ; this code dismisses the interrupt at the	8259. if the interrupt number
+   1321				     ;	is > 8 then it requires	fondling two PICs instead of just one.
+   1322	08E2  A0 0000e			     mov     al, int_no	     ; get hardware int	#
+   1323	08E5  0A C0			     or	     al,al	     ; if it's zero, then there	is no IRQ to ack.
+   1324	08E7  74 12			     je	     recv_isr_3	     ; so skip the EOI processing.
+   1325	08E9  3C 08			     cmp     al, 8	     ; see if its on secondary PIC
+   1326	08EB  7F 06			     jg	     recv_isr_4
+   1327	08ED  04 60			     add     al, 60h	     ; make specific EOI dismissal
+   1328	08EF  E6 20			     out     20h, al
+   1329	08F1  EB 08			     jmp     short recv_isr_3	     ; all done
+   1330	08F3			     recv_isr_4:
+   1331	08F3  04 58			     add     al,60h - 8	     ; make specific EOI (# between 9 &	15).
+   1332	08F5  E6 A0			     out     0a0h,al	     ; Secondary 8259 (PC/AT only)
+   1333	08F7  B0 62			     mov     al,62h	     ; Acknowledge on primary 8259.
+   1334	08F9  E6 20			     out     20h,al
+   1335	08FB			     recv_isr_3:
+   1336
+   1337				     ;	     sti			     ; Interrupts are now completely safe
+   1338	08FB  E8 0000e			     call    recv
+   1339
+   1340	08FE  FA			     cli			     ;interrupts *must*	be off between
+   1341									     ;here and the stack restore, because
+   1342									     ;if we have one of	our interrupts
+   1343									     ;pending, we would	trash our stack.
+   1344
+   1345	08FF  A0 0000e			     mov     al,int_no	     ; Now reenable device interrupts
+   1346	0902  E8 0077			     call    unmaskint
+   1347
+   1348	0905  07			     pop     es
+   1349	0906  5D			     pop     bp
+   1350	0907  5F			     pop     di
+   1351	0908  5E			     pop     si
+   1352	0909  59			     pop     cx
+   1353	090A  5B			     pop     bx
+   1354
+   1355	090B  8E 16 03D2r		     mov     ss,savess
+   1356	090F  8B 26 03D0r		     mov     sp,savesp
+   1357
+   1358	0913  1F			     pop     ds
+   1359					     assume  ds:nothing
+   1360	0914  5A			     pop     dx
+   1361	0915  58			     pop     ax
+   1362	0916  2E: C6 06	08AFr 00	     mov     in_recv_isr, 0  ; clear the re-entrancy flag - gft	- 901617
+   1363	091C			     recv_iret:
+   1364	091C  CF			     iret
+   1365
+   1366	091D  00		     recv_exiting_flag	     db	     0	     ;nonzero if recv_exiting will be run.
+   1367	091E  ????????		     recv_exiting_addr	     dd	     ?
+   1368
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 25
+head.ASM
+
+
+
+   1369					     public  schedule_exiting
+   1370	0922			     schedule_exiting:
+   1371				     ;call this	routine	to schedule a subroutine that gets run after the
+   1372				     ;recv_isr.	 This is done by stuffing routine's address in place
+   1373				     ;of the recv_isr iret's address.  This routine should push	the flags when it
+   1374				     ;is entered, and should jump to recv_exiting_exit to leave.
+   1375				     ;enter with ax = address of routine to run.
+   1376	0922  2E: 80 3E	091Dr 00	     cmp     recv_exiting_flag,0     ;is it already scheduled?
+   1377	0928  75 1C			     jne     schedule_exiting_1	     ;yes, don't do it again!
+   1378	092A  2E: FE 06	091Dr		     inc     recv_exiting_flag	     ;set the flag.
+   1379	092F  2E: C4 3E	03D0r		     les     di,savespss	     ;make es:di -> their stack.
+   1380	0934  26: 87 45	06		     xchg    ax,es:[di].recv_isr_ip  ;stuff our	routine's address in,
+   1381	0938  2E: A3 091Er		     mov     recv_exiting_addr.offs,ax	     ;and save the original address.
+   1382	093C  8C C8			     mov     ax,cs
+   1383	093E  26: 87 45	08		     xchg    ax,es:[di].recv_isr_cs
+   1384	0942  2E: A3 0920r		     mov     recv_exiting_addr.segm,ax
+   1385	0946			     schedule_exiting_1:
+   1386	0946  C3			     ret
+   1387
+   1388					     public  recv_exiting_exit
+   1389	0947			     recv_exiting_exit:
+   1390				     ;recv_exiting jumps here to exit, after pushing the flags.
+   1391	0947  FA			     cli			     ;protect the following semaphore.
+   1392	0948  2E: C6 06	091Dr 00	     mov     recv_exiting_flag,0
+   1393	094E  2E: FF 36	0920r		     push    recv_exiting_addr.segm
+   1394	0953  2E: FF 36	091Er		     push    recv_exiting_addr.offs
+   1395	0958  CF			     iret
+   1396
+   1397
+   1398					     public  maskint
+   1399	0959			     maskint:
+   1400	0959  0A C0			     or	     al,al		     ;are they using a hardware	interrupt?
+   1401	095B  74 1E			     je	     maskint_1		     ;no, don't	mask off the timer!
+   1402
+   1403					     assume  ds:code
+   1404	095D  BA 0021			     mov     dx,21h		     ;assume the master	8259.
+   1405	0960  3C 08			     cmp     al,8		     ;using the	slave 8259 on an AT?
+   1406	0962  72 05			     jb	     mask_not_irq2
+   1407	0964  BA 00A1			     mov     dx,0a1h		     ;go disable it on slave 8259
+   1408	0967  2C 08			     sub     al,8
+   1409	0969			     mask_not_irq2:
+   1410	0969  8A C8			     mov     cl,al
+   1411
+   1412	096B  EC			     in	     al,dx		     ;disable them on the correct 8259.
+   1413	096C  B4 01			     mov     ah,1		     ;set the bit.
+   1414	096E  D2 E4			     shl     ah,cl
+   1415	0970  0A C4			     or	     al,ah
+   1416				     ;
+   1417				     ; 500ns Stall required here, per INTEL documentation for eisa machines
+   1418				     ; - gft - 910617
+   1419				     ;
+   1420	0972  50			     push    ax
+   1421	0973  E4 61			     in	     al,61h  ; 1.5 - 3 uS should be plenty
+   1422	0975  E4 61			     in	     al,61h
+   1423	0977  E4 61			     in	     al,61h
+   1424	0979  58			     pop     ax
+   1425	097A  EE			     out     dx,al
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 26
+head.ASM
+
+
+
+   1426	097B			     maskint_1:
+   1427	097B  C3			     ret
+   1428
+   1429
+   1430					     public  unmaskint
+   1431	097C			     unmaskint:
+   1432				     ;exit with	cl = 0 if the interrupt	had been enabled.
+   1433					     assume  ds:code
+   1434	097C  BA 0021			     mov     dx,21h		     ;assume the master	8259.
+   1435	097F  8A C8			     mov     cl,al
+   1436	0981  80 F9 08			     cmp     cl,8		     ;using the	slave 8259 on an AT?
+   1437	0984  72 1A			     jb	     unmask_not_irq2	     ;no
+   1438	0986  EC			     in	     al,dx		     ;get master mask
+   1439	0987  50			     push    ax
+   1440	0988  E4 61			     in	     al,61h		     ;wait lots	of time.
+   1441	098A  E4 61			     in	     al,61h
+   1442	098C  E4 61			     in	     al,61h
+   1443	098E  58			     pop     ax
+   1444	098F  24 FB			     and     al,not (1 shl 2)	     ; and clear slave cascade bit in mask
+   1445	0991  EE			     out     dx,al		     ;set new master mask (enable slave	int)
+   1446				     ;
+   1447				     ; 500ns Stall required here, per INTEL documentation for eisa machines
+   1448				     ; - gft - 910617
+   1449				     ;
+   1450	0992  50			     push    ax
+   1451	0993  E4 61			     in	     al,61h  ; 1.5 - 3 uS should be plenty
+   1452	0995  E4 61			     in	     al,61h
+   1453	0997  E4 61			     in	     al,61h
+   1454	0999  58			     pop     ax
+   1455	099A  BA 00A1			     mov     dx,0a1h		     ;go enable	int on slave 8259
+   1456	099D  80 E9 08			     sub     cl,8
+   1457	09A0			     unmask_not_irq2:
+   1458
+   1459	09A0  EC			     in	     al,dx		     ;enable interrupts	on the correct 8259.
+   1460	09A1  B4 01			     mov     ah,1		     ;clear the	bit.
+   1461	09A3  D2 E4			     shl     ah,cl
+   1462	09A5  8A C8			     mov     cl,al		     ;remember the original mask.
+   1463	09A7  22 CC			     and     cl,ah
+   1464	09A9  F6 D4			     not     ah
+   1465	09AB  22 C4			     and     al,ah
+   1466				     ;
+   1467				     ; 500ns Stall required here, per INTEL documentation for eisa machines
+   1468				     ; - gft - 910617
+   1469				     ;
+   1470	09AD  50			     push    ax
+   1471	09AE  E4 61			     in	     al,61h  ; 1.5 - 3 uS should be plenty
+   1472	09B0  E4 61			     in	     al,61h
+   1473	09B2  E4 61			     in	     al,61h
+   1474	09B4  58			     pop     ax
+   1475	09B5  EE			     out     dx,al
+   1476
+   1477	09B6  C3			     ret
+   1478
+   1479
+   1480					     public  recv_locate
+   1481	09B7			     recv_locate:
+   1482				     ;called when we want to determine what to do with a received packet.
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 27
+head.ASM
+
+
+
+   1483				     ;enter with es:di -> packet type, dl = packet class.
+   1484				     ;exit with	cy if the packet is not	desired, or nc if we know its type.
+   1485					     assume  ds:code, es:nothing
+   1486
+   1487				     ; If -n option take IEEE 802.3 encapsulated packets that could be Novell IPX
+   1488				     ; and make	them Ethernet encapsulated Novell IPX packets (for PDSHELL).
+   1489	09B7  F6 06 0210r 04		     test    flagbyte,N_OPTION
+   1490	09BC  74 28			     jz	     not_n_op
+   1491
+   1492				     ; Make IEEE 802.3-like packets that could be Novell IPX into BlueBook class
+   1493				     ; Novell type 8137	packets.
+   1494	09BE  80 FA 0B			     cmp     dl,IEEE8023	     ;Is this an IEEE 802.3 packet?
+   1495	09C1  75 12			     jne     recv_not_802_3	     ;no
+   1496	09C3  26: 83 3D	FF		     cmp     word ptr es:[di],0ffffh ;if this word not ffff
+   1497	09C7  75 1D			     jne     recv_not_8137	     ;	then not Novell
+   1498	09C9  83 EF 02			     sub     di,2		     ; back it up to the 8137 word.
+   1499	09CC  26: C7 05	3781		     mov     es:[di],3781h	     ; fake as Novell protocol (8137)
+   1500	09D1  B2 01			     mov     dl,BLUEBOOK
+   1501	09D3  EB 11			     jmp     short recv_not_8137
+   1502	09D5			     recv_not_802_3:
+   1503				     ; Convert incoming	Ethernet type 8137 IPX packets to type 8138, as	with -n	in
+   1504				     ; effect we can't send type 8137, and it will only	confuse	Netware.
+   1505	09D5  80 FA 01			     cmp     dl,BLUEBOOK	     ;Is this a	BLUEBOOK packet?
+   1506	09D8  75 0C			     jne     recv_not_8137	     ;no, don't	change it.
+   1507	09DA  26: 81 3D	3781		     cmp     word ptr es:[di],3781h  ;Is it an 8137 packet?
+   1508	09DF  75 05			     jne     recv_not_8137	     ;no, don't	change it.
+   1509	09E1  26: C7 05	3881		     mov     es:[di],word ptr 3881h  ;yes, mung	it slightly.
+   1510	09E6			     recv_not_8137:
+   1511	09E6			     not_n_op:
+   1512
+   1513	09E6  BB 063Fr			     mov     bx,offset type_list     ;point bx to the ordered list.
+   1514	09E9			     recv_locate_1:
+   1515	09E9  8B 1F			     mov     bx,[bx].next_type	     ;point to the next	one.
+   1516	09EB  83 FB 00			     cmp     bx,0		     ;any more handles to look at?
+   1517	09EE  74 2C			     je	     recv_locate_4	     ;no - can't be for	us.
+   1518
+   1519	09F0  8B 47 0D			     mov     ax,[bx].receiver.offs   ;do they have a receiver?
+   1520	09F3  0B 47 0F			     or	     ax,[bx].receiver.segm
+   1521	09F6  74 F1			     je	     recv_locate_1	     ;no - they're not serious about it.
+   1522
+   1523				     ;per request by the UK people, we match on	IEEE 802.3 classes, then types.
+   1524				     ;for all others, we match on type,	then class.  This lets their software work
+   1525				     ;without breaking BLUEBOOK	type length=0 clients.
+   1526	09F8  80 7F 19 0B		     cmp     [bx].class,IEEE8023     ;is this an IEEE 802.3 handle
+   1527	09FC  75 05			     jne     recv_locate_2	     ;no.
+   1528	09FE  80 FA 0B			     cmp     dl,IEEE8023	     ;is the packet also IEEE 802.3?
+   1529	0A01  75 E6			     jne     recv_locate_1	     ;no, give up on it	now.
+   1530	0A03			     recv_locate_2:
+   1531
+   1532	0A03  8B 4F 0B			     mov     cx,[bx].packet_type_len ;compare the packets.
+   1533	0A06  8D 77 03			     lea     si,[bx].packet_type
+   1534	0A09  E3 0B			     jcxz    recv_locate_3	     ;if cx is zero, they want them all.
+   1535
+   1536	0A0B  38 57 19			     cmp     [bx].class, dl	     ;is this the right	class?
+   1537	0A0E  75 D9			     jne     recv_locate_1	     ;no- don't	bother
+   1538
+   1539	0A10  57			     push    di
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 28
+head.ASM
+
+
+
+   1540	0A11  F3> A6			     repe    cmpsb
+   1541	0A13  5F			     pop     di
+   1542	0A14  75 D3			     jne     recv_locate_1	     ;types don't match.
+   1543	0A16			     recv_locate_3:
+   1544	0A16  89 1E 03A6r		     mov     found_handle,bx	     ;remember what our	handle was.
+   1545	0A1A  F8			     clc
+   1546	0A1B  C3			     ret
+   1547
+   1548	0A1C			     recv_locate_4:
+   1549					     add2    packets_dropped,1	     ;count it as dropped.
+1  1550	0A1C  83 06 03CCr 01		     add     packets_dropped.offs,1	     ;increment	the low	word
+1  1551	0A21  83 16 03CEr 00		     adc     packets_dropped.segm,0	     ;increment	the high word
+   1552	0A26  F9			     stc
+   1553	0A27  C3			     ret
+   1554
+   1555
+   1556					     public  recv_find,	recv_found
+   1557	0A28			     recv_find:
+   1558				     ;called when we want to determine what to do with a received packet.
+   1559				     ;enter with cx = packet length, es:di -> packet type, dl =	packet class.
+   1560				     ;exit with	es:di =	0 if the packet	is not desired,	or es:di -> packet buffer
+   1561				     ;	to be filled by	the driver.
+   1562					     assume  ds:code, es:nothing
+   1563	0A28  51			     push    cx			     ;preserve packet length.
+   1564	0A29  E8 FF8B			     call    recv_locate	     ;search for the packet type.
+   1565	0A2C  59			     pop     cx
+   1566	0A2D  72 37			     jc	     recv_find_5	     ;we didn't	find it	-- discard it.
+   1567				     ;
+   1568	0A2F			     recv_found:
+   1569				     ;called to	do the first upcall.
+   1570				     ;exit with	es:di =	0 if the packet	is not desired,	or es:di -> packet buffer
+   1571				     ;	to be filled by	the driver.
+   1572
+   1573					     add2    packets_in,1
+1  1574	0A2F  83 06 03B4r 01		     add     packets_in.offs,1		     ;increment	the low	word
+1  1575	0A34  83 16 03B6r 00		     adc     packets_in.segm,0		     ;increment	the high word
+   1576					     add2    bytes_in,cx	     ;add up the received bytes.
+1  1577	0A39  01 0E 03BCr		     add     bytes_in.offs,cx		     ;increment	the low	word
+1  1578	0A3D  83 16 03BEr 00		     adc     bytes_in.segm,0	     ;increment	the high word
+   1579
+   1580	0A42  8B 1E 03A6r		     mov     bx,found_handle
+   1581	0A46  C4 7F 0D			     les     di,[bx].receiver	     ;remember the receiver upcall.
+   1582	0A49  89 3E 03A8r		     mov     receive_ptr.offs,di
+   1583	0A4D  8C 06 03AAr		     mov     receive_ptr.segm,es
+   1584
+   1585	0A51  F6 06 0210r 08		     test    flagbyte,W_OPTION	     ;did they select the Windows option?
+   1586	0A56  74 13			     je	     recv_find_6	     ;no, don't	check for the upcall.
+   1587
+   1588				     ; does the	receiver signature match whats currently in memory?  if	not,
+   1589				     ; jump to fake return
+   1590	0A58  56			     push    si
+   1591	0A59  51			     push    cx
+   1592	0A5A  8D 77 11			     lea     si,[bx].receiver_sig
+   1593	0A5D  B9 0004			     mov     cx,8/2
+   1594	0A60  F3> A7			     repe    cmpsw
+   1595	0A62  59			     pop     cx
+   1596	0A63  5E			     pop     si
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 29
+head.ASM
+
+
+
+   1597	0A64  74 05			     je	     recv_find_6
+   1598	0A66			     recv_find_5:
+   1599	0A66  33 FF			     xor     di,di		     ;"return" a null pointer.
+   1600	0A68  8E C7			     mov     es,di
+   1601	0A6A  C3			     ret
+   1602	0A6B			     recv_find_6:
+   1603
+   1604	0A6B  B8 0000			     mov     ax,0		     ;allocate request.
+   1605	0A6E  F9			     stc			     ;with stc,	flags must be an odd number
+   1606	0A6F  50			     push    ax			     ; save a number that cant be flags
+   1607	0A70  9C			     pushf			     ;save flags in case iret used.
+   1608	0A71  FF 1E 03A8r		     call    receive_ptr	     ;ask the client for a buffer.
+   1609					     ; on return, flags	should be at top of stack. if an IRET has been used,
+   1610					     ; then 0 will be at the top of the	stack
+   1611	0A75  5B			     pop     bx
+   1612	0A76  83 FB 00			     cmp     bx,0
+   1613	0A79  74 03			     je	     recv_find_4	     ;0	is at top of stack
+   1614	0A7B  83 C4 02			     add     sp,2
+   1615	0A7E			     recv_find_4:
+   1616	0A7E  C3			     ret
+   1617
+   1618
+   1619					     public  recv_copy
+   1620	0A7F			     recv_copy:
+   1621				     ;called after we have copied the packet into the buffer.
+   1622				     ;enter with ds:si ->the packet, cx	= length of the	packet.
+   1623				     ;preserve bx.
+   1624					     assume  ds:nothing, es:nothing
+   1625
+   1626	0A7F  53			     push    bx
+   1627	0A80  2E: 8B 1E	03A6r		     mov     bx,found_handle
+   1628	0A85  B8 0001			     mov     ax,1		     ;store request.
+   1629	0A88  F8			     clc			     ;with clc,	flags must be an even number
+   1630	0A89  50			     push    ax			     ; save a number that can't	be flags
+   1631	0A8A  9C			     pushf			     ;save flags incase	iret used.
+   1632	0A8B  2E: FF 1E	03A8r		     call    receive_ptr	     ;ask the client for a buffer.
+   1633	0A90  5B			     pop     bx
+   1634	0A91  83 FB 01			     cmp     bx,1		     ;if this is a 1, IRET was used.
+   1635	0A94  74 01			     je	     recv_copy_1
+   1636	0A96  5B			     pop     bx
+   1637	0A97			     recv_copy_1:
+   1638	0A97  5B			     pop     bx
+   1639	0A98  C3			     ret
+   1640
+   1641					     public  send_queue
+   1642	0A99			     send_queue:
+   1643				     ; Queue an	iocb.
+   1644				     ; Enter with es:di	-> iocb, interrupts disabled.
+   1645				     ; Destroys	ds:si.
+   1646					     assume  ds:nothing, es:nothing
+   1647	0A99  26: C7 45	0C 0000		     mov     es:[di].next.offs,0     ; Zero next offset
+   1648	0A9F  26: C7 45	0E 0000		     mov     es:[di].next.segm,0     ; Zero next segment
+   1649	0AA5  2E: 8B 36	03ACr		     mov     si,send_head.offs	     ; Queue empty?
+   1650	0AAA  2E: 0B 36	03AEr		     or	     si,send_head.segm
+   1651	0AAF  75 0C			     jnz     sq_notempty	     ; No
+   1652	0AB1  2E: 89 3E	03ACr		     mov     send_head.offs,di	     ; Set head	offset
+   1653	0AB6  2E: 8C 06	03AEr		     mov     send_head.segm,es	     ; Set head	segment
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 30
+head.ASM
+
+
+
+   1654	0ABB  EB 0B			     jmp     short sq_settail
+   1655	0ABD			     sq_notempty:			     ; Queue is	not empty
+   1656	0ABD  2E: C5 36	03B0r		     lds     si,send_tail	     ; Get tail	segment:offset
+   1657	0AC2  89 7C 0C			     mov     ds:[si].next.offs,di    ; Set next	offset
+   1658	0AC5  8C 44 0E			     mov     ds:[si].next.segm,es    ; Set next	segment
+   1659	0AC8			     sq_settail:
+   1660	0AC8  2E: 89 3E	03B0r		     mov     send_tail.offs,di	     ; Set tail	offset
+   1661	0ACD  2E: 8C 06	03B2r		     mov     send_tail.segm,es	     ; Set tail	segment
+   1662	0AD2  C3			     ret
+   1663
+   1664
+   1665					     public  send_dequeue
+   1666	0AD3			     send_dequeue:
+   1667				     ; Dequeue an iocb and possibly call its upcall.
+   1668				     ; Enter with device or processor interrupts disabled, ah =	return code.
+   1669				     ; Exits with es:di	-> iocb; destroys ds:si, ax, bx, cx, dx, bp.
+   1670					     assume  ds:nothing, es:nothing
+   1671	0AD3  2E: C4 3E	03ACr		     les     di,send_head	     ; Get head	segment:offset
+   1672	0AD8  26: C5 75	0C		     lds     si,es:[di].next	     ; Get next	segment:offset
+   1673	0ADC  2E: 89 36	03ACr		     mov     send_head.offs, si	     ; Set head	offset
+   1674	0AE1  2E: 8C 1E	03AEr		     mov     send_head.segm, ds	     ; Set head	segment
+   1675	0AE6  26: 80 4D	06 01		     or	     es:flags[di], DONE	     ; Mark done
+   1676	0AEB  26: 88 65	07		     mov     es:ret_code[di], ah     ; Set retcode
+   1677	0AEF  26: F6 45	06 02		     test    es:[di].flags,CALLME    ; Does he want an upcall?
+   1678	0AF4  74 17			     je	     send_dequeue_1	     ; No.
+   1679	0AF6  06			     push    es			     ; Push iocb segment
+   1680	0AF7  57			     push    di			     ;	and offset
+   1681	0AF8  F8			     clc			     ; Clear carry.
+   1682	0AF9  B8 0001			     mov     ax,1		     ; Push a number that cant be flags.
+   1683	0AFC  50			     push    ax
+   1684	0AFD  9C			     pushf			     ; Save flags in case iret used.
+   1685	0AFE  26: FF 5D	08		     call    es:[di].upcall	     ; Call the	client.
+   1686	0B02  58			     pop     ax			     ; Pop first word.
+   1687	0B03  3D 0001			     cmp     ax,1		     ; If this is a 1, IRET was	used.
+   1688	0B06  74 03			     je	     send_dequeue_2	     ; Far return used.
+   1689	0B08  83 C4 02			     add     sp,2		     ; Pop flags.
+   1690	0B0B			     send_dequeue_2:
+   1691	0B0B  5F			     pop     di			     ; Pop iocb	segment
+   1692	0B0C  07			     pop     es			     ;	and offset
+   1693	0B0D			     send_dequeue_1:
+   1694	0B0D  C3			     ret
+   1695
+   1696
+   1697	0B0E			     code    ends
+   1698
+   1699					     end     start
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 31
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "05/31/26"
+??FILENAME			  Text	 "head	  "
+??TIME				  Text	 "09:03:07"
+??VERSION			  Number 040A
+@CPU				  Text	 0101H
+@CURSEG				  Text	 CODE
+@FILENAME			  Text	 HEAD
+@WORDSIZE			  Text	 2
+ACCESS_TYPE_1			  Near	 CODE:0587
+ACCESS_TYPE_2			  Near	 CODE:0596
+ACCESS_TYPE_3			  Near	 CODE:05A2
+ACCESS_TYPE_4			  Near	 CODE:05AD
+ACCESS_TYPE_5			  Near	 CODE:05D4
+ACCESS_TYPE_6			  Near	 CODE:05D6
+ACCESS_TYPE_9			  Near	 CODE:057B
+ACCESS_TYPE_BAD			  Near	 CODE:0574
+ACCESS_TYPE_CLASS		  Near	 CODE:0568
+ACCESS_TYPE_NUMBER		  Near	 CODE:0570
+ACCESS_TYPE_SPACE		  Near	 CODE:0627
+ACCESS_TYPE_TYPE		  Near	 CODE:056C
+ADDRESS_LEN			  Word	 CODE:0382
+ARCADDR_LEN			  Number 0001
+AS_SEND_PKT			  Near	 CODE:---- Extern
+BAD_ADDRESS			  Number 000E
+BAD_COMMAND			  Number 000B
+BAD_COMMAND_INTERCEPT		  Near	 CODE:---- Extern
+BAD_IOCB			  Number 0010
+BAD_MODE			  Number 0008
+BLUEBOOK			  Number 0001
+BRANDING_MSG			  Byte	 CODE:---- Extern
+BYTES_IN			  Word	 CODE:03BC
+BYTES_OUT			  Word	 CODE:03C0
+CALLED_ETOPEN			  Number 0001
+CALLME				  Number 0002
+CANT_RESET			  Number 000F
+CANT_SEND			  Number 000C
+CANT_SET			  Number 000D
+CANT_TERMINATE			  Number 0007
+COUNT_HANDLES			  Near	 CODE:081F
+COUNT_HANDLES_1			  Near	 CODE:0824
+COUNT_IN_ERR			  Near	 CODE:0895
+COUNT_OUT_ERR			  Near	 CODE:08A2
+CR				  Number 000D
+CY				  Number 0001
+DEFAULT_HANDLE			  Near	 CODE:04AB
+DONE				  Number 0001
+DP_ENDLIST			  Near	 CODE:0722
+DP_GETNEXT			  Near	 CODE:0719
+DP_LOOP				  Near	 CODE:06F5
+DRIVER_CLASS			  Byte	 CODE:---- Extern
+DRIVER_FUNCTION			  Byte	 CODE:---- Extern
+DRIVER_NAME			  Byte	 CODE:---- Extern
+DRIVER_TYPE			  Byte	 CODE:---- Extern
+DROP_PKT			  Near	 CODE:---- Extern
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 32
+Symbol Table
+
+
+
+D_OPTION			  Number 0002
+EADDR_LEN			  Number 0006
+EI				  Number 0200
+END_HANDLES			  Byte	 CODE:034A
+ENTRY_POINT			  Byte	 CODE:0208
+EPROT_OFF			  Number 000C
+ERRORS_IN			  Word	 CODE:03C4
+ERRORS_OUT			  Word	 CODE:03C8
+ERR_BAD_HANDLE			  Number 0001
+ERR_BAD_TYPE			  Number 0005
+ETOPEN				  Near	 CODE:---- Extern
+FLAGBYTE			  Byte	 CODE:0210
+FOUND_HANDLE			  Word	 CODE:03A6
+FUNCTIONS			  Word	 CODE:0212
+F_ACCESS_TYPE			  Near	 CODE:0578
+F_AS_SEND_PKT			  Near	 CODE:06B3
+F_AS_SEND_PKT_1			  Near	 CODE:06C2
+F_AS_SEND_PKT_2			  Near	 CODE:06E6
+F_BAD_COMMAND			  Near	 CODE:0469
+F_DRIVER_INFO			  Near	 CODE:0486
+F_DRIVER_INFO_1			  Near	 CODE:04D1
+F_DROP_PKT			  Near	 CODE:06EA
+F_GET_ADDRESS			  Near	 CODE:0789
+F_GET_MULTICAST_LIST		  Near	 CODE:0547
+F_GET_PARAMETERS		  Near	 CODE:080A
+F_GET_PARAMETERS_1		  Near	 CODE:0815
+F_GET_RCV_MODE			  Near	 CODE:0507
+F_GET_STATISTICS		  Near	 CODE:055B
+F_NOT_IMPLEMENTED		  Near	 CODE:0482
+F_RELEASE_TYPE			  Near	 CODE:062B
+F_RELEASE_TYPE_1		  Near	 CODE:063D
+F_RESET_INTERFACE		  Near	 CODE:07F0
+F_SEND_PKT			  Near	 CODE:0677
+F_SEND_PKT_2			  Near	 CODE:0699
+F_SEND_PKT_3			  Near	 CODE:06AF
+F_SET_ADDRESS			  Near	 CODE:07A1
+F_SET_ADDRESS_ERR		  Near	 CODE:07E4
+F_SET_ADDRESS_INUSE		  Near	 CODE:07DC
+F_SET_ADDRESS_TOO_LONG		  Near	 CODE:07E0
+F_SET_MULTICAST_LIST		  Near	 CODE:0512
+F_SET_MULTICAST_LIST_1		  Near	 CODE:0524
+F_SET_MULTICAST_LIST_2		  Near	 CODE:053F
+F_SET_MULTICAST_LIST_3		  Near	 CODE:0543
+F_SET_RCV_MODE			  Near	 CODE:04D3
+F_SET_RCV_MODE_1		  Near	 CODE:0503
+F_SET_RCV_MODE_4		  Near	 CODE:0501
+F_STOP				  Near	 CODE:07F8
+F_STOP_2			  Near	 CODE:07FB
+F_TERMINATE			  Near	 CODE:0727
+F_TERMINATE_3			  Near	 CODE:0753
+F_TERMINATE_4			  Near	 CODE:0785
+F_TERMINATE_NO_IRQ		  Near	 CODE:075B
+F_TERMINATE_NO_MASK		  Near	 CODE:0746
+F_TERMINATE_NO_TIMER		  Near	 CODE:076D
+GET_ADDRESS_SPACE		  Near	 CODE:079D
+GIANT				  Number 05EA
+GOT_HANDLE			  Near	 CODE:04B1
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 33
+Symbol Table
+
+
+
+HANDLES				  Struct CODE:0246 PER_HANDLE
+HT				  Number 0009
+IEEE8023			  Number 000B
+INT_NO				  Byte	 CODE:---- Extern
+IN_RECV_ISR			  Byte	 CODE:08AF
+IS_186				  Byte	 CODE:020D
+IS_286				  Byte	 CODE:020E
+IS_386				  Byte	 CODE:020F
+LF				  Number 000A
+MAJVER				  Number 000B
+MASKINT				  Near	 CODE:0959
+MASKINT_1			  Near	 CODE:097B
+MASK_NOT_IRQ2			  Near	 CODE:0969
+MAX_ADDR_LEN			  Number 0010
+MAX_HANDLE			  Number 000A
+MAX_MULTICAST			  Number 0008
+MAX_P_LEN			  Number 0008
+MULTICAST_ADDRS			  Byte	 CODE:0352
+MULTICAST_BROAD			  Byte	 CODE:034C
+MULTICAST_COUNT			  Word	 CODE:034A
+MY_ADDRESS			  Byte	 CODE:0394
+M_OPTION			  Number 0020
+NOT_N_OP			  Near	 CODE:09E6
+NO_CLASS			  Number 0002
+NO_ERROR			  Number 0000
+NO_MULTICAST			  Number 0006
+NO_NUMBER			  Number 0004
+NO_SPACE			  Number 0009
+NO_TYPE				  Number 0003
+N_OPTION			  Number 0004
+ORIGINAL_MASK			  Byte	 CODE:0211
+OUR_ISR				  Near	 CODE:03E0
+OUR_ISR_0			  Near	 CODE:0428
+OUR_ISR_CONT			  Near	 CODE:0443
+OUR_ISR_ERROR			  Near	 CODE:045E
+OUR_ISR_NO_INIT			  Near	 CODE:0414
+OUR_ISR_OPEN			  Near	 CODE:03EC
+OUR_ISR_RETURN			  Near	 CODE:0454
+OUR_STACK			  Byte	 CODE:0208
+PACKETS_DROPPED			  Word	 CODE:03CC
+PACKETS_IN			  Word	 CODE:03B4
+PACKETS_OUT			  Word	 CODE:03B8
+PARAMETER_LIST			  Byte	 CODE:---- Extern
+PHD_DIOA			  Byte	 CODE:0080
+PHD_ENVIRON			  Word	 CODE:002C
+RCV_MODES			  Word	 CODE:---- Extern
+RCV_MODE_NUM			  Word	 CODE:03A4
+RECEIVE_PTR			  Dword	 CODE:03A8
+RECV				  Near	 CODE:---- Extern
+RECV_COPY			  Near	 CODE:0A7F
+RECV_COPY_1			  Near	 CODE:0A97
+RECV_EXITING_ADDR		  Dword	 CODE:091E
+RECV_EXITING_EXIT		  Near	 CODE:0947
+RECV_EXITING_FLAG		  Byte	 CODE:091D
+RECV_FIND			  Near	 CODE:0A28
+RECV_FIND_4			  Near	 CODE:0A7E
+RECV_FIND_5			  Near	 CODE:0A66
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 34
+Symbol Table
+
+
+
+RECV_FIND_6			  Near	 CODE:0A6B
+RECV_FOUND			  Near	 CODE:0A2F
+RECV_IRET			  Near	 CODE:091C
+RECV_ISR			  Near	 CODE:08B0
+RECV_ISR_3			  Near	 CODE:08FB
+RECV_ISR_4			  Near	 CODE:08F3
+RECV_LOCATE			  Near	 CODE:09B7
+RECV_LOCATE_1			  Near	 CODE:09E9
+RECV_LOCATE_2			  Near	 CODE:0A03
+RECV_LOCATE_3			  Near	 CODE:0A16
+RECV_LOCATE_4			  Near	 CODE:0A1C
+RECV_NOT_802_3			  Near	 CODE:09D5
+RECV_NOT_8137			  Near	 CODE:09E6
+RESET_INTERFACE			  Near	 CODE:---- Extern
+RE_ENABLE_INTERRUPTS		  Near	 CODE:0479
+RE_ENABLE_INTERRUPTS_1		  Near	 CODE:0481
+ROM_ADDRESS			  Byte	 CODE:0384
+RUNT				  Number 003C
+SAVESP				  Word	 CODE:03D0
+SAVESPSS			  Dword	 CODE:03D0
+SAVESS				  Word	 CODE:03D2
+SCHEDULE_EXITING		  Near	 CODE:0922
+SCHEDULE_EXITING_1		  Near	 CODE:0946
+SEND_DEQUEUE			  Near	 CODE:0AD3
+SEND_DEQUEUE_1			  Near	 CODE:0B0D
+SEND_DEQUEUE_2			  Near	 CODE:0B0B
+SEND_HEAD			  Dword	 CODE:03AC
+SEND_PKT			  Near	 CODE:---- Extern
+SEND_QUEUE			  Near	 CODE:0A99
+SEND_TAIL			  Dword	 CODE:03B0
+SET_ADDRESS			  Near	 CODE:---- Extern
+SET_ISR_NO_IRQ			  Near	 CODE:0894
+SET_ISR_NO_TIMER		  Near	 CODE:088B
+SET_MULTICAST_LIST		  Near	 CODE:---- Extern
+SET_RECV_ISR			  Near	 CODE:084E
+SET_RECV_ISR_1			  Near	 CODE:085F
+SORT_TYPE_LIST			  Near	 CODE:0641
+SORT_TYPE_LIST_1		  Near	 CODE:064A
+SORT_TYPE_LIST_2		  Near	 CODE:066D
+SORT_TYPE_LIST_3		  Near	 CODE:0658
+SORT_TYPE_LIST_4		  Near	 CODE:0667
+SORT_TYPE_LIST_5		  Near	 CODE:0661
+SQ_NOTEMPTY			  Near	 CODE:0ABD
+SQ_SETTAIL			  Near	 CODE:0AC8
+START				  Near	 CODE:0100
+START_1				  Near	 CODE:---- Extern
+STATISTICS_LIST			  Dword	 CODE:03B4
+SYS_FEATURES			  Byte	 CODE:020C
+SYS_MCA				  Number 0002
+TERMINATE			  Near	 CODE:---- Extern
+THEIR_ISR			  Dword	 CODE:03DC
+THEIR_RECV_ISR			  Dword	 CODE:03D8
+THEIR_TIMER			  Dword	 CODE:03D4
+TIMER_ISR			  Near	 CODE:---- Extern
+TWO_8259			  Number 0040
+TYPE_INUSE			  Number 000A
+TYPE_LIST			  Word	 CODE:063F
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 35
+Symbol Table
+
+
+
+UNMASKINT			  Near	 CODE:097C
+UNMASK_NOT_IRQ2			  Near	 CODE:09A0
+U_OPTION			  Number 0010
+VERIFY_HANDLE			  Near	 CODE:0831
+VERIFY_HANDLE_BAD		  Near	 CODE:0847
+W_OPTION			  Number 0008
+XMIT				  Near	 CODE:---- Extern
+
+Macro Name
+
+ADD2
+LOADPORT
+MOVSEG
+PRINT
+PRINT_IT
+REPMOV
+SEND_PEEKQUEUE
+SEND_QUEUEEMPTY
+SETPORT
+TO_SCRN
+
+Structure Name			  Type	Offset
+
+BYTES
+ _DL				  Byte	 000A
+ _DH				  Byte	 000B
+ _CL				  Byte	 000C
+ _CH				  Byte	 000D
+ _BL				  Byte	 000E
+ _BH				  Byte	 000F
+ _AL				  Byte	 0010
+ _AH				  Byte	 0011
+IOCB
+ BUFFER				  Dword	 0000
+ LEN				  Word	 0004
+ FLAGS				  Byte	 0006
+ RET_CODE			  Byte	 0007
+ UPCALL				  Dword	 0008
+ NEXT				  Dword	 000C
+ RESV				  Byte	 0010
+PER_HANDLE
+ NEXT_TYPE			  Word	 0000
+ IN_USE				  Byte	 0002
+ PACKET_TYPE			  Byte	 0003
+ PACKET_TYPE_LEN		  Word	 000B
+ RECEIVER			  Dword	 000D
+ RECEIVER_SIG			  Byte	 0011
+ CLASS				  Byte	 0019
+RECV_ISR_FRAME
+ RECV_ISR_DS			  Word	 0000
+ RECV_ISR_DX			  Word	 0002
+ RECV_ISR_AX			  Word	 0004
+ RECV_ISR_IP			  Word	 0006
+ RECV_ISR_CS			  Word	 0008
+ RECV_ISR_F			  Word	 000A
+REGS
+ _ES				  Word	 0000
+Turbo Assembler	 Version 4.1	    05/31/26 09:03:08	    Page 36
+Symbol Table
+
+
+
+ _DS				  Word	 0002
+ _BP				  Word	 0004
+ _DI				  Word	 0006
+ _SI				  Word	 0008
+ _DX				  Word	 000A
+ _CX				  Word	 000C
+ _BX				  Word	 000E
+ _AX				  Word	 0010
+ _IP				  Word	 0012
+ _CS				  Word	 0014
+ _F				  Word	 0016
+SEGMOFFS
+ OFFS				  Word	 0000
+ SEGM				  Word	 0002
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+CODE				  16  0B0E Word	  Public
+

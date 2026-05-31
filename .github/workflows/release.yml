@@ -18,7 +18,8 @@ jobs:
     - run: |
         make -f Makefile.wat
     - uses: softprops/action-gh-release@v3
-      draft: true
-      files: |
-        3c509.com
+      with:
+        draft: true
+        files: |
+          3c509.com
 

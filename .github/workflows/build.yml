@@ -20,13 +20,6 @@ jobs:
           MAKE
         programs: |
           $/tasm:C:\TASM
-        conf: |
-          [dosbox]
-          memsize=256
-
-          [cpu]
-          cycles=max
-          turbo=true
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"

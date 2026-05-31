@@ -16,7 +16,7 @@ jobs:
         version: "2.0"
         target:  "dos"
     - run: |
-        make -f Makefile.wat
+        make
     - uses: softprops/action-gh-release@v3
       with:
         draft: true

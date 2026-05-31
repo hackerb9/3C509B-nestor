@@ -8,7 +8,8 @@ OBJECTS=head.o 3c509.o tail.o
 
 .SUFFIXES: .asm
 .asm.o:
-	wasm -mt -q $<,
+	wasm -mt -q $*
+	wdis -l $*
 
 3c509.com: $(OBJECTS)
 	wlink   option quiet  format dos com  \

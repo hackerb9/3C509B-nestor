@@ -12,7 +12,7 @@ OBJECTS=head.o 3c509.o tail.o
 	wdis -l $*.o -e -p -s=$*.asm
 
 3c509.com: $(OBJECTS)
-	wlink -lr -l=COM   option quiet  format dos com  \
+	wlink -l=COM   option quiet  format dos com  \
 		option map  \
 		name $@  file {$(OBJECTS)}
 

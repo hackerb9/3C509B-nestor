@@ -1,0 +1,25 @@
+name: UploadRelease
+on:
+  push:
+    tags:
+      - "v*.*.*"
+    branches:
+      - main
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+    - uses: open-watcom/setup-watcom@v1
+      with:
+        version: "2.0"
+        target:  "dos"
+    - run: |
+        make -f Makefile.wat
+    - uses: softprops/action-gh-release@v3
+      with:
+        draft: true
+        files: |
+          3c509.com
+

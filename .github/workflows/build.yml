@@ -13,19 +13,4 @@ jobs:
         wmake -h -u -f Makefile.wat
         make -f Makefile.wat clean
         make -f Makefile.wat
-
-name: UploadRelease
-on:
-  push:
-    tags:
-      - "v*.*.*"
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - name: Release
-        uses: softprops/action-gh-release@v3
-
             

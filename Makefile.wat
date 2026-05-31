@@ -14,7 +14,7 @@ all: 3c509.com
 
 3c509.com: head.o 3c509.o tail.o
 	wlink   option quiet  option noextension  format dos com  \
-		option map  name $@  file {$< $^}
+		option map  name $@  file {$?}
 
 .PHONY: clean .symbolic
 clean: .symbolic

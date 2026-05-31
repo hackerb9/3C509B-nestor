@@ -10,6 +10,6 @@ jobs:
         version: "2.0"
         target:  "dos"
     - run: |
-        wmake -h -ms -f Makefile.wat
+        wmake -f Makefile.wat
         wmake clean
         make -f Makefile.wat

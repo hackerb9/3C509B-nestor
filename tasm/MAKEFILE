@@ -1,5 +1,5 @@
 .asm.obj:
-	tasm $*;
+	tasm /l $*;
 
 3c509.com: head.obj 3c509.obj tail.obj
 	tlink /t/m head+3c509+tail,3c509;

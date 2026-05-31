@@ -3,7 +3,7 @@ all: 3c509.com
 OBJECTS=head.o 3c509.o tail.o
 # Note: WMAKE disagrees with GNU Make on what $< and $^ mean.
 
-.SUFFIXES: .asm
+.SUFFIXES: .asm .PHONY
 
 .asm.o:
 	wasm -q $*

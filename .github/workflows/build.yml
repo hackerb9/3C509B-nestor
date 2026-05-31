@@ -1,8 +1,13 @@
-steps:
-- uses: actions/checkout@v6
-- uses: open-watcom/setup-watcom@v1
-  with:
-    version: "2.0"
-    target:  "dos"
-- run: |
-    make -f Makefile.wat
+name: Build with Watcom wasm and wlink
+on: [push]
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+    - uses: open-watcom/setup-watcom@v1
+      with:
+        version: "2.0"
+        target:  "dos"
+    - run: |
+        make -f Makefile.wat

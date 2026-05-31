@@ -11,8 +11,6 @@ jobs:
         target:  "dos"
     - name: Build with OpenWacom (wasm)
       run: |
-        wdis -l 3c509.com
-        mv 3c509.lst 3c509-tasm.lst
         make
     - name: Build with TurboAssembler (tasm)
       run: |
@@ -35,3 +33,6 @@ jobs:
           tasm/*.LST
     - run: |
         cmp 3c509.com tasm/3C509-tasm.COM
+        wdis -l=3c509-tasm.lis  tasm/3C509.OBJ
+        wdis -l=head-tasm.lis  tasm/TAIL.OBJ
+        wdis -l=tail-tasm.lis  tasm/HEAD.OBJ

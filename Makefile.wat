@@ -6,7 +6,7 @@ all: 3c509.com
 	wasm -q $*
 
 3c509.com: head.o 3c509.o tail.o
-	wlink -q format dos com option map name $* file $<
+	wlink -h format dos com option map name $* file $@
 
 .PHONY: clean .symbolic
 clean: .symbolic

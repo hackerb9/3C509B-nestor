@@ -13,22 +13,20 @@ jobs:
       with:
         version: "2.0"
         target:  "dos"
-
     steps:
-      # ...
-      - name: "Build & test"
-      - uses: actions/checkout@v6
-      - uses: open-watcom/setup-watcom@v1
-      - run: |
-          wmake -h -u -f Makefile.wat
-          echo "done!"
-      - uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
-          prerelease: true
-          title: "Development Build"
-          files: |
-            3c509.com
-            Makefile.wat
-            *.asm
+    - name: "Build & test"
+    - uses: actions/checkout@v6
+    - uses: open-watcom/setup-watcom@v1
+    - run: |
+        wmake -h -u -f Makefile.wat
+        echo "done!"
+    - uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: true
+        title: "Development Build"
+        files: |
+          3c509.com
+          Makefile.wat
+          *.asm

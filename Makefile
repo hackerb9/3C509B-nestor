@@ -20,3 +20,12 @@ clean:
 	rm -f *.err
 	rm -f *.map
 	rm -f 3c509.com
+
+
+## Alternative compilation via DOSBOX and tasm/TASM.EXE.
+## This should be byte-for-byte identical to Wacom's WASM.
+## (See also: tasm/MAKEFILE)
+tasm/3C509.COM:
+	cd tasm; \
+	dosbox -c "MOUNT C: ." -c "C:" -c "MAKE" -c exit
+

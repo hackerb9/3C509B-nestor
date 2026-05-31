@@ -8,12 +8,13 @@ OBJECTS=head.o 3c509.o tail.o
 
 .SUFFIXES: .asm
 .asm.o:
-	wasm -mt -q $*
+	wasm -d0 -e -q $*
 	wdis -l $*.o
 
 3c509.com: $(OBJECTS)
 	wlink   option quiet  format dos com  \
-		option map  name $@  file {$(OBJECTS)}
+		option map  option disable deadcode, eliminate \
+		name $@  file {$(OBJECTS)}
 
 # Note: WMAKE doesn't allow ".symbolic" to be PHONY or a target.
 clean:

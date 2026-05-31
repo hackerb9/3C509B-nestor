@@ -10,4 +10,5 @@ jobs:
         version: "2.0"
         target:  "dos"
     - run: |
+        wmake /f Makefile.wat
         make -f Makefile.wat

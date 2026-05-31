@@ -1,4 +1,4 @@
-name: Build with Watcom wasm and wlink
+name: Build with Watcom wasm and Borland TASM
 on: [push]
 jobs:
   build-it:
@@ -11,22 +11,10 @@ jobs:
         target:  "dos"
     - run: |
         make
-    - uses: joncloud/dos-build-action@v1
-      with:
-        run: |
-          C:
-          CD TASM
-          MAKE CLEAN
-          MAKE
-        programs: |
-          tasm/TASM.EXE:C:\TASM.EXE
-        conf: |
-          [dosbox]
-          memsize=256
-
-          [cpu]
-          cycles=max
-          turbo=true
+    - run: |
+        sudo apt install dosbox
+        cd tasm
+        dosbox -c "MOUNT C: ." -c "C:" -c "MAKE" -c exit
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"

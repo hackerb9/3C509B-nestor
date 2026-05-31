@@ -3,10 +3,10 @@ all: 3c509.com
 .SUFFIXES: .asm
 
 .asm.o:
-	wasm $*
+	wasm -q $*
 
 3c509.com: head.o 3c509.o tail.o
-	wlink format dos com option map name $* file $<
+	wlink -q format dos com option map name $* file $<
 
 .PHONY: clean .symbolic
 clean: .symbolic

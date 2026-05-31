@@ -29,7 +29,7 @@ is_pci	db	0			;=0 if PCI, =1 if PCI
 	extrn	is_286: byte		;=0 if 80[1]8[68], =1 if 80[234]86.
 	extrn	is_386: byte		;=0 if 80[12]8[68], =1 if 80[34]86.
 	extrn	int_no: byte		;the board's interrupt level.
-	extrn	hw_int_no: byte		;the 8259 interrupt level.
+;	extrn	hw_int_no: byte		;the 8259 interrupt level.
 	extrn	driver_class: byte	;the class of this driver, per the spec.
 	extrn	rcv_modes: word		;count of modes followed by mode handles.
 

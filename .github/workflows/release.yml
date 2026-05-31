@@ -10,11 +10,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - name: Release
-        uses: softprops/action-gh-release@v3
-        with:
-        files: |
-          3c509.com
+    - uses: actions/checkout@v6
+    - uses: open-watcom/setup-watcom@v1
+      with:
+        version: "2.0"
+        target:  "dos"
+    - run: |
+        make -f Makefile.wat
+    - uses: softprops/action-gh-release@v3
+      draft: true
+      files: |
+        3c509.com
 

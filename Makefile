@@ -9,11 +9,10 @@ OBJECTS=head.o 3c509.o tail.o
 .SUFFIXES: .asm
 .asm.o:
 	wasm -q $*
-#	wdis -l $*.o -e -p -s=$*.asm
 
 3c509.com: $(OBJECTS)
 	wlink   option quiet  format dos com  \
-		option map  \
+			option map  \
 		name $@  file {$(OBJECTS)}
 
 # Note: WMAKE doesn't allow ".symbolic" to be PHONY or a target.

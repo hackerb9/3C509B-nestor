@@ -21,6 +21,7 @@ jobs:
     - name: Temp test
       run: |
         wdis -l tasm/3C509.OBJ -e -p -s=3c509.asm
+        mv tasm/3C509.LST 3C509-orig.lst
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
@@ -31,7 +32,6 @@ jobs:
           3c509.com
           *.map
           *.lst
-          *.lis
           tasm/*.COM
           tasm/*.MAP
           tasm/*.LST

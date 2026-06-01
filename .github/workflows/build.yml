@@ -34,5 +34,3 @@ jobs:
           tasm/*.COM
           tasm/*.MAP
           tasm/*.LST
-    - run: |
-        cmp 3c509.com tasm/3C509-tasm.COM

@@ -1,9 +1,9 @@
-version	equ	6
+version	equ	7
 ;History:1,1
 ;Fri Mar 08 14:48:42 2002 Merge in Peter Tattum's 3c509b changes.
 ;Mon Jan 22 15:09:36 1996 we were rejecting frames with dribble set and accepting other errored frames.
 
-        .8086
+	.8086
 
 ;  Copyright, 1988-1992, Russell Nelson, Crynwr Software
 
@@ -488,24 +488,27 @@ send_pkt_2:
 	out	dx,ax			;output the second reserved word.
 	mov	cx,bx			;output the rest of the packet.
 
-;	 cmp	 is_386,0		 ;can we output dwords?
-;	 jne	 send_pkt_7		 ;yes.
+	cmp	is_386,0		;can we output dwords?
+	jne	send_pkt_7		;yes.
 	shr	cx,1			;output 16 bits at a time.
-;	 rep	 outsw
-
+	cmp	is_186,0		;can we use rep outsw?
+	je	send_8086		;no.
+	.186
+	rep	outsw
+	.8086
+	jmp	short send_pkt_6
 ;start 8086 code
 send_8086:
 	lodsw
 	out	dx,ax
 	loop send_8086
 ;end 8086 code
-
         jmp     short send_pkt_6
-;send_pkt_7:
-;        .386
-;        shr     cx,2                    ;already rounded up.
-;        rep     outsd                   ;output 32 bits at a time.
-;        .286
+send_pkt_7:
+	.386
+	shr	cx,2			;already rounded up.
+	rep	outsd			;output 32 bits at a time.
+	.8086
 send_pkt_6:
 
 	clc
@@ -643,17 +646,22 @@ read_header:
 	mov	es,ax
 	mov	di,offset ether_buff
 	mov	cx,ETHER_BUFF_LEN/4
-repinsd:
-	shl	cx,1			;*** this gets changed into "rep insd"
-;	 rep	 insw			 ;***	"nop" on a 386 or 486.
-
+	cmp	is_186,0		;Can we use rep insw?
+	jne	repinsd			;Yes.
+	shl	cx,1
 ;start 8086 code
 l_rep:
 	in	ax,dx
 	stosw
 	loop l_rep
 ;end 8086 code
-
+	jmp	short set_type
+repinsd:
+	.186
+	shl	cx,1			;*** this gets changed into "rep insd"
+	rep	insw			;***   "nop" on a 386 or 486.
+	.8086
+set_type:
 	mov	di,offset ether_type
 
 	mov	dl, BLUEBOOK		;assume bluebook Ethernet.
@@ -774,13 +782,16 @@ recv_complete_4:
 	mov	cx,bx			;restore the count.
 	sub	cx,ETHER_BUFF_LEN	;but leave off what we've already copied.
 
-;	 cmp	 is_386,0
-;	 jne	 io_input_386
-io_input_286:
+	cmp	is_386,0
+	jne	io_input_386
 	push	cx
 	shr	cx,1
-;	 rep	 insw
-
+	cmp	is_186,0		;can we use rep insw?
+	je	l_input			;no.
+	.286
+	rep	insw
+	.8086
+	jmp	short io_input_1
 ;start 8086 code
 l_input:
 	in	ax, dx
@@ -788,48 +799,40 @@ l_input:
 	loop l_input
 ;end 8086 code
 
+io_input_1:
 	pop	cx
-	jnc	io_input_286_1		;go if the count was even.
-;	 insb				 ;get that last byte.
-
-;start 8086 code
-	in al, dx
-	stosb
-;end 8086 code
-
-	in	al,dx			;and get the pad byte.
-	test	cx,2			;even number of words?
-	jne	io_input_done		;no.
-	in	ax,dx			;yes, get the pad word.
-	jmp	short io_input_done
-io_input_286_1:
+	test	cx,1			;odd count?
+	je	io_input_2		;go if the count was even.
+	in	ax,dx			;get a word
+	stosb				;and save a byte
+io_input_2:
 	test	cx,2			;odd number of words?
 	je	io_input_done		;no.
 	in	ax,dx			;yes, get the pad word.
 	jmp	short io_input_done
 
-;io_input_386:
-;	 .386
-;	 push	 eax
-;	 push	 cx			 ;first, get all the full words.
-;	 shr	 cx,2
-;	 rep	 insd
-;	 pop	 cx
-;	 test	 cx,3			 ;even number of dwords?
-;	 je	 io_input_386_one_byte	 ;yes.
-;	 in	 eax,dx			 ;no, get the partial word.
-;	 test	 cx,2			 ;a full word to be stored?
-;	 je	 io_input_386_one_word
-;	 stosw				 ;yes, store it,
-;	 shr	 eax,16			 ;and move over by a word.
-;io_input_386_one_word:
+io_input_386:
+	.386
+	push	eax
+	push	cx			;first, get all the full words.
+	shr	cx,2
+	rep	insd
+	pop	cx
+	test	cx,3			;even number of dwords?
+	je	io_input_386_one_byte	;yes.
+	in	eax,dx			;no, get the partial word.
+	test	cx,2			;a full word to be stored?
+	je	io_input_386_one_word
+	stosw				;yes, store it,
+	shr	eax,16			;and move over by a word.
+io_input_386_one_word:
 
-;	 test	 cx,1			 ;a full byte to be stored?
-;	 je	 io_input_386_one_byte
-;	 stosb				 ;yes, store it.
-;io_input_386_one_byte:
-;	 pop	 eax
-;	 .286
+	test	cx,1			;a full byte to be stored?
+	je	io_input_386_one_byte
+	stosb				;yes, store it.
+io_input_386_one_byte:
+	pop	eax
+	.8086
 
 io_input_done:
 
@@ -882,7 +885,8 @@ usage_msg	db	"usage: 3c509 [options] <packet_int_no> [id_port]",CR,LF,'$'
 	public	copyright_msg
 copyright_msg	db	"Packet driver for a 3c509, version ",'0'+(majver / 10),'0'+(majver mod 10),".",'0'+version,CR,LF
 		db	"Portions Copyright 1992, Crynwr Software",CR,LF
-		db	"8088/8086 support by Nestor a.k.a. DistWave",CR,LF,'$'
+		db	"8088/8086 support by Nestor a.k.a. DistWave",CR,LF
+		db	"V20/V30 support by Davide Bresolin",CR,LF,'$'
 no_isa_msg	db	CR,LF
 		db	"No 3c509 found.  Use a different id_port value.  Default is 0x110.",CR,LF,'$'
 reading_msg	db	"Reading EEPROM.",'$'
@@ -945,20 +949,13 @@ parse_args:
 etopen:
 ;initialize the driver.  Fill in rom_address with the assigned address of
 ;the board.  Exit with nc if all went well, or cy, dx -> $ terminated error msg.
-;if all is okay,
-;	 cmp	 is_186,0		 ;this version requires a 186 or better.
-;	 jne	 etopen_1
-;	 mov	 dx,offset needs_186_msg
-;	 stc
-;	 ret
-;etopen_1:
 
-;	 cmp	 is_386,0		 ;can we do a real insd?
-;	 je	 etopen_2
+	cmp	is_386,0		;can we do a real insd?
+	je	etopen_2
 ;overlay the repinsd routine with a real "rep insd;nop"
-;	 mov	 word ptr repinsd+0,066h+0f3h*256
-;	 mov	 word ptr repinsd+2,06dh+090h*256
-;etopen_2:
+	mov	word ptr repinsd+0,066h+0f3h*256
+	mov	word ptr repinsd+2,06dh+090h*256
+etopen_2:
 
 	cmp	is_eisa,0
 	jne	etopen_eisa
@@ -967,7 +964,9 @@ etopen_eisa:
 	mov	cx,0fh
 eisa_search:
 	mov	dx,cx			;move it into the first nibble.
+	.286
 	shl	dx,12
+	.8086
 	or	dx,0c80h
 	in	ax,dx			;look for the manufacturer's ID
 	cmp	ax,EISA_MANUFACTURER_ID

@@ -27,7 +27,6 @@ jobs:
         files: |
           3c509.com
           *.map
-          *.lst
           tasm/*.COM
           tasm/*.MAP
           tasm/*.LST

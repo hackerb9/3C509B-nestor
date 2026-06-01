@@ -20,8 +20,7 @@ jobs:
         rename 's/\./-tasm./' *LST *COM *MAP
     - name: Temp test
       run: |
-        wdis -l tasm/3C509.OBJ -e -p -s=3c509.asm
-        mv tasm/3C509.LST 3C509-orig.lst
+        wdis -l=3c509-orig.lst tasm/3C509.OBJ -e -p -s=3c509.asm
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"

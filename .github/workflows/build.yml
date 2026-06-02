@@ -5,14 +5,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
-    - uses: open-watcom/setup-watcom@v0
+    - uses: open-watcom/setup-watcom@v1
       with:
-        version: "2.0"
+        version: "1.9"
         target:  "dos"
-    - name: Build with OpenWacom 2.0
+    - name: Build with OpenWacom 1.9
       run: |
         make
-        mv 3c509.com 3c509-wasm2.0.com
+        mv 3c509.com 3c509-wasm1.9.com
     - name: Build with TurboAssembler (tasm)
       run: |
         sudo apt install dosbox rename
@@ -26,7 +26,7 @@ jobs:
         prerelease: true
         title: "Development Build"
         files: |
-          *.com
+          3c509.com
           *.map
           tasm/*.COM
           tasm/*.MAP

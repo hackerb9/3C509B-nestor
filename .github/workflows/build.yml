@@ -9,9 +9,10 @@ jobs:
       with:
         version: "1.9"
         target:  "dos"
-    - name: Build with OpenWacom (wasm)
+    - name: Build with OpenWacom 1.9
       run: |
         make
+        mv 3c509.com 3c509-wasm1.9.com
     - name: Build with TurboAssembler (tasm)
       run: |
         sudo apt install dosbox rename

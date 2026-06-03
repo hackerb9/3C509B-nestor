@@ -1,3 +1,5 @@
+env:
+ BRANCH_NAME: ${{ github.ref_name || github.ref || github.head_ref }} 
 name: Build with Watcom wasm and Borland TASM
 on: [push]
 jobs:
@@ -23,7 +25,7 @@ jobs:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "latest"
         prerelease: true
-        title: "Development Build ${{ github.ref_name || github.ref }}"
+        title: "Development Build of $BRANCH_NAME"
         files: |
           3c509.com
           *.map

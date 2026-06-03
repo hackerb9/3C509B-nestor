@@ -25,7 +25,7 @@ jobs:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "latest"
         prerelease: true
-        title: "Development Build of $BRANCH_NAME"
+        title: "Development Build of ${{ env.BRANCH_NAME }}"
         files: |
           3c509.com
           *.map

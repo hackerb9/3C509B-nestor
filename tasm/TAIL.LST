@@ -1,4 +1,4 @@
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 1
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 1
 tail.ASM
 
 
@@ -60,7 +60,7 @@ tail.ASM
 1    55	      =0005		     ERR_BAD_TYPE    equ     5		     ;bad packet type specified
 1    56	      =0006		     NO_MULTICAST    equ     6		     ;this interface does not support
 1    57									     ;multicast
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 2
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 2
 tail.ASM
 
 
@@ -122,7 +122,7 @@ tail.ASM
 1   112					     else
 1   113						     if	     new_port_no - port_no EQ -1
 1   114							     dec     dx
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 3
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 3
 tail.ASM
 
 
@@ -184,13 +184,13 @@ tail.ASM
 1   169	*002  01*(????)		     segm	     dw	     ?
 1   170	*004			     segmoffs	     ends
 1   171
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 4
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 4
 tail.ASM
 
 
 
-1   172	      =0001		     CY	     equ     0001h
-1   173	      =0200		     EI	     equ     0200h
+1   172				     ; CY    equ     0001h
+1   173				     ; EI    equ     0200h
 1   174
 1   175	*000			     iocb	     struc		     ; as_send_pkt structure
 1   176	*000  01*(????????)	     buffer	     dd	     ?		     ; Pointer to the buffer
@@ -246,7 +246,7 @@ tail.ASM
 1   226
 1   227
     228
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 5
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 5
 tail.ASM
 
 
@@ -263,7 +263,7 @@ tail.ASM
     238					     extrn   is_286: byte	     ;=0 if 80[1]8[68],	=1 if 80[234]86.
     239					     extrn   is_386: byte	     ;=0 if 80[12]8[68], =1 if 80[34]86.
     240					     extrn   int_no: byte	     ;the board's interrupt level.
-    241					     extrn   hw_int_no:	byte	     ;the 8259 interrupt level.
+    241				     ;	     extrn   hw_int_no:	byte	     ;the 8259 interrupt level.
     242					     extrn   driver_class: byte	     ;the class	of this	driver,	per the	spec.
     243					     extrn   rcv_modes:	word	     ;count of modes followed by mode handles.
     244
@@ -308,7 +308,7 @@ tail.ASM
 1   283	002C  E8 0087			     call    chrout
 1   284	002F  E8 0073			     call    crlf
 1   285	0032  C3			     ret
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 6
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 6
 tail.ASM
 
 
@@ -370,7 +370,7 @@ tail.ASM
 1   340	0076			     dwordout:
 1   341	0076  B1 30			     mov     cl,'0'		     ;prepare to eliminate leading zeroes.
 1   342	0078  92			     xchg    ax,dx		     ;just output 32 bits in hex.
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 7
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 7
 tail.ASM
 
 
@@ -432,7 +432,7 @@ tail.ASM
 1   397	00BC  CD 21			     int     21h
 1   398	00BE  5A			     pop     dx
 1   399	00BF  58			     pop     ax
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 8
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 8
 tail.ASM
 
 
@@ -494,7 +494,7 @@ tail.ASM
     454	      20 20 43 6F 6E 76	65+
     455	      72 74 73 20 38 30	32+
     456	      2E 33 20 70 61 63	6B+
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 9
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 9
 tail.ASM
 
 
@@ -556,7 +556,7 @@ tail.ASM
     511	      20 66 69 6C 65 20	43+
     512	      4F 50 59 49 4E 47	2E+
     513	      44 4F 43 20 66 6F	72+
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 10
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 10
 tail.ASM
 
 
@@ -618,7 +618,7 @@ tail.ASM
     568	03C7  50 61 63 6B 65 74	20+  entry_point_name	     db	     "Packet driver software interrupt is ",'$'
     569	      64 72 69 76 65 72	20+
     570	      73 6F 66 74 77 61	72+
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 11
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 11
 tail.ASM
 
 
@@ -680,7 +680,7 @@ tail.ASM
     625	      20 62 65 20 62 65	74+
     626	      77 65 65 6E 20 30	20+
     627	      61 6E 64 20
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 12
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 12
 tail.ASM
 
 
@@ -742,7 +742,7 @@ tail.ASM
     682	0617  B8 4C05			     mov     ax,4c05h		     ; give errorlevel 5
     683	061A  CD 21			     int     21h
     684
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 13
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 13
 tail.ASM
 
 
@@ -782,7 +782,7 @@ tail.ASM
     717	064F  B4 09			     mov     ah,9
     718	0651  CD 21			     int     21h
     719
-    720	0653  BA 0EE4r			     mov     dx,offset branding_msg
+    720	0653  BA 0EE6r			     mov     dx,offset branding_msg
     721	0656  B4 09			     mov     ah,9
     722	0658  CD 21			     int     21h
     723
@@ -804,7 +804,7 @@ tail.ASM
     739	0678  8E C2			     mov     es,dx
     740	067A  BF FFD9			     mov     di,0ffd9h
     741	067D  BE 0344r			     mov     si,offset eisa_signature
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 14
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 14
 tail.ASM
 
 
@@ -849,943 +849,949 @@ tail.ASM
     779
     780				     ;** Identify which	processor we're	running	on.
     781
-    782				     ;Determine	the processor type.  The 8088 and 8086 will actually shift ax
-    783				     ;over by 33 bits, while the 80[123]86 use a shift count mod 32.
-    784	06CB  B1 21			     mov     cl,33
-    785	06CD  B8 FFFF			     mov     ax,0ffffh
-    786	06D0  D3 E0			     shl     ax,cl		     ;186 or better?
-    787	06D2  74 23			     jz	     processor_identified    ;no.
-    788	06D4  C6 06 0000e 01		     mov     is_186,1
-    789
-    790	06D9  54			     push    sp
-    791	06DA  58			     pop     ax
-    792	06DB  3B C4			     cmp     ax,sp		     ;286 or better?
-    793	06DD  75 18			     jne     processor_identified    ;no.
-    794	06DF  C6 06 0000e 01		     mov     is_286,1
+    782				     ;Determine	the processor type. The	8088 and 8086 do not support the
+    783				     ;PUSHA instruction. This instruction was introduced with the 80186	and is
+    784				     ;also supported by	the NEC	V20 and	V30 processors.
+    785	06CB  84 C0			     test    al,al		     ;clear overflow flag
+    786	06CD  8B C4			     mov     ax,sp		     ;save stack pointer
+    787					     .186
+    788	06CF  60			     pusha			     ;on the 808[68] this is a 2 byte nop
+    789	06D0  90			     nop			     ; when overflow flag is zero
+    790					     .8086
+    791	06D1  3B C4			     cmp     ax,sp		     ;186 or better?
+    792	06D3  74 24			     jz	     processor_identified    ;no.
+    793	06D5  94			     xchg    ax,sp		     ;fix stack	pointer
+    794	06D6  C6 06 0000e 01		     mov     is_186,1
     795
-    796	06E4  9C			     pushf
-    797	06E5  58			     pop     ax
-    798	06E6  0D 7000			     or	     ax,7000h		     ;the 386 lets us set these	bits
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 15
+    796	06DB  54			     push    sp
+    797	06DC  58			     pop     ax
+    798	06DD  3B C4			     cmp     ax,sp		     ;286 or better?
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 15
 tail.ASM
 
 
 
-    799	06E9  50			     push    ax
-    800	06EA  9D			     popf			     ;this should be a real popf.
-    801	06EB  9C			     pushf
-    802	06EC  58			     pop     ax
-    803	06ED  A9 7000			     test    ax,7000h		     ;did the bits get set?
-    804	06F0  74 05			     je	     processor_identified
-    805	06F2  C6 06 0000e 01		     mov     is_386,1
-    806
-    807	06F7			     processor_identified:
-    808
-    809				     ;** Parse the command line.
-    810
-    811	06F7  BE 0001e			     mov     si,offset phd_dioa+1
-    812	06FA  E8 0470			     call    skip_blanks	     ;end of line?
-    813	06FD  3C 0D			     cmp     al,CR
-    814	06FF  74 6C			     je	     usage_error_j_1
-    815
-    816	0701			     chk_options:
-    817
-    818				     ;** Look for -<single-letter> options.
-    819
-    820	0701  E8 0469			     call    skip_blanks
-    821	0704  3C 2D			     cmp     al,'-'		     ; any options?
-    822	0706  75 68			     jne     no_more_opt
-    823	0708  46			     inc     si			     ; skip past option	char
-    824	0709  AC			     lodsb			     ; read next char
-    825	070A  0C 20			     or	     al,20h		     ; convert to lower	case
-    826	070C  3C 64			     cmp     al,'d'
-    827	070E  75 07			     jne     not_d_opt
-    828	0710  80 0E 0000e 02		     or	     flagbyte,D_OPTION
-    829	0715  EB EA			     jmp     chk_options
-    830	0717			     not_d_opt:
-    831	0717  3C 6E			     cmp     al,'n'
-    832	0719  75 07			     jne     not_n_opt
-    833	071B  80 0E 0000e 04		     or	     flagbyte,N_OPTION
-    834	0720  EB DF			     jmp     chk_options
-    835	0722			     not_n_opt:
-    836	0722  3C 77			     cmp     al,'w'
-    837	0724  75 07			     jne     not_w_opt
-    838	0726  80 0E 0000e 08		     or	     flagbyte,W_OPTION
-    839	072B  EB D4			     jmp     chk_options
-    840	072D			     not_w_opt:
-    841	072D  3C 70			     cmp     al,'p'
-    842	072F  75 0F			     jne     not_p_opt
-    843	0731  83 3E 0000e 06		     cmp     rcv_modes,6	     ;do they even *have* a promiscuous	mode?
-    844	0736  76 C9			     jbe     chk_options	     ;no.
-    845	0738  C7 06 000Ee 0000		     mov     rcv_modes+2[6*2],0	     ;yes, nuke	it.
-    846	073E  EB C1			     jmp     chk_options
-    847	0740			     not_p_opt:
-    848	0740  3C 75			     cmp     al,'u'
-    849	0742  75 07			     jne     not_u_opt
-    850	0744  80 0E 0000e 10		     or	     flagbyte,U_OPTION
-    851	0749  EB B6			     jmp     chk_options
-    852	074B			     not_u_opt:
-    853	074B  3C 6D			     cmp     al,'m'
-    854	074D  75 07			     jne     not_m_opt
-    855	074F  80 0E 0000e 20		     or	     flagbyte,M_OPTION
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 16
+    799	06DF  75 18			     jne     processor_identified    ;no.
+    800	06E1  C6 06 0000e 01		     mov     is_286,1
+    801
+    802	06E6  9C			     pushf
+    803	06E7  58			     pop     ax
+    804	06E8  0D 7000			     or	     ax,7000h		     ;the 386 lets us set these	bits
+    805	06EB  50			     push    ax
+    806	06EC  9D			     popf			     ;this should be a real popf.
+    807	06ED  9C			     pushf
+    808	06EE  58			     pop     ax
+    809	06EF  A9 7000			     test    ax,7000h		     ;did the bits get set?
+    810	06F2  74 05			     je	     processor_identified
+    811	06F4  C6 06 0000e 01		     mov     is_386,1
+    812
+    813	06F9			     processor_identified:
+    814
+    815				     ;** Parse the command line.
+    816
+    817	06F9  BE 0001e			     mov     si,offset phd_dioa+1
+    818	06FC  E8 0470			     call    skip_blanks	     ;end of line?
+    819	06FF  3C 0D			     cmp     al,CR
+    820	0701  74 6C			     je	     usage_error_j_1
+    821
+    822	0703			     chk_options:
+    823
+    824				     ;** Look for -<single-letter> options.
+    825
+    826	0703  E8 0469			     call    skip_blanks
+    827	0706  3C 2D			     cmp     al,'-'		     ; any options?
+    828	0708  75 68			     jne     no_more_opt
+    829	070A  46			     inc     si			     ; skip past option	char
+    830	070B  AC			     lodsb			     ; read next char
+    831	070C  0C 20			     or	     al,20h		     ; convert to lower	case
+    832	070E  3C 64			     cmp     al,'d'
+    833	0710  75 07			     jne     not_d_opt
+    834	0712  80 0E 0000e 02		     or	     flagbyte,D_OPTION
+    835	0717  EB EA			     jmp     chk_options
+    836	0719			     not_d_opt:
+    837	0719  3C 6E			     cmp     al,'n'
+    838	071B  75 07			     jne     not_n_opt
+    839	071D  80 0E 0000e 04		     or	     flagbyte,N_OPTION
+    840	0722  EB DF			     jmp     chk_options
+    841	0724			     not_n_opt:
+    842	0724  3C 77			     cmp     al,'w'
+    843	0726  75 07			     jne     not_w_opt
+    844	0728  80 0E 0000e 08		     or	     flagbyte,W_OPTION
+    845	072D  EB D4			     jmp     chk_options
+    846	072F			     not_w_opt:
+    847	072F  3C 70			     cmp     al,'p'
+    848	0731  75 0F			     jne     not_p_opt
+    849	0733  83 3E 0000e 06		     cmp     rcv_modes,6	     ;do they even *have* a promiscuous	mode?
+    850	0738  76 C9			     jbe     chk_options	     ;no.
+    851	073A  C7 06 000Ee 0000		     mov     rcv_modes+2[6*2],0	     ;yes, nuke	it.
+    852	0740  EB C1			     jmp     chk_options
+    853	0742			     not_p_opt:
+    854	0742  3C 75			     cmp     al,'u'
+    855	0744  75 07			     jne     not_u_opt
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 16
 tail.ASM
 
 
 
-    856	0754  EB AB			     jmp     chk_options
-    857	0756			     not_m_opt:
-    858	0756  3C 69			     cmp     al,'i'
-    859	0758  75 13			     jne     not_i_opt
-    860	075A  81 3E 0000e 0B01		     cmp     word ptr driver_class,BLUEBOOK + IEEE8023*256   ;both present?
-    861	0760  BA 05A4r			     mov     dx,offset no_ieee_msg
-    862	0763  75 08			     jne     usage_error_j_1	     ;no - give	error
-    863	0765  C7 06 0000e 010B		     mov     word ptr driver_class,IEEE8023 + BLUEBOOK*256   ;yes, swap	them.
-    864	076B  EB 94			     jmp     chk_options
-    865	076D			     not_i_opt:
-    866	076D			     usage_error_j_1:
-    867	076D  E9 FEAC			     jmp     usage_error
-    868	0770			     no_more_opt:
-    869
-    870				     ;** get the packet	driver interrupt number.
-    871
-    872	0770  BF 0000e			     mov     di,offset entry_point   ;parse the	packet interrupt number
-    873	0773  E8 0369			     call    get_number		     ;	for them.
-    874
-    875				     ;** see if	they wanted to terminate the existing driver.
-    876
-    877	0776  F6 06 0000e 10		     test    flagbyte,U_OPTION	     ;should we	terminate the driver?
-    878	077B  75 03			     jne     terminate
-    879	077D  E9 00B4			     jmp     not_terminate
-    880	0780			     terminate:
-    881
-    882	0780  80 3E 0000e 00		     cmp     entry_point,0	     ;did they ask for the default?
-    883	0785  75 3D			     jne     terminate_int_ok	     ;no, run with it.
-    884
-    885				     ;**Look for the existing packet driver interrupt
-    886
-    887	0787  C6 06 0000e 60		     mov     entry_point,60h
-    888	078C			     terminate_check_int:
-    889	078C  E8 030B			     call    verify_packet_int
-    890	078F  72 0F			     jc	     terminate_check_int_1
-    891	0791  75 0D			     jne     terminate_check_int_1
-    892	0793  80 3E 0603r 00		     cmp     entry_point_fnd,0	     ;did we already find one?
-    893	0798  75 24			     jne     terminate_check_int_2   ;yes, it's	ambiguous - give error.
-    894	079A  A0 0000e			     mov     al,entry_point	     ;no, remember it.
-    895	079D  A2 0603r			     mov     entry_point_fnd,al
-    896	07A0			     terminate_check_int_1:
-    897	07A0  FE 06 0000e		     inc     entry_point	     ;go look at the next one
-    898	07A4  80 3E 0000e 80		     cmp     entry_point,80h
-    899	07A9  76 E1			     jbe     terminate_check_int     ;keep going to the	end.
-    900
-    901	07AB  A0 0603r			     mov     al,entry_point_fnd	     ;restore the last one found.
-    902	07AE  A2 0000e			     mov     entry_point,al
-    903	07B1  80 3E 0603r 00		     cmp     entry_point_fnd,0	     ;did we find one?
-    904	07B6  75 0C			     jne     terminate_int_ok	     ;yes.
-    905	07B8  BA 048Fr			     mov     dx,offset no_pkt_msg    ;no packet	drivers	installed!
-    906	07BB  E9 FE7D			     jmp     error
-    907	07BE			     terminate_check_int_2:
-    908	07BE  BA 04C7r			     mov     dx,offset two_pkts_msg  ;two packet drivers - which one??
-    909	07C1  E9 FE77			     jmp     error
-    910
-    911	07C4			     terminate_int_ok:
-    912	07C4  E8 02D3			     call    verify_packet_int	     ;is the one they specified	acceptable?
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 17
+    856	0746  80 0E 0000e 10		     or	     flagbyte,U_OPTION
+    857	074B  EB B6			     jmp     chk_options
+    858	074D			     not_u_opt:
+    859	074D  3C 6D			     cmp     al,'m'
+    860	074F  75 07			     jne     not_m_opt
+    861	0751  80 0E 0000e 20		     or	     flagbyte,M_OPTION
+    862	0756  EB AB			     jmp     chk_options
+    863	0758			     not_m_opt:
+    864	0758  3C 69			     cmp     al,'i'
+    865	075A  75 13			     jne     not_i_opt
+    866	075C  81 3E 0000e 0B01		     cmp     word ptr driver_class,BLUEBOOK + IEEE8023*256   ;both present?
+    867	0762  BA 05A4r			     mov     dx,offset no_ieee_msg
+    868	0765  75 08			     jne     usage_error_j_1	     ;no - give	error
+    869	0767  C7 06 0000e 010B		     mov     word ptr driver_class,IEEE8023 + BLUEBOOK*256   ;yes, swap	them.
+    870	076D  EB 94			     jmp     chk_options
+    871	076F			     not_i_opt:
+    872	076F			     usage_error_j_1:
+    873	076F  E9 FEAA			     jmp     usage_error
+    874	0772			     no_more_opt:
+    875
+    876				     ;** get the packet	driver interrupt number.
+    877
+    878	0772  BF 0000e			     mov     di,offset entry_point   ;parse the	packet interrupt number
+    879	0775  E8 0369			     call    get_number		     ;	for them.
+    880
+    881				     ;** see if	they wanted to terminate the existing driver.
+    882
+    883	0778  F6 06 0000e 10		     test    flagbyte,U_OPTION	     ;should we	terminate the driver?
+    884	077D  75 03			     jne     terminate
+    885	077F  E9 00B4			     jmp     not_terminate
+    886	0782			     terminate:
+    887
+    888	0782  80 3E 0000e 00		     cmp     entry_point,0	     ;did they ask for the default?
+    889	0787  75 3D			     jne     terminate_int_ok	     ;no, run with it.
+    890
+    891				     ;**Look for the existing packet driver interrupt
+    892
+    893	0789  C6 06 0000e 60		     mov     entry_point,60h
+    894	078E			     terminate_check_int:
+    895	078E  E8 030B			     call    verify_packet_int
+    896	0791  72 0F			     jc	     terminate_check_int_1
+    897	0793  75 0D			     jne     terminate_check_int_1
+    898	0795  80 3E 0603r 00		     cmp     entry_point_fnd,0	     ;did we already find one?
+    899	079A  75 24			     jne     terminate_check_int_2   ;yes, it's	ambiguous - give error.
+    900	079C  A0 0000e			     mov     al,entry_point	     ;no, remember it.
+    901	079F  A2 0603r			     mov     entry_point_fnd,al
+    902	07A2			     terminate_check_int_1:
+    903	07A2  FE 06 0000e		     inc     entry_point	     ;go look at the next one
+    904	07A6  80 3E 0000e 80		     cmp     entry_point,80h
+    905	07AB  76 E1			     jbe     terminate_check_int     ;keep going to the	end.
+    906
+    907	07AD  A0 0603r			     mov     al,entry_point_fnd	     ;restore the last one found.
+    908	07B0  A2 0000e			     mov     entry_point,al
+    909	07B3  80 3E 0603r 00		     cmp     entry_point_fnd,0	     ;did we find one?
+    910	07B8  75 0C			     jne     terminate_int_ok	     ;yes.
+    911	07BA  BA 048Fr			     mov     dx,offset no_pkt_msg    ;no packet	drivers	installed!
+    912	07BD  E9 FE7B			     jmp     error
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 17
 tail.ASM
 
 
 
-    913	07C7  73 03			     jnc     terminate_1	     ;no, it's not in range.
-    914	07C9  E9 FE6F			     jmp     error
-    915	07CC			     terminate_1:
-    916	07CC  74 06			     je	     terminate_2	     ;go if we found a signature.
-    917	07CE  BA 0468r			     mov     dx,offset no_pkint_msg  ;no packet	driver there.
-    918	07D1  E9 FE3D			     jmp     already_error_1
-    919	07D4			     terminate_2:
-    920
-    921	07D4  89 1E 0000e		     mov     their_isr.offs,bx
-    922	07D8  8C 06 0002e		     mov     their_isr.segm,es
-    923
-    924	07DC  B8 01FF			     mov     ax,1ffh		     ;driver_info
-    925	07DF  9C			     pushf
-    926	07E0  FA			     cli
-    927	07E1  FF 1E 0000e		     call    their_isr
-    928	07E5  E8 0696			     call    fatal_error
-    929					     movseg  ds,cs
-1   930	07E8  0E			     push    cs
-1   931	07E9  1F			     pop     ds
-    932
-    933	07EA  B4 02			     mov     ah,2		     ;access_type
-    934	07EC  8A C5			     mov     al,ch		     ;their class from driver_info().
-    935	07EE  8B DA			     mov     bx,dx		     ;their type from driver_info().
-    936	07F0  8A D1			     mov     dl,cl		     ;their number from	driver_info().
-    937	07F2  B9 0002			     mov     cx,2		     ;use type length 2.
-    938	07F5  BE 0604r			     mov     si,offset bogus_type
-    939					     movseg  es,cs
-1   940	07F8  0E			     push    cs
-1   941	07F9  07			     pop     es
-    942	07FA  BF 0606r			     mov     di,offset our_recv
-    943	07FD  9C			     pushf
-    944	07FE  FA			     cli
-    945	07FF  FF 1E 0000e		     call    their_isr
-    946	0803  E8 0678			     call    fatal_error
-    947	0806  A3 0601r			     mov     handle,ax
-    948
-    949	0809  B4 05			     mov     ah,5		     ;terminate	the driver.
-    950	080B  8B 1E 0601r		     mov     bx,handle
-    951	080F  9C			     pushf
-    952	0810  FA			     cli
-    953	0811  FF 1E 0000e		     call    their_isr
-    954	0815  73 11			     jnc     now_close
-    955	0817  E8 066C			     call    print_error
-    956
-    957	081A  B4 03			     mov     ah,3		     ;release_type
-    958	081C  8B 1E 0601r		     mov     bx,handle
-    959	0820  9C			     pushf
-    960	0821  FA			     cli
-    961	0822  FF 1E 0000e		     call    their_isr
-    962	0826  CD 20			     int     20h
-    963	0828			     now_close:
-    964	0828  BA 05EDr			     mov     dx,offset terminated_msg
-    965	082B  B4 09			     mov     ah,9
-    966	082D  CD 21			     int     21h
-    967	082F  CD 20			     int     20h
-    968
-    969	0831			     usage_error_j_2:
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 18
+    913	07C0			     terminate_check_int_2:
+    914	07C0  BA 04C7r			     mov     dx,offset two_pkts_msg  ;two packet drivers - which one??
+    915	07C3  E9 FE75			     jmp     error
+    916
+    917	07C6			     terminate_int_ok:
+    918	07C6  E8 02D3			     call    verify_packet_int	     ;is the one they specified	acceptable?
+    919	07C9  73 03			     jnc     terminate_1	     ;no, it's not in range.
+    920	07CB  E9 FE6D			     jmp     error
+    921	07CE			     terminate_1:
+    922	07CE  74 06			     je	     terminate_2	     ;go if we found a signature.
+    923	07D0  BA 0468r			     mov     dx,offset no_pkint_msg  ;no packet	driver there.
+    924	07D3  E9 FE3B			     jmp     already_error_1
+    925	07D6			     terminate_2:
+    926
+    927	07D6  89 1E 0000e		     mov     their_isr.offs,bx
+    928	07DA  8C 06 0002e		     mov     their_isr.segm,es
+    929
+    930	07DE  B8 01FF			     mov     ax,1ffh		     ;driver_info
+    931	07E1  9C			     pushf
+    932	07E2  FA			     cli
+    933	07E3  FF 1E 0000e		     call    their_isr
+    934	07E7  E8 0696			     call    fatal_error
+    935					     movseg  ds,cs
+1   936	07EA  0E			     push    cs
+1   937	07EB  1F			     pop     ds
+    938
+    939	07EC  B4 02			     mov     ah,2		     ;access_type
+    940	07EE  8A C5			     mov     al,ch		     ;their class from driver_info().
+    941	07F0  8B DA			     mov     bx,dx		     ;their type from driver_info().
+    942	07F2  8A D1			     mov     dl,cl		     ;their number from	driver_info().
+    943	07F4  B9 0002			     mov     cx,2		     ;use type length 2.
+    944	07F7  BE 0604r			     mov     si,offset bogus_type
+    945					     movseg  es,cs
+1   946	07FA  0E			     push    cs
+1   947	07FB  07			     pop     es
+    948	07FC  BF 0606r			     mov     di,offset our_recv
+    949	07FF  9C			     pushf
+    950	0800  FA			     cli
+    951	0801  FF 1E 0000e		     call    their_isr
+    952	0805  E8 0678			     call    fatal_error
+    953	0808  A3 0601r			     mov     handle,ax
+    954
+    955	080B  B4 05			     mov     ah,5		     ;terminate	the driver.
+    956	080D  8B 1E 0601r		     mov     bx,handle
+    957	0811  9C			     pushf
+    958	0812  FA			     cli
+    959	0813  FF 1E 0000e		     call    their_isr
+    960	0817  73 11			     jnc     now_close
+    961	0819  E8 066C			     call    print_error
+    962
+    963	081C  B4 03			     mov     ah,3		     ;release_type
+    964	081E  8B 1E 0601r		     mov     bx,handle
+    965	0822  9C			     pushf
+    966	0823  FA			     cli
+    967	0824  FF 1E 0000e		     call    their_isr
+    968	0828  CD 20			     int     20h
+    969	082A			     now_close:
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 18
 tail.ASM
 
 
 
-    970	0831  E9 FDE8			     jmp     usage_error
-    971	0834			     not_terminate:
-    972
-    973				     ;** ask the driver	to parse any remaining parameters.
+    970	082A  BA 05EDr			     mov     dx,offset terminated_msg
+    971	082D  B4 09			     mov     ah,9
+    972	082F  CD 21			     int     21h
+    973	0831  CD 20			     int     20h
     974
-    975	0834  E8 0000e			     call    parse_args
-    976	0837  72 F8			     jc	     usage_error_j_2
-    977
-    978	0839  E8 0331			     call    skip_blanks	     ;end of line?
-    979	083C  3C 0D			     cmp     al,CR
-    980	083E  75 F1			     jne     usage_error_j_2
-    981
-    982	0840  E8 0257			     call    verify_packet_int
-    983	0843  73 03			     jnc     packet_int_ok
-    984	0845  E9 FDF3			     jmp     error
-    985	0848			     packet_int_ok:
-    986	0848  75 03			     jne     packet_int_unused
-    987	084A  E9 FDC1			     jmp     already_error	     ;give an error if there's one there.
-    988	084D			     packet_int_unused:
-    989
-    990				     ;** Verify	that the hardware interrupt number they	gave is	valid.
-    991
-    992	084D  80 3E 0000e 0F		     cmp     int_no,15		     ;can't possibly be	> 15.
-    993	0852  77 14			     ja	     int_bad
-    994	0854  F6 06 0000e 40		     test    sys_features,TWO_8259   ; 2nd 8259	?
-    995	0859  75 2F			     jnz     int_ok		     ;yes, no need to check for	<= 7.
-    996	085B  C7 06 0544r 2037		     mov     int_msg_num,'7'+' '*256 ;correct the error	message, just in case.
-    997	0861  80 3E 0000e 07		     cmp     int_no,7		     ;make sure	that the packet	interrupt
-    998	0866  76 06			     jbe     int_ok_7		     ;	number is in range.
-    999	0868			     int_bad:
-   1000	0868  BA 0514r			     mov     dx,offset int_msg
-   1001	086B  E9 FDCD			     jmp     error
-   1002	086E			     int_ok_7:
-   1003
-   1004				     ;** IRQ 5 on an XT	is not available -- it's used by the hard disk.
-   1005	086E  80 3E 0000e 05		     cmp     int_no,5		     ;Are they trying to use irq 5 on an XT?
-   1006	0873  75 15			     jne     int_ok		     ;no.
-   1007
-   1008	0875  1E			     push    ds
-   1009	0876  B8 0040			     mov     ax,40h
-   1010	0879  8E D8			     mov     ds,ax
-   1011	087B  A0 0075			     mov     al,ds:[75h]	     ;get the number of	hard disks.
-   1012	087E  1F			     pop     ds
+    975	0833			     usage_error_j_2:
+    976	0833  E9 FDE6			     jmp     usage_error
+    977	0836			     not_terminate:
+    978
+    979				     ;** ask the driver	to parse any remaining parameters.
+    980
+    981	0836  E8 0000e			     call    parse_args
+    982	0839  72 F8			     jc	     usage_error_j_2
+    983
+    984	083B  E8 0331			     call    skip_blanks	     ;end of line?
+    985	083E  3C 0D			     cmp     al,CR
+    986	0840  75 F1			     jne     usage_error_j_2
+    987
+    988	0842  E8 0257			     call    verify_packet_int
+    989	0845  73 03			     jnc     packet_int_ok
+    990	0847  E9 FDF1			     jmp     error
+    991	084A			     packet_int_ok:
+    992	084A  75 03			     jne     packet_int_unused
+    993	084C  E9 FDBF			     jmp     already_error	     ;give an error if there's one there.
+    994	084F			     packet_int_unused:
+    995
+    996				     ;** Verify	that the hardware interrupt number they	gave is	valid.
+    997
+    998	084F  80 3E 0000e 0F		     cmp     int_no,15		     ;can't possibly be	> 15.
+    999	0854  77 14			     ja	     int_bad
+   1000	0856  F6 06 0000e 40		     test    sys_features,TWO_8259   ; 2nd 8259	?
+   1001	085B  75 2F			     jnz     int_ok		     ;yes, no need to check for	<= 7.
+   1002	085D  C7 06 0544r 2037		     mov     int_msg_num,'7'+' '*256 ;correct the error	message, just in case.
+   1003	0863  80 3E 0000e 07		     cmp     int_no,7		     ;make sure	that the packet	interrupt
+   1004	0868  76 06			     jbe     int_ok_7		     ;	number is in range.
+   1005	086A			     int_bad:
+   1006	086A  BA 0514r			     mov     dx,offset int_msg
+   1007	086D  E9 FDCB			     jmp     error
+   1008	0870			     int_ok_7:
+   1009
+   1010				     ;** IRQ 5 on an XT	is not available -- it's used by the hard disk.
+   1011	0870  80 3E 0000e 05		     cmp     int_no,5		     ;Are they trying to use irq 5 on an XT?
+   1012	0875  75 15			     jne     int_ok		     ;no.
    1013
-   1014	087F  0A C0			     or	     al,al		     ;do they have one?
-   1015	0881  74 07			     je	     int_ok		     ;unbelievably, no.
-   1016	0883  BA 0551r			     mov     dx,offset xt_hd_warn_msg
-   1017	0886  B4 09			     mov     ah,9
-   1018	0888  CD 21			     int     21h
-   1019	088A			     int_ok:
-   1020
-   1021				     ;
-   1022				     ; Map IRQ 2 to IRQ	9 if needed.
-   1023				     ;
-   1024	088A  F6 06 0000e 40		     test    sys_features,TWO_8259   ; 2nd 8259	?
-   1025	088F  74 0C			     je	     no_mapping_needed	     ;no, no mapping needed
-   1026	0891  80 3E 0000e 02		     cmp     int_no,2		     ;map IRQ 2	to IRQ 9.
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 19
+   1014	0877  1E			     push    ds
+   1015	0878  B8 0040			     mov     ax,40h
+   1016	087B  8E D8			     mov     ds,ax
+   1017	087D  A0 0075			     mov     al,ds:[75h]	     ;get the number of	hard disks.
+   1018	0880  1F			     pop     ds
+   1019
+   1020	0881  0A C0			     or	     al,al		     ;do they have one?
+   1021	0883  74 07			     je	     int_ok		     ;unbelievably, no.
+   1022	0885  BA 0551r			     mov     dx,offset xt_hd_warn_msg
+   1023	0888  B4 09			     mov     ah,9
+   1024	088A  CD 21			     int     21h
+   1025	088C			     int_ok:
+   1026
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 19
 tail.ASM
 
 
 
-   1027	0896  75 05			     jne     no_mapping_needed
-   1028	0898  C6 06 0000e 09		     mov     int_no,9
-   1029	089D			     no_mapping_needed:
-   1030
-   1031				     ; If they chose the -d option, don't call etopen when we are loaded,
-   1032				     ; but when	we are called for the first time
-   1033				     ;
-   1034				     ; Save part of the	tail, needed by	delayed	etopen
-   1035	089D  F6 06 0000e 02		     test    flagbyte,D_OPTION
-   1036	08A2  74 09			     jz	     open_now
-   1037	08A4  C7 06 060Cr 00D5r		     mov     memory_to_keep,offset end_tail_1	     ; save first part of tail
-   1038	08AA  E9 00B5			     jmp     delayed_open_1
-   1039	08AD			     open_now:
-   1040	08AD  E8 0000e			     call    etopen		     ;init the driver.	If any errors,
-   1041									     ;this routine returns cy.
-   1042	08B0  73 03			     jnc     yes_resident
-   1043	08B2  E9 0100			     jmp     no_resident
-   1044
-   1045	08B5			     yes_resident:
-   1046
-   1047				     ;** etopen	has set	rom_address to their hardware address.	Set our	copy of
-   1048				     ;** the current address.
-   1049
-   1050	08B5  BE 0000e			     mov     si,offset rom_address   ;copy their original address to
-   1051					     movseg  es,ds
-1  1052	08B8  1E			     push    ds
-1  1053	08B9  07			     pop     es
-   1054	08BA  BF 0000e			     mov     di,offset my_address    ;	their current address.
-   1055	08BD  B9 0008			     mov     cx,MAX_ADDR_LEN/2
-   1056	08C0  F3> A5			     rep     movsw
-   1057
-   1058				     ;** tell them what	kind of	system they have.
-   1059	08C2  BA 0348r			     mov     dx,offset system_msg
-   1060	08C5  B4 09			     mov     ah,9
-   1061	08C7  CD 21			     int     21h
-   1062
-   1063	08C9  BA 0351r			     mov     dx,offset i386_msg
-   1064	08CC  80 3E 0000e 00		     cmp     is_386,0
-   1065	08D1  75 17			     jne     have_processor
-   1066	08D3  BA 0363r			     mov     dx,offset i286_msg
-   1067	08D6  80 3E 0000e 00		     cmp     is_286,0
-   1068	08DB  75 0D			     jne     have_processor
-   1069	08DD  BA 0371r			     mov     dx,offset i186_msg
-   1070	08E0  80 3E 0000e 00		     cmp     is_186,0
-   1071	08E5  75 03			     jne     have_processor
-   1072	08E7  BA 037Fr			     mov     dx,offset i8088_msg
-   1073	08EA			     have_processor:
-   1074	08EA  B4 09			     mov     ah,9
-   1075	08EC  CD 21			     int     21h
-   1076
-   1077	08EE  BA 0393r			     mov     dx,offset mca_msg
-   1078	08F1  F6 06 0000e 02		     test    sys_features,SYS_MCA
-   1079	08F6  75 0D			     jne     have_bus
-   1080	08F8  BA 03A6r			     mov     dx,offset eisa_msg
-   1081	08FB  80 3E 0000r 00		     cmp     is_eisa,0
-   1082	0900  75 03			     jne     have_bus
-   1083	0902  BA 03B1r			     mov     dx,offset isa_msg
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 20
+   1027				     ;
+   1028				     ; Map IRQ 2 to IRQ	9 if needed.
+   1029				     ;
+   1030	088C  F6 06 0000e 40		     test    sys_features,TWO_8259   ; 2nd 8259	?
+   1031	0891  74 0C			     je	     no_mapping_needed	     ;no, no mapping needed
+   1032	0893  80 3E 0000e 02		     cmp     int_no,2		     ;map IRQ 2	to IRQ 9.
+   1033	0898  75 05			     jne     no_mapping_needed
+   1034	089A  C6 06 0000e 09		     mov     int_no,9
+   1035	089F			     no_mapping_needed:
+   1036
+   1037				     ; If they chose the -d option, don't call etopen when we are loaded,
+   1038				     ; but when	we are called for the first time
+   1039				     ;
+   1040				     ; Save part of the	tail, needed by	delayed	etopen
+   1041	089F  F6 06 0000e 02		     test    flagbyte,D_OPTION
+   1042	08A4  74 09			     jz	     open_now
+   1043	08A6  C7 06 060Cr 00D5r		     mov     memory_to_keep,offset end_tail_1	     ; save first part of tail
+   1044	08AC  E9 00B5			     jmp     delayed_open_1
+   1045	08AF			     open_now:
+   1046	08AF  E8 0000e			     call    etopen		     ;init the driver.	If any errors,
+   1047									     ;this routine returns cy.
+   1048	08B2  73 03			     jnc     yes_resident
+   1049	08B4  E9 0100			     jmp     no_resident
+   1050
+   1051	08B7			     yes_resident:
+   1052
+   1053				     ;** etopen	has set	rom_address to their hardware address.	Set our	copy of
+   1054				     ;** the current address.
+   1055
+   1056	08B7  BE 0000e			     mov     si,offset rom_address   ;copy their original address to
+   1057					     movseg  es,ds
+1  1058	08BA  1E			     push    ds
+1  1059	08BB  07			     pop     es
+   1060	08BC  BF 0000e			     mov     di,offset my_address    ;	their current address.
+   1061	08BF  B9 0008			     mov     cx,MAX_ADDR_LEN/2
+   1062	08C2  F3> A5			     rep     movsw
+   1063
+   1064				     ;** tell them what	kind of	system they have.
+   1065	08C4  BA 0348r			     mov     dx,offset system_msg
+   1066	08C7  B4 09			     mov     ah,9
+   1067	08C9  CD 21			     int     21h
+   1068
+   1069	08CB  BA 0351r			     mov     dx,offset i386_msg
+   1070	08CE  80 3E 0000e 00		     cmp     is_386,0
+   1071	08D3  75 17			     jne     have_processor
+   1072	08D5  BA 0363r			     mov     dx,offset i286_msg
+   1073	08D8  80 3E 0000e 00		     cmp     is_286,0
+   1074	08DD  75 0D			     jne     have_processor
+   1075	08DF  BA 0371r			     mov     dx,offset i186_msg
+   1076	08E2  80 3E 0000e 00		     cmp     is_186,0
+   1077	08E7  75 03			     jne     have_processor
+   1078	08E9  BA 037Fr			     mov     dx,offset i8088_msg
+   1079	08EC			     have_processor:
+   1080	08EC  B4 09			     mov     ah,9
+   1081	08EE  CD 21			     int     21h
+   1082
+   1083	08F0  BA 0393r			     mov     dx,offset mca_msg
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 20
 tail.ASM
 
 
 
-   1084	0905			     have_bus:
-   1085	0905  B4 09			     mov     ah,9
-   1086	0907  CD 21			     int     21h
-   1087
-   1088	0909  F6 06 0000e 40		     test    sys_features,TWO_8259
-   1089	090E  74 07			     je	     only_one_8259
-   1090	0910  BA 03BBr			     mov     dx,offset two_8259_msg
-   1091	0913  B4 09			     mov     ah,9
-   1092	0915  CD 21			     int     21h
-   1093	0917			     only_one_8259:
-   1094
-   1095	0917  E8 F78B			     call    crlf
-   1096
-   1097	091A  BF 0000e			     mov     di,offset entry_point
-   1098	091D  BA 03C7r			     mov     dx,offset entry_point_name
-   1099	0920  E8 F6DF			     call    print_number
+   1084	08F3  F6 06 0000e 02		     test    sys_features,SYS_MCA
+   1085	08F8  75 0D			     jne     have_bus
+   1086	08FA  BA 03A6r			     mov     dx,offset eisa_msg
+   1087	08FD  80 3E 0000r 00		     cmp     is_eisa,0
+   1088	0902  75 03			     jne     have_bus
+   1089	0904  BA 03B1r			     mov     dx,offset isa_msg
+   1090	0907			     have_bus:
+   1091	0907  B4 09			     mov     ah,9
+   1092	0909  CD 21			     int     21h
+   1093
+   1094	090B  F6 06 0000e 40		     test    sys_features,TWO_8259
+   1095	0910  74 07			     je	     only_one_8259
+   1096	0912  BA 03BBr			     mov     dx,offset two_8259_msg
+   1097	0915  B4 09			     mov     ah,9
+   1098	0917  CD 21			     int     21h
+   1099	0919			     only_one_8259:
    1100
-   1101	0923  E8 0000e			     call    print_parameters	     ;echo our parameters.
-   1102	0926  80 0E 0000e 01		     or	     flagbyte,CALLED_ETOPEN
-   1103
-   1104	092B  80 3E 0000e 01		     cmp     driver_class,BLUEBOOK   ;Blue Book	Ethernet?
-   1105	0930  74 07			     je	     print_eaddr	     ;yes.
-   1106	0932  80 3E 0000e 0B		     cmp     driver_class,IEEE8023   ;IEEE 802.3 Ethernet?
-   1107	0937  75 10			     jne     print_addr_2	     ;no, don't	print what we don't have.
-   1108
-   1109	0939			     print_eaddr:
-   1110	0939  BA 03ECr			     mov     dx,offset eaddr_msg
-   1111	093C  B4 09			     mov     ah,9
-   1112	093E  CD 21			     int     21h
-   1113
-   1114	0940  BE 0000e			     mov     si,offset rom_address
-   1115	0943  E8 0232			     call    print_ether_addr
-   1116
-   1117	0946  E8 F75C			     call    crlf
-   1118
-   1119	0949			     print_addr_2:
-   1120
-   1121	0949  80 3E 0000e 08		     cmp     driver_class,8	     ;ARCnet?
-   1122	094E  75 12			     jne     print_addr_3	     ;no, don't	print what we don't have.
-   1123
-   1124	0950  BA 0404r			     mov     dx,offset aaddr_msg
-   1125	0953  B4 09			     mov     ah,9
-   1126	0955  CD 21			     int     21h
-   1127
-   1128	0957  A0 0000e			     mov     al,rom_address
-   1129	095A  B1 20			     mov     cl,' '		     ;Don't eliminate leading zeroes.
-   1130	095C  E8 F725			     call    byteout
-   1131
-   1132	095F  E8 F743			     call    crlf
+   1101	0919  E8 F789			     call    crlf
+   1102
+   1103	091C  BF 0000e			     mov     di,offset entry_point
+   1104	091F  BA 03C7r			     mov     dx,offset entry_point_name
+   1105	0922  E8 F6DD			     call    print_number
+   1106
+   1107	0925  E8 0000e			     call    print_parameters	     ;echo our parameters.
+   1108	0928  80 0E 0000e 01		     or	     flagbyte,CALLED_ETOPEN
+   1109
+   1110	092D  80 3E 0000e 01		     cmp     driver_class,BLUEBOOK   ;Blue Book	Ethernet?
+   1111	0932  74 07			     je	     print_eaddr	     ;yes.
+   1112	0934  80 3E 0000e 0B		     cmp     driver_class,IEEE8023   ;IEEE 802.3 Ethernet?
+   1113	0939  75 10			     jne     print_addr_2	     ;no, don't	print what we don't have.
+   1114
+   1115	093B			     print_eaddr:
+   1116	093B  BA 03ECr			     mov     dx,offset eaddr_msg
+   1117	093E  B4 09			     mov     ah,9
+   1118	0940  CD 21			     int     21h
+   1119
+   1120	0942  BE 0000e			     mov     si,offset rom_address
+   1121	0945  E8 0232			     call    print_ether_addr
+   1122
+   1123	0948  E8 F75A			     call    crlf
+   1124
+   1125	094B			     print_addr_2:
+   1126
+   1127	094B  80 3E 0000e 08		     cmp     driver_class,8	     ;ARCnet?
+   1128	0950  75 12			     jne     print_addr_3	     ;no, don't	print what we don't have.
+   1129
+   1130	0952  BA 0404r			     mov     dx,offset aaddr_msg
+   1131	0955  B4 09			     mov     ah,9
+   1132	0957  CD 21			     int     21h
    1133
-   1134	0962			     print_addr_3:
-   1135	0962			     delayed_open_1:
-   1136
-   1137				     ;** Take care of installing ourselves in memory.
-   1138
-   1139	0962  B4 35			     mov     ah,35h		     ;remember their packet interrupt.
-   1140	0964  A0 0000e			     mov     al,entry_point
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 21
+   1134	0959  A0 0000e			     mov     al,rom_address
+   1135	095C  B1 20			     mov     cl,' '		     ;Don't eliminate leading zeroes.
+   1136	095E  E8 F723			     call    byteout
+   1137
+   1138	0961  E8 F741			     call    crlf
+   1139
+   1140	0964			     print_addr_3:
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 21
 tail.ASM
 
 
 
-   1141	0967  CD 21			     int     21h
-   1142	0969  89 1E 0000e		     mov     their_isr.offs,bx
-   1143	096D  8C 06 0002e		     mov     their_isr.segm,es
+   1141	0964			     delayed_open_1:
+   1142
+   1143				     ;** Take care of installing ourselves in memory.
    1144
-   1145	0971  B4 25			     mov     ah,25h		     ;install our packet interrupt
-   1146	0973  BA 0000e			     mov     dx,offset our_isr
-   1147	0976  CD 21			     int     21h
-   1148
-   1149	0978  B4 49			     mov     ah,49h		     ;free our environment, because
-   1150	097A  8E 06 0000e		     mov     es,phd_environ	     ;	we won't need it.
-   1151	097E  CD 21			     int     21h
-   1152
-   1153	0980  BB 0001			     mov     bx,1		     ;get the stdout handle.
-   1154	0983  B4 3E			     mov     ah,3eh		     ;close it in case they redirected it.
-   1155	0985  CD 21			     int     21h
-   1156
-   1157	0987  F6 06 0000e 02		     test    flagbyte,D_OPTION
-   1158	098C  75 0B			     jne     f_release_type_1	     ;no.
-   1159	098E  83 3E 0008e 00		     cmp     rcv_modes+2[3*2],0	     ;does mode	3 exist?
-   1160	0993  74 04			     je	     f_release_type_1	     ;no.
-   1161	0995  FF 16 0008e		     call    rcv_modes+2[3*2]	     ;	call it.
-   1162	0999			     f_release_type_1:
-   1163
-   1164	0999  8B 16 060Cr		     mov     dx,memory_to_keep	     ;keep the greater of this and
-   1165	099D  3B 16 00C1r		     cmp     dx,free_mem	     ;	free_mem.
-   1166	09A1  73 04			     jae     go_resident
-   1167	09A3  8B 16 00C1r		     mov     dx,free_mem
-   1168	09A7			     go_resident:
-   1169	09A7  83 C2 0F			     add     dx,0fh		     ;round up to next highest paragraph.
-   1170	09AA  B1 04			     mov     cl,4
-   1171	09AC  D3 EA			     shr     dx,cl
-   1172	09AE  B4 31			     mov     ah,31h		     ;terminate, stay resident.
-   1173	09B0  A0 060Br			     mov     al,etopen_diagn	     ; errorlevel (0 - 9, just diagnostics)
-   1174	09B3  CD 21			     int     21h
-   1175
-   1176	09B5			     no_resident:
-   1177	09B5  B4 09			     mov     ah,9		     ;print their error	message.
-   1178	09B7  CD 21			     int     21h
-   1179
-   1180	09B9  BA 030Br			     mov     dx,offset no_resident_msg
-   1181	09BC  B4 09			     mov     ah,9
-   1182	09BE  CD 21			     int     21h
-   1183
-   1184	09C0  B8 4C20			     mov     ax,4c00h +	32	     ; give errorlevel 32
-   1185	09C3  3A 06 060Br		     cmp     al,etopen_diagn
-   1186	09C7  77 03			     ja	     no_et_diagn	     ; etopen gave specific reason?
-   1187	09C9  A0 060Br			     mov     al,etopen_diagn	     ; yes, use	that for error level
-   1188	09CC			     no_et_diagn:
-   1189	09CC  CD 21			     int     21h
-   1190
-   1191				     ;			     Suggested errorlevels:
-   1192				     ;
-   1193				     ; _____________________  0	= normal
-   1194				     ;			      1	= unsuitable memory address given; corrected
-   1195				     ; In most cases every-   2	= unsuitable IRQ level given; corrected
-   1196				     ; thing should work as   3	= unsuitable DMA channel given;	corrected
-   1197				     ; expected	for lev	1-5   4	= unsuitable IO	addr given; corrected (only 1 card)
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 22
+   1145	0964  B4 35			     mov     ah,35h		     ;remember their packet interrupt.
+   1146	0966  A0 0000e			     mov     al,entry_point
+   1147	0969  CD 21			     int     21h
+   1148	096B  89 1E 0000e		     mov     their_isr.offs,bx
+   1149	096F  8C 06 0002e		     mov     their_isr.segm,es
+   1150
+   1151	0973  B4 25			     mov     ah,25h		     ;install our packet interrupt
+   1152	0975  BA 0000e			     mov     dx,offset our_isr
+   1153	0978  CD 21			     int     21h
+   1154
+   1155	097A  B4 49			     mov     ah,49h		     ;free our environment, because
+   1156	097C  8E 06 0000e		     mov     es,phd_environ	     ;	we won't need it.
+   1157	0980  CD 21			     int     21h
+   1158
+   1159	0982  BB 0001			     mov     bx,1		     ;get the stdout handle.
+   1160	0985  B4 3E			     mov     ah,3eh		     ;close it in case they redirected it.
+   1161	0987  CD 21			     int     21h
+   1162
+   1163	0989  F6 06 0000e 02		     test    flagbyte,D_OPTION
+   1164	098E  75 0B			     jne     f_release_type_1	     ;no.
+   1165	0990  83 3E 0008e 00		     cmp     rcv_modes+2[3*2],0	     ;does mode	3 exist?
+   1166	0995  74 04			     je	     f_release_type_1	     ;no.
+   1167	0997  FF 16 0008e		     call    rcv_modes+2[3*2]	     ;	call it.
+   1168	099B			     f_release_type_1:
+   1169
+   1170	099B  8B 16 060Cr		     mov     dx,memory_to_keep	     ;keep the greater of this and
+   1171	099F  3B 16 00C1r		     cmp     dx,free_mem	     ;	free_mem.
+   1172	09A3  73 04			     jae     go_resident
+   1173	09A5  8B 16 00C1r		     mov     dx,free_mem
+   1174	09A9			     go_resident:
+   1175	09A9  83 C2 0F			     add     dx,0fh		     ;round up to next highest paragraph.
+   1176	09AC  B1 04			     mov     cl,4
+   1177	09AE  D3 EA			     shr     dx,cl
+   1178	09B0  B4 31			     mov     ah,31h		     ;terminate, stay resident.
+   1179	09B2  A0 060Br			     mov     al,etopen_diagn	     ; errorlevel (0 - 9, just diagnostics)
+   1180	09B5  CD 21			     int     21h
+   1181
+   1182	09B7			     no_resident:
+   1183	09B7  B4 09			     mov     ah,9		     ;print their error	message.
+   1184	09B9  CD 21			     int     21h
+   1185
+   1186	09BB  BA 030Br			     mov     dx,offset no_resident_msg
+   1187	09BE  B4 09			     mov     ah,9
+   1188	09C0  CD 21			     int     21h
+   1189
+   1190	09C2  B8 4C20			     mov     ax,4c00h +	32	     ; give errorlevel 32
+   1191	09C5  3A 06 060Br		     cmp     al,etopen_diagn
+   1192	09C9  77 03			     ja	     no_et_diagn	     ; etopen gave specific reason?
+   1193	09CB  A0 060Br			     mov     al,etopen_diagn	     ; yes, use	that for error level
+   1194	09CE			     no_et_diagn:
+   1195	09CE  CD 21			     int     21h
+   1196
+   1197				     ;			     Suggested errorlevels:
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 22
 tail.ASM
 
 
 
-   1198				     ; _____________________  5	= packet driver	for this int # already loaded
-   1199				     ; External	errors,	when 20	= general cable	failure	(but pkt driver	is loaded)
-   1200				     ; corrected normal	     21	= network cable	is open		    -"-
-   1201				     ; operation starts	     22	= network cable	is shorted	    -"-
-   1202				     ; _____________________ 23	=
-   1203				     ; Packet driver not     30	= usage	message
-   1204				     ; loaded. A new load    31	= arguments out	of range
-   1205				     ; attempt must be done  32	= unspecified device initialization error
-   1206				     ;			     33	=
-   1207				     ;			     34	= suggested memory already occupied
-   1208				     ;			     35	= suggested IRQ	already	occupied
-   1209				     ;			     36	= suggested DMA	channel	already	occupied
-   1210				     ;			     37	= could	not find the network card at this IO address
-   1211
-   1212
-   1213					     include verifypi.asm
-1  1214	09CE  50 4B 54 20 44 52	56+  signature	     db	     'PKT DRVR',0
-   1215	      52 00
-1  1216	      =0009		     signature_len   equ     $-signature
-1  1217
-1  1218	09D7  0D 0A		     packet_int_msg  db	     CR,LF
-1  1219	09D9  45 72 72 6F 72 3A	20+		     db	     "Error: <packet_int_no> should be 0x60->0x66, 0x68->0x6f, or	    +
-   1220	      3C 70 61 63 6B 65	74+  0x7b->0x7e",CR,LF
-   1221	      5F 69 6E 74 5F 6E	6F+
-   1222	      3E 20 73 68 6F 75	6C+
-   1223	      64 20 62 65 20 30	78+
-   1224	      36 30 2D 3E 30 78	36+
-   1225	      36 2C 20 30 78 36	38+
-   1226	      2D 3E 30 78 36 66	2C+
-   1227	      20 6F 72 20 30 78	37+
-   1228	      62 2D 3E 30 78 37	65+
-   1229	      0D 0A
-1  1230	0A21  20 20 20 20 20 20	20+		     db	     "	     0x67 is the EMS interrupt,	and 0x70 through 0x77 are used by   +
-   1231	      30 78 36 37 20 69	73+  second 8259,"
-   1232	      20 74 68 65 20 45	4D+
-   1233	      53 20 69 6E 74 65	72+
-   1234	      72 75 70 74 2C 20	61+
-   1235	      6E 64 20 30 78 37	30+
-   1236	      20 74 68 72 6F 75	67+
-   1237	      68 20 30 78 37 37	20+
-   1238	      61 72 65 20 75 73	65+
-   1239	      64 20 62 79 20 73	65+
-   1240	      63 6F 6E 64 20 38	32+
-   1241	      35 39 2C
-1  1242	0A71  20 20 20 20 20 20	20+		     db	     "	     and 0x7a is used by NetWare's IPX"
-   1243	      61 6E 64 20 30 78	37+
-   1244	      61 20 69 73 20 75	73+
-   1245	      65 64 20 62 79 20	4E+
-   1246	      65 74 57 61 72 65	27+
-   1247	      73 20 49 50 58
-1  1248	0A99  24				     db	     '$'
-1  1249
-1  1250	0A9A			     verify_packet_int:
-1  1251				     ;enter with no special registers.
-1  1252				     ;exit with	cy,dx->	error message if the packet int	was bad,
-1  1253				     ;	or nc,zr,es:bx -> current interrupt if there is	a packet driver	there.
-1  1254				     ;	or nc,nz,es:bx -> current interrupt if there is	no packet driver there.
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 23
+   1198				     ;
+   1199				     ; _____________________  0	= normal
+   1200				     ;			      1	= unsuitable memory address given; corrected
+   1201				     ; In most cases every-   2	= unsuitable IRQ level given; corrected
+   1202				     ; thing should work as   3	= unsuitable DMA channel given;	corrected
+   1203				     ; expected	for lev	1-5   4	= unsuitable IO	addr given; corrected (only 1 card)
+   1204				     ; _____________________  5	= packet driver	for this int # already loaded
+   1205				     ; External	errors,	when 20	= general cable	failure	(but pkt driver	is loaded)
+   1206				     ; corrected normal	     21	= network cable	is open		    -"-
+   1207				     ; operation starts	     22	= network cable	is shorted	    -"-
+   1208				     ; _____________________ 23	=
+   1209				     ; Packet driver not     30	= usage	message
+   1210				     ; loaded. A new load    31	= arguments out	of range
+   1211				     ; attempt must be done  32	= unspecified device initialization error
+   1212				     ;			     33	=
+   1213				     ;			     34	= suggested memory already occupied
+   1214				     ;			     35	= suggested IRQ	already	occupied
+   1215				     ;			     36	= suggested DMA	channel	already	occupied
+   1216				     ;			     37	= could	not find the network card at this IO address
+   1217
+   1218
+   1219					     include verifypi.asm
+1  1220	09D0  50 4B 54 20 44 52	56+  signature	     db	     'PKT DRVR',0
+   1221	      52 00
+1  1222	      =0009		     signature_len   equ     $-signature
+1  1223
+1  1224	09D9  0D 0A		     packet_int_msg  db	     CR,LF
+1  1225	09DB  45 72 72 6F 72 3A	20+		     db	     "Error: <packet_int_no> should be 0x60->0x66, 0x68->0x6f, or	    +
+   1226	      3C 70 61 63 6B 65	74+  0x7b->0x7e",CR,LF
+   1227	      5F 69 6E 74 5F 6E	6F+
+   1228	      3E 20 73 68 6F 75	6C+
+   1229	      64 20 62 65 20 30	78+
+   1230	      36 30 2D 3E 30 78	36+
+   1231	      36 2C 20 30 78 36	38+
+   1232	      2D 3E 30 78 36 66	2C+
+   1233	      20 6F 72 20 30 78	37+
+   1234	      62 2D 3E 30 78 37	65+
+   1235	      0D 0A
+1  1236	0A23  20 20 20 20 20 20	20+		     db	     "	     0x67 is the EMS interrupt,	and 0x70 through 0x77 are used by   +
+   1237	      30 78 36 37 20 69	73+  second 8259,"
+   1238	      20 74 68 65 20 45	4D+
+   1239	      53 20 69 6E 74 65	72+
+   1240	      72 75 70 74 2C 20	61+
+   1241	      6E 64 20 30 78 37	30+
+   1242	      20 74 68 72 6F 75	67+
+   1243	      68 20 30 78 37 37	20+
+   1244	      61 72 65 20 75 73	65+
+   1245	      64 20 62 79 20 73	65+
+   1246	      63 6F 6E 64 20 38	32+
+   1247	      35 39 2C
+1  1248	0A73  20 20 20 20 20 20	20+		     db	     "	     and 0x7a is used by NetWare's IPX"
+   1249	      61 6E 64 20 30 78	37+
+   1250	      61 20 69 73 20 75	73+
+   1251	      65 64 20 62 79 20	4E+
+   1252	      65 74 57 61 72 65	27+
+   1253	      73 20 49 50 58
+1  1254	0A9B  24				     db	     '$'
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 23
 tail.ASM
 
 
 
-1  1255	0A9A  80 3E 0000e 60		     cmp     entry_point,60h	     ;make sure	that the packet	interrupt
-1  1256	0A9F  72 1C			     jb	     verify_packet_int_bad   ;	number is in range.
-1  1257	0AA1  80 3E 0000e 67		     cmp     entry_point,67h	     ;make sure	that the packet	interrupt
-1  1258	0AA6  74 15			     je	     verify_packet_int_bad   ;	number is in range.
-1  1259	0AA8  80 3E 0000e 70		     cmp     entry_point,70h	     ;make sure	that the packet	interrupt
-1  1260	0AAD  72 13			     jb	     verify_packet_int_ok    ;	number is in range.
-1  1261	0AAF  80 3E 0000e 7B		     cmp     entry_point,7bh	     ;make sure	that the packet	interrupt
-1  1262	0AB4  72 07			     jb	     verify_packet_int_bad   ;	number is in range.
-1  1263	0AB6  80 3E 0000e 7E		     cmp     entry_point,7eh
-1  1264	0ABB  76 05			     jbe     verify_packet_int_ok
-1  1265	0ABD			     verify_packet_int_bad:
-1  1266	0ABD  BA 09D7r			     mov     dx,offset packet_int_msg
-1  1267	0AC0  F9			     stc
-1  1268	0AC1  C3			     ret
-1  1269	0AC2			     verify_packet_int_ok:
-1  1270
-1  1271	0AC2  B4 35			     mov     ah,35h		     ;get their	packet interrupt.
-1  1272	0AC4  A0 0000e			     mov     al,entry_point
-1  1273	0AC7  CD 21			     int     21h
-1  1274
-1  1275	0AC9  8D 7F 03			     lea     di,3[bx]		     ;see if there is already a	signature
-1  1276	0ACC  BE 09CEr			     mov     si,offset signature     ;	there.
-1  1277	0ACF  B9 0009			     mov     cx,signature_len
-1  1278	0AD2  F3> A6			     repe    cmpsb
-1  1279	0AD4  F8			     clc
-1  1280	0AD5  C3			     ret
-1  1281
-   1282					     include getnum.asm
-1  1283				     ;put into the public domain by Russell Nelson, nelson@crynwr.com
-1  1284
-1  1285					     public  get_hex
-1  1286	0AD6			     get_hex:
-1  1287	0AD6  BD 0010			     mov     bp,16
-1  1288	0AD9  E8 0091			     call    skip_blanks
-1  1289	0ADC  EB 19 90			     jmp     get_number_4
+1  1255
+1  1256	0A9C			     verify_packet_int:
+1  1257				     ;enter with no special registers.
+1  1258				     ;exit with	cy,dx->	error message if the packet int	was bad,
+1  1259				     ;	or nc,zr,es:bx -> current interrupt if there is	a packet driver	there.
+1  1260				     ;	or nc,nz,es:bx -> current interrupt if there is	no packet driver there.
+1  1261	0A9C  80 3E 0000e 60		     cmp     entry_point,60h	     ;make sure	that the packet	interrupt
+1  1262	0AA1  72 1C			     jb	     verify_packet_int_bad   ;	number is in range.
+1  1263	0AA3  80 3E 0000e 67		     cmp     entry_point,67h	     ;make sure	that the packet	interrupt
+1  1264	0AA8  74 15			     je	     verify_packet_int_bad   ;	number is in range.
+1  1265	0AAA  80 3E 0000e 70		     cmp     entry_point,70h	     ;make sure	that the packet	interrupt
+1  1266	0AAF  72 13			     jb	     verify_packet_int_ok    ;	number is in range.
+1  1267	0AB1  80 3E 0000e 7B		     cmp     entry_point,7bh	     ;make sure	that the packet	interrupt
+1  1268	0AB6  72 07			     jb	     verify_packet_int_bad   ;	number is in range.
+1  1269	0AB8  80 3E 0000e 7E		     cmp     entry_point,7eh
+1  1270	0ABD  76 05			     jbe     verify_packet_int_ok
+1  1271	0ABF			     verify_packet_int_bad:
+1  1272	0ABF  BA 09D9r			     mov     dx,offset packet_int_msg
+1  1273	0AC2  F9			     stc
+1  1274	0AC3  C3			     ret
+1  1275	0AC4			     verify_packet_int_ok:
+1  1276
+1  1277	0AC4  B4 35			     mov     ah,35h		     ;get their	packet interrupt.
+1  1278	0AC6  A0 0000e			     mov     al,entry_point
+1  1279	0AC9  CD 21			     int     21h
+1  1280
+1  1281	0ACB  8D 7F 03			     lea     di,3[bx]		     ;see if there is already a	signature
+1  1282	0ACE  BE 09D0r			     mov     si,offset signature     ;	there.
+1  1283	0AD1  B9 0009			     mov     cx,signature_len
+1  1284	0AD4  F3> A6			     repe    cmpsb
+1  1285	0AD6  F8			     clc
+1  1286	0AD7  C3			     ret
+1  1287
+   1288					     include getnum.asm
+1  1289				     ;put into the public domain by Russell Nelson, nelson@crynwr.com
 1  1290
-1  1291					     public  get_number
-1  1292	0ADF			     get_number:
-1  1293				     ;get a hex	number,	skipping leading blanks.
-1  1294				     ;enter with si->string of digits,
-1  1295				     ;	     di	-> dword to store the number in.  [di] is not modified if no
-1  1296				     ;		     digits are	given, so it acts as the default.
-1  1297				     ;return cy	if there are no	digits at all.
-1  1298				     ;return nc, bx:cx = number, and store bx:cx at [di].
-1  1299	0ADF  BD 000A			     mov     bp,10		     ;we default to 10.
-1  1300	0AE2  E8 0088			     call    skip_blanks
-1  1301	0AE5  E8 005F			     call    get_digit		     ;is there really a	number here?
-1  1302	0AE8  72 4C			     jc	     get_number_3
-1  1303	0AEA  32 E4			     xor     ah,ah
-1  1304	0AEC  3B C5			     cmp     ax,bp		     ;larger than our base?
-1  1305	0AEE  73 46			     jae     get_number_3	     ;yes.
-1  1306	0AF0  0A C0			     or	     al,al		     ;Does the number begin with zero?
-1  1307	0AF2  75 03			     jne     get_number_4	     ;no.
-1  1308	0AF4  BD 0008			     mov     bp,8		     ;yes - they want octal.
-1  1309	0AF7			     get_number_4:
-1  1310
-1  1311	0AF7  33 C9			     xor     cx,cx		     ;get a hex	number.
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 24
+1  1291					     public  get_hex
+1  1292	0AD8			     get_hex:
+1  1293	0AD8  BD 0010			     mov     bp,16
+1  1294	0ADB  E8 0091			     call    skip_blanks
+1  1295	0ADE  EB 19 90			     jmp     get_number_4
+1  1296
+1  1297					     public  get_number
+1  1298	0AE1			     get_number:
+1  1299				     ;get a hex	number,	skipping leading blanks.
+1  1300				     ;enter with si->string of digits,
+1  1301				     ;	     di	-> dword to store the number in.  [di] is not modified if no
+1  1302				     ;		     digits are	given, so it acts as the default.
+1  1303				     ;return cy	if there are no	digits at all.
+1  1304				     ;return nc, bx:cx = number, and store bx:cx at [di].
+1  1305	0AE1  BD 000A			     mov     bp,10		     ;we default to 10.
+1  1306	0AE4  E8 0088			     call    skip_blanks
+1  1307	0AE7  E8 005F			     call    get_digit		     ;is there really a	number here?
+1  1308	0AEA  72 4C			     jc	     get_number_3
+1  1309	0AEC  32 E4			     xor     ah,ah
+1  1310	0AEE  3B C5			     cmp     ax,bp		     ;larger than our base?
+1  1311	0AF0  73 46			     jae     get_number_3	     ;yes.
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 24
 tail.ASM
 
 
 
-1  1312	0AF9  33 DB			     xor     bx,bx
-1  1313	0AFB			     get_number_1:
-1  1314	0AFB  AC			     lodsb
-1  1315	0AFC  3C 78			     cmp     al,'x'		     ;did they really want hex?
-1  1316	0AFE  74 28			     je	     get_number_5	     ;yes.
-1  1317	0B00  3C 58			     cmp     al,'X'		     ;did they really want hex?
-1  1318	0B02  74 24			     je	     get_number_5	     ;yes.
-1  1319	0B04  E8 0040			     call    get_digit		     ;convert a	character into an int.
-1  1320	0B07  72 24			     jc	     get_number_2	     ;not a digit (neither hex nor dec).
-1  1321	0B09  32 E4			     xor     ah,ah
-1  1322	0B0B  3B C5			     cmp     ax,bp		     ;larger than our base?
-1  1323	0B0D  73 1E			     jae     get_number_2	     ;yes.
-1  1324
-1  1325	0B0F  50			     push    ax			     ;save the new digit.
-1  1326
-1  1327	0B10  8B C5			     mov     ax,bp		     ;multiply the low word by ten.
-1  1328	0B12  F7 E1			     mul     cx
-1  1329	0B14  8B C8			     mov     cx,ax		     ;keep the low word.
-1  1330	0B16  52			     push    dx			     ;save the high word for later.
-1  1331	0B17  8B C5			     mov     ax,bp
-1  1332	0B19  F7 E3			     mul     bx
-1  1333	0B1B  8B D8			     mov     bx,ax		     ;we keep only the low word	(which is our high word)
-1  1334	0B1D  5A			     pop     dx
-1  1335	0B1E  03 DA			     add     bx,dx		     ;add the high result from earlier.
-1  1336
-1  1337	0B20  58			     pop     ax			     ;get the new digit	back.
-1  1338	0B21  03 C8			     add     cx,ax		     ;add the new digit	in.
-1  1339	0B23  83 D3 00			     adc     bx,0
-1  1340	0B26  EB D3			     jmp     get_number_1
-1  1341	0B28			     get_number_5:
-1  1342	0B28  BD 0010			     mov     bp,16		     ;change the base to hex.
-1  1343	0B2B  EB CE			     jmp     get_number_1
-1  1344	0B2D			     get_number_2:
-1  1345	0B2D  4E			     dec     si
-1  1346	0B2E  89 0D			     mov     [di],cx		     ;store the	parsed number.
-1  1347	0B30  89 5D 02			     mov     [di+2],bx
-1  1348	0B33  F8			     clc
-1  1349	0B34  EB 10			     jmp     short get_number_6
-1  1350	0B36			     get_number_3:
-1  1351	0B36  3C 3F			     cmp     al,'?'		     ;did they ask for the default?
-1  1352	0B38  F9			     stc
-1  1353	0B39  75 0B			     jne     get_number_6	     ;no, return cy.
-1  1354	0B3B  83 C6 02			     add     si,2		     ;skip past	the question mark.
-1  1355	0B3E  B9 FFFF			     mov     cx,-1
-1  1356	0B41  BB FFFF			     mov     bx,-1
-1  1357	0B44  EB E7			     jmp     get_number_2	     ;and return the -1.
-1  1358	0B46			     get_number_6:
-1  1359	0B46  C3			     ret
-1  1360
-   1361					     include getdig.asm
-1  1362				     ;put into the public domain by Russell Nelson, nelson@crynwr.com
-1  1363
-1  1364					     public  get_digit
-1  1365	0B47			     get_digit:
-1  1366				     ;enter with al = character
-1  1367				     ;return nc, al=digit, or cy if not	a digit.
-1  1368	0B47  3C 30			     cmp     al,'0'		     ;decimal digit?
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 25
+1  1312	0AF2  0A C0			     or	     al,al		     ;Does the number begin with zero?
+1  1313	0AF4  75 03			     jne     get_number_4	     ;no.
+1  1314	0AF6  BD 0008			     mov     bp,8		     ;yes - they want octal.
+1  1315	0AF9			     get_number_4:
+1  1316
+1  1317	0AF9  33 C9			     xor     cx,cx		     ;get a hex	number.
+1  1318	0AFB  33 DB			     xor     bx,bx
+1  1319	0AFD			     get_number_1:
+1  1320	0AFD  AC			     lodsb
+1  1321	0AFE  3C 78			     cmp     al,'x'		     ;did they really want hex?
+1  1322	0B00  74 28			     je	     get_number_5	     ;yes.
+1  1323	0B02  3C 58			     cmp     al,'X'		     ;did they really want hex?
+1  1324	0B04  74 24			     je	     get_number_5	     ;yes.
+1  1325	0B06  E8 0040			     call    get_digit		     ;convert a	character into an int.
+1  1326	0B09  72 24			     jc	     get_number_2	     ;not a digit (neither hex nor dec).
+1  1327	0B0B  32 E4			     xor     ah,ah
+1  1328	0B0D  3B C5			     cmp     ax,bp		     ;larger than our base?
+1  1329	0B0F  73 1E			     jae     get_number_2	     ;yes.
+1  1330
+1  1331	0B11  50			     push    ax			     ;save the new digit.
+1  1332
+1  1333	0B12  8B C5			     mov     ax,bp		     ;multiply the low word by ten.
+1  1334	0B14  F7 E1			     mul     cx
+1  1335	0B16  8B C8			     mov     cx,ax		     ;keep the low word.
+1  1336	0B18  52			     push    dx			     ;save the high word for later.
+1  1337	0B19  8B C5			     mov     ax,bp
+1  1338	0B1B  F7 E3			     mul     bx
+1  1339	0B1D  8B D8			     mov     bx,ax		     ;we keep only the low word	(which is our high word)
+1  1340	0B1F  5A			     pop     dx
+1  1341	0B20  03 DA			     add     bx,dx		     ;add the high result from earlier.
+1  1342
+1  1343	0B22  58			     pop     ax			     ;get the new digit	back.
+1  1344	0B23  03 C8			     add     cx,ax		     ;add the new digit	in.
+1  1345	0B25  83 D3 00			     adc     bx,0
+1  1346	0B28  EB D3			     jmp     get_number_1
+1  1347	0B2A			     get_number_5:
+1  1348	0B2A  BD 0010			     mov     bp,16		     ;change the base to hex.
+1  1349	0B2D  EB CE			     jmp     get_number_1
+1  1350	0B2F			     get_number_2:
+1  1351	0B2F  4E			     dec     si
+1  1352	0B30  89 0D			     mov     [di],cx		     ;store the	parsed number.
+1  1353	0B32  89 5D 02			     mov     [di+2],bx
+1  1354	0B35  F8			     clc
+1  1355	0B36  EB 10			     jmp     short get_number_6
+1  1356	0B38			     get_number_3:
+1  1357	0B38  3C 3F			     cmp     al,'?'		     ;did they ask for the default?
+1  1358	0B3A  F9			     stc
+1  1359	0B3B  75 0B			     jne     get_number_6	     ;no, return cy.
+1  1360	0B3D  83 C6 02			     add     si,2		     ;skip past	the question mark.
+1  1361	0B40  B9 FFFF			     mov     cx,-1
+1  1362	0B43  BB FFFF			     mov     bx,-1
+1  1363	0B46  EB E7			     jmp     get_number_2	     ;and return the -1.
+1  1364	0B48			     get_number_6:
+1  1365	0B48  C3			     ret
+1  1366
+   1367					     include getdig.asm
+1  1368				     ;put into the public domain by Russell Nelson, nelson@crynwr.com
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 25
 tail.ASM
 
 
 
-1  1369	0B49  72 20			     jb	     get_digit_1	     ;no.
-1  1370	0B4B  3C 39			     cmp     al,'9'		     ;.	.?
-1  1371	0B4D  77 04			     ja	     get_digit_2	     ;no.
-1  1372	0B4F  2C 30			     sub     al,'0'
-1  1373	0B51  F8			     clc
-1  1374	0B52  C3			     ret
-1  1375	0B53			     get_digit_2:
-1  1376	0B53  3C 61			     cmp     al,'a'		     ;hex digit?
-1  1377	0B55  72 08			     jb	     get_digit_3
-1  1378	0B57  3C 66			     cmp     al,'f'		     ;hex digit?
-1  1379	0B59  77 04			     ja	     get_digit_3
-1  1380	0B5B  2C 57			     sub     al,'a'-10
-1  1381	0B5D  F8			     clc
-1  1382	0B5E  C3			     ret
-1  1383	0B5F			     get_digit_3:
-1  1384	0B5F  3C 41			     cmp     al,'A'		     ;hex digit?
-1  1385	0B61  72 08			     jb	     get_digit_1
-1  1386	0B63  3C 46			     cmp     al,'F'		     ;hex digit?
-1  1387	0B65  77 04			     ja	     get_digit_1
-1  1388	0B67  2C 37			     sub     al,'A'-10
-1  1389	0B69  F8			     clc
-1  1390	0B6A  C3			     ret
-1  1391	0B6B			     get_digit_1:
-1  1392	0B6B  F9			     stc
-1  1393	0B6C  C3			     ret
-1  1394
-1  1395
-1  1396
-   1397					     include skipblk.asm
-1  1398				     ;put into the public domain by Russell Nelson, nelson@crynwr.com
-1  1399
-1  1400					     public  skip_blanks
-1  1401	0B6D			     skip_blanks:
-1  1402	0B6D  AC			     lodsb			     ;skip blanks.
-1  1403	0B6E  3C 20			     cmp     al,' '
-1  1404	0B70  74 FB			     je	     skip_blanks
-1  1405	0B72  3C 09			     cmp     al,HT
-1  1406	0B74  74 F7			     je	     skip_blanks
-1  1407	0B76  4E			     dec     si
-1  1408	0B77  C3			     ret
-1  1409
-1  1410
-   1411					     include printea.asm
-1  1412					     public  print_ether_addr
-1  1413	0B78			     print_ether_addr:
-1  1414	0B78  B9 0006			     mov     cx,EADDR_LEN
-1  1415	0B7B			     print_ether_addr_0:
-1  1416	0B7B  51			     push    cx
-1  1417	0B7C  AC			     lodsb
-1  1418	0B7D  B1 20			     mov     cl,' '		     ;Don't eliminate leading zeroes.
-1  1419	0B7F  E8 F502			     call    byteout
-1  1420	0B82  59			     pop     cx
-1  1421	0B83  83 F9 01			     cmp     cx,1
-1  1422	0B86  74 05			     je	     print_ether_addr_1
-1  1423	0B88  B0 3A			     mov     al,':'
-1  1424	0B8A  E8 F529			     call    chrout
-1  1425	0B8D			     print_ether_addr_1:
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 26
+1  1369
+1  1370					     public  get_digit
+1  1371	0B49			     get_digit:
+1  1372				     ;enter with al = character
+1  1373				     ;return nc, al=digit, or cy if not	a digit.
+1  1374	0B49  3C 30			     cmp     al,'0'		     ;decimal digit?
+1  1375	0B4B  72 20			     jb	     get_digit_1	     ;no.
+1  1376	0B4D  3C 39			     cmp     al,'9'		     ;.	.?
+1  1377	0B4F  77 04			     ja	     get_digit_2	     ;no.
+1  1378	0B51  2C 30			     sub     al,'0'
+1  1379	0B53  F8			     clc
+1  1380	0B54  C3			     ret
+1  1381	0B55			     get_digit_2:
+1  1382	0B55  3C 61			     cmp     al,'a'		     ;hex digit?
+1  1383	0B57  72 08			     jb	     get_digit_3
+1  1384	0B59  3C 66			     cmp     al,'f'		     ;hex digit?
+1  1385	0B5B  77 04			     ja	     get_digit_3
+1  1386	0B5D  2C 57			     sub     al,'a'-10
+1  1387	0B5F  F8			     clc
+1  1388	0B60  C3			     ret
+1  1389	0B61			     get_digit_3:
+1  1390	0B61  3C 41			     cmp     al,'A'		     ;hex digit?
+1  1391	0B63  72 08			     jb	     get_digit_1
+1  1392	0B65  3C 46			     cmp     al,'F'		     ;hex digit?
+1  1393	0B67  77 04			     ja	     get_digit_1
+1  1394	0B69  2C 37			     sub     al,'A'-10
+1  1395	0B6B  F8			     clc
+1  1396	0B6C  C3			     ret
+1  1397	0B6D			     get_digit_1:
+1  1398	0B6D  F9			     stc
+1  1399	0B6E  C3			     ret
+1  1400
+1  1401
+1  1402
+   1403					     include skipblk.asm
+1  1404				     ;put into the public domain by Russell Nelson, nelson@crynwr.com
+1  1405
+1  1406					     public  skip_blanks
+1  1407	0B6F			     skip_blanks:
+1  1408	0B6F  AC			     lodsb			     ;skip blanks.
+1  1409	0B70  3C 20			     cmp     al,' '
+1  1410	0B72  74 FB			     je	     skip_blanks
+1  1411	0B74  3C 09			     cmp     al,HT
+1  1412	0B76  74 F7			     je	     skip_blanks
+1  1413	0B78  4E			     dec     si
+1  1414	0B79  C3			     ret
+1  1415
+1  1416
+   1417					     include printea.asm
+1  1418					     public  print_ether_addr
+1  1419	0B7A			     print_ether_addr:
+1  1420	0B7A  B9 0006			     mov     cx,EADDR_LEN
+1  1421	0B7D			     print_ether_addr_0:
+1  1422	0B7D  51			     push    cx
+1  1423	0B7E  AC			     lodsb
+1  1424	0B7F  B1 20			     mov     cl,' '		     ;Don't eliminate leading zeroes.
+1  1425	0B81  E8 F500			     call    byteout
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 26
 tail.ASM
 
 
 
-1  1426	0B8D  E2 EC			     loop    print_ether_addr_0
-1  1427	0B8F  C3			     ret
-1  1428
-   1429					     include pkterr.asm
-1  1430				     ;put into the public domain by Russell Nelson, nelson@crynwr.com
-1  1431
-1  1432	0B90  4E 6F 20 65 72 72	6F+  err0    db	     "No error at all.",'$'
-   1433	      72 20 61 74 20 61	6C+
-   1434	      6C 2E 24
-1  1435	0BA1  49 6E 76 61 6C 69	64+  err1    db	     "Invalid handle number",'$'
-   1436	      20 68 61 6E 64 6C	65+
-   1437	      20 6E 75 6D 62 65	72+
-   1438	      24
-1  1439	0BB7  4E 6F 20 69 6E 74	65+  err2    db	     "No interfaces of specified class found",'$'
-   1440	      72 66 61 63 65 73	20+
-   1441	      6F 66 20 73 70 65	63+
-   1442	      69 66 69 65 64 20	63+
-   1443	      6C 61 73 73 20 66	6F+
-   1444	      75 6E 64 24
-1  1445	0BDE  4E 6F 20 69 6E 74	65+  err3    db	     "No interfaces of specified type found",'$'
+1  1426	0B84  59			     pop     cx
+1  1427	0B85  83 F9 01			     cmp     cx,1
+1  1428	0B88  74 05			     je	     print_ether_addr_1
+1  1429	0B8A  B0 3A			     mov     al,':'
+1  1430	0B8C  E8 F527			     call    chrout
+1  1431	0B8F			     print_ether_addr_1:
+1  1432	0B8F  E2 EC			     loop    print_ether_addr_0
+1  1433	0B91  C3			     ret
+1  1434
+   1435					     include pkterr.asm
+1  1436				     ;put into the public domain by Russell Nelson, nelson@crynwr.com
+1  1437
+1  1438	0B92  4E 6F 20 65 72 72	6F+  err0    db	     "No error at all.",'$'
+   1439	      72 20 61 74 20 61	6C+
+   1440	      6C 2E 24
+1  1441	0BA3  49 6E 76 61 6C 69	64+  err1    db	     "Invalid handle number",'$'
+   1442	      20 68 61 6E 64 6C	65+
+   1443	      20 6E 75 6D 62 65	72+
+   1444	      24
+1  1445	0BB9  4E 6F 20 69 6E 74	65+  err2    db	     "No interfaces of specified class found",'$'
    1446	      72 66 61 63 65 73	20+
    1447	      6F 66 20 73 70 65	63+
-   1448	      69 66 69 65 64 20	74+
-   1449	      79 70 65 20 66 6F	75+
-   1450	      6E 64 24
-1  1451	0C04  4E 6F 20 69 6E 74	65+  err4    db	     "No interfaces of specified number	found",'$'
+   1448	      69 66 69 65 64 20	63+
+   1449	      6C 61 73 73 20 66	6F+
+   1450	      75 6E 64 24
+1  1451	0BE0  4E 6F 20 69 6E 74	65+  err3    db	     "No interfaces of specified type found",'$'
    1452	      72 66 61 63 65 73	20+
    1453	      6F 66 20 73 70 65	63+
-   1454	      69 66 69 65 64 20	6E+
-   1455	      75 6D 62 65 72 20	66+
-   1456	      6F 75 6E 64 24
-1  1457	0C2C  42 61 64 20 70 61	63+  err5    db	     "Bad packet type specified",'$'
-   1458	      6B 65 74 20 74 79	70+
-   1459	      65 20 73 70 65 63	69+
-   1460	      66 69 65 64 24
-1  1461	0C46  54 68 69 73 20 69	6E+  err6    db	     "This interface does not support multicast",'$'
-   1462	      74 65 72 66 61 63	65+
-   1463	      20 64 6F 65 73 20	6E+
-   1464	      6F 74 20 73 75 70	70+
-   1465	      6F 72 74 20 6D 75	6C+
-   1466	      74 69 63 61 73 74	24
-1  1467	0C70  54 68 69 73 20 70	61+  err7    db	     "This packet driver cannot	terminate",'$'
-   1468	      63 6B 65 74 20 64	72+
-   1469	      69 76 65 72 20 63	61+
-   1470	      6E 6E 6F 74 20 74	65+
-   1471	      72 6D 69 6E 61 74	65+
-   1472	      24
-1  1473	0C94  41 6E 20 69 6E 76	61+  err8    db	     "An invalid receiver mode was specified",'$'
-   1474	      6C 69 64 20 72 65	63+
-   1475	      65 69 76 65 72 20	6D+
-   1476	      6F 64 65 20 77 61	73+
-   1477	      20 73 70 65 63 69	66+
-   1478	      69 65 64 24
-1  1479	0CBB  4F 70 65 72 61 74	69+  err9    db	     "Operation	failed because of insufficient space",'$'
-   1480	      6F 6E 20 66 61 69	6C+
-   1481	      65 64 20 62 65 63	61+
-   1482	      75 73 65 20 6F 66	20+
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 27
+   1454	      69 66 69 65 64 20	74+
+   1455	      79 70 65 20 66 6F	75+
+   1456	      6E 64 24
+1  1457	0C06  4E 6F 20 69 6E 74	65+  err4    db	     "No interfaces of specified number	found",'$'
+   1458	      72 66 61 63 65 73	20+
+   1459	      6F 66 20 73 70 65	63+
+   1460	      69 66 69 65 64 20	6E+
+   1461	      75 6D 62 65 72 20	66+
+   1462	      6F 75 6E 64 24
+1  1463	0C2E  42 61 64 20 70 61	63+  err5    db	     "Bad packet type specified",'$'
+   1464	      6B 65 74 20 74 79	70+
+   1465	      65 20 73 70 65 63	69+
+   1466	      66 69 65 64 24
+1  1467	0C48  54 68 69 73 20 69	6E+  err6    db	     "This interface does not support multicast",'$'
+   1468	      74 65 72 66 61 63	65+
+   1469	      20 64 6F 65 73 20	6E+
+   1470	      6F 74 20 73 75 70	70+
+   1471	      6F 72 74 20 6D 75	6C+
+   1472	      74 69 63 61 73 74	24
+1  1473	0C72  54 68 69 73 20 70	61+  err7    db	     "This packet driver cannot	terminate",'$'
+   1474	      63 6B 65 74 20 64	72+
+   1475	      69 76 65 72 20 63	61+
+   1476	      6E 6E 6F 74 20 74	65+
+   1477	      72 6D 69 6E 61 74	65+
+   1478	      24
+1  1479	0C96  41 6E 20 69 6E 76	61+  err8    db	     "An invalid receiver mode was specified",'$'
+   1480	      6C 69 64 20 72 65	63+
+   1481	      65 69 76 65 72 20	6D+
+   1482	      6F 64 65 20 77 61	73+
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 27
 tail.ASM
 
 
 
-   1483	      69 6E 73 75 66 66	69+
-   1484	      63 69 65 6E 74 20	73+
-   1485	      70 61 63 65 24
-1  1486	0CEA  54 68 65 20 74 79	70+  err10   db	     "The type had previously been accessed, and not released.",'$'
-   1487	      65 20 68 61 64 20	70+
-   1488	      72 65 76 69 6F 75	73+
-   1489	      6C 79 20 62 65 65	6E+
-   1490	      20 61 63 63 65 73	73+
-   1491	      65 64 2C 20 61 6E	64+
-   1492	      20 6E 6F 74 20 72	65+
-   1493	      6C 65 61 73 65 64	2E+
-   1494	      24
-1  1495	0D23  54 68 65 20 63 6F	6D+  err11   db	     "The command was out of range, or not implemented",'$'
-   1496	      6D 61 6E 64 20 77	61+
-   1497	      73 20 6F 75 74 20	6F+
-   1498	      66 20 72 61 6E 67	65+
-   1499	      2C 20 6F 72 20 6E	6F+
-   1500	      74 20 69 6D 70 6C	65+
-   1501	      6D 65 6E 74 65 64	24
-1  1502	0D54  54 68 65 20 70 61	63+  err12   db	     "The packet couldn't be sent (usually hardware error)",'$'
-   1503	      6B 65 74 20 63 6F	75+
-   1504	      6C 64 6E 27 74 20	62+
-   1505	      65 20 73 65 6E 74	20+
-   1506	      28 75 73 75 61 6C	6C+
-   1507	      79 20 68 61 72 64	77+
-   1508	      61 72 65 20 65 72	72+
-   1509	      6F 72 29 24
-1  1510	0D89  48 61 72 64 77 61	72+  err13   db	     "Hardware address couldn't	be changed (more than 1	handle open)",'$'
-   1511	      65 20 61 64 64 72	65+
-   1512	      73 73 20 63 6F 75	6C+
-   1513	      64 6E 27 74 20 62	65+
-   1514	      20 63 68 61 6E 67	65+
-   1515	      64 20 28 6D 6F 72	65+
-   1516	      20 74 68 61 6E 20	31+
-   1517	      20 68 61 6E 64 6C	65+
-   1518	      20 6F 70 65 6E 29	24
-1  1519	0DC8  48 61 72 64 77 61	72+  err14   db	     "Hardware address has bad length or format",'$'
-   1520	      65 20 61 64 64 72	65+
-   1521	      73 73 20 68 61 73	20+
-   1522	      62 61 64 20 6C 65	6E+
-   1523	      67 74 68 20 6F 72	20+
-   1524	      66 6F 72 6D 61 74	24
-1  1525	0DF2  43 6F 75 6C 64 6E	27+  err15   db	     "Couldn't reset/initialize	interface (more	than 1 handle open)",'$'
-   1526	      74 20 72 65 73 65	74+
-   1527	      2F 69 6E 69 74 69	61+
-   1528	      6C 69 7A 65 20 69	6E+
-   1529	      74 65 72 66 61 63	65+
-   1530	      20 28 6D 6F 72 65	20+
-   1531	      74 68 61 6E 20 31	20+
-   1532	      68 61 6E 64 6C 65	20+
-   1533	      6F 70 65 6E 29 24
-1  1534	0E30  41 6E 20 69 6E 76	61+  err16   db	     "An invalid iocb was specified",'$'
-   1535	      6C 69 64 20 69 6F	63+
-   1536	      62 20 77 61 73 20	73+
-   1537	      70 65 63 69 66 69	65+
-   1538	      64 24
-1  1539	0E4E  55 6E 6B 6E 6F 77	6E+  errunk  db	     "Unknown error",'$'
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 28
+   1483	      20 73 70 65 63 69	66+
+   1484	      69 65 64 24
+1  1485	0CBD  4F 70 65 72 61 74	69+  err9    db	     "Operation	failed because of insufficient space",'$'
+   1486	      6F 6E 20 66 61 69	6C+
+   1487	      65 64 20 62 65 63	61+
+   1488	      75 73 65 20 6F 66	20+
+   1489	      69 6E 73 75 66 66	69+
+   1490	      63 69 65 6E 74 20	73+
+   1491	      70 61 63 65 24
+1  1492	0CEC  54 68 65 20 74 79	70+  err10   db	     "The type had previously been accessed, and not released.",'$'
+   1493	      65 20 68 61 64 20	70+
+   1494	      72 65 76 69 6F 75	73+
+   1495	      6C 79 20 62 65 65	6E+
+   1496	      20 61 63 63 65 73	73+
+   1497	      65 64 2C 20 61 6E	64+
+   1498	      20 6E 6F 74 20 72	65+
+   1499	      6C 65 61 73 65 64	2E+
+   1500	      24
+1  1501	0D25  54 68 65 20 63 6F	6D+  err11   db	     "The command was out of range, or not implemented",'$'
+   1502	      6D 61 6E 64 20 77	61+
+   1503	      73 20 6F 75 74 20	6F+
+   1504	      66 20 72 61 6E 67	65+
+   1505	      2C 20 6F 72 20 6E	6F+
+   1506	      74 20 69 6D 70 6C	65+
+   1507	      6D 65 6E 74 65 64	24
+1  1508	0D56  54 68 65 20 70 61	63+  err12   db	     "The packet couldn't be sent (usually hardware error)",'$'
+   1509	      6B 65 74 20 63 6F	75+
+   1510	      6C 64 6E 27 74 20	62+
+   1511	      65 20 73 65 6E 74	20+
+   1512	      28 75 73 75 61 6C	6C+
+   1513	      79 20 68 61 72 64	77+
+   1514	      61 72 65 20 65 72	72+
+   1515	      6F 72 29 24
+1  1516	0D8B  48 61 72 64 77 61	72+  err13   db	     "Hardware address couldn't	be changed (more than 1	handle open)",'$'
+   1517	      65 20 61 64 64 72	65+
+   1518	      73 73 20 63 6F 75	6C+
+   1519	      64 6E 27 74 20 62	65+
+   1520	      20 63 68 61 6E 67	65+
+   1521	      64 20 28 6D 6F 72	65+
+   1522	      20 74 68 61 6E 20	31+
+   1523	      20 68 61 6E 64 6C	65+
+   1524	      20 6F 70 65 6E 29	24
+1  1525	0DCA  48 61 72 64 77 61	72+  err14   db	     "Hardware address has bad length or format",'$'
+   1526	      65 20 61 64 64 72	65+
+   1527	      73 73 20 68 61 73	20+
+   1528	      62 61 64 20 6C 65	6E+
+   1529	      67 74 68 20 6F 72	20+
+   1530	      66 6F 72 6D 61 74	24
+1  1531	0DF4  43 6F 75 6C 64 6E	27+  err15   db	     "Couldn't reset/initialize	interface (more	than 1 handle open)",'$'
+   1532	      74 20 72 65 73 65	74+
+   1533	      2F 69 6E 69 74 69	61+
+   1534	      6C 69 7A 65 20 69	6E+
+   1535	      74 65 72 66 61 63	65+
+   1536	      20 28 6D 6F 72 65	20+
+   1537	      74 68 61 6E 20 31	20+
+   1538	      68 61 6E 64 6C 65	20+
+   1539	      6F 70 65 6E 29 24
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 28
 tail.ASM
 
 
 
-   1540	      20 65 72 72 6F 72	24
-1  1541
-1  1542	0E5C  0B90r 0BA1r 0BB7r	  +  errlist dw	     err0, err1, err2, err3, err4, err5, err6, err7, err8
-   1543	      0BDEr 0C04r 0C2Cr	  +
-   1544	      0C46r 0C70r 0C94r
-1  1545	0E6E  0CBBr 0CEAr 0D23r	  +	     dw	     err9, err10, err11, err12,	err13, err14, err15, err16
-   1546	      0D54r 0D89r 0DC8r	  +
-   1547	      0DF2r 0E30r
-1  1548	      =0011		     error_count     equ     ($	- errlist)/2
-1  1549
-1  1550	0E7E			     fatal_error:
-1  1551	0E7E  E8 0005			     call    print_error
-1  1552	0E81  73 02			     jnc     fatal_error_1	     ;Only terminate if	there really
-1  1553	0E83  CD 20			     int     20h		     ;	was an error.
-1  1554	0E85			     fatal_error_1:
-1  1555	0E85  C3			     ret
-1  1556
-1  1557	0E86			     print_error:
-1  1558				     ;enter with cy set	if an error occured, dh	is the error number.  If cy
-1  1559				     ;	is not set, don't print	anything.  Don't change	any registers.
-1  1560	0E86  9C			     pushf
-1  1561	0E87  73 2E			     jnc     print_error_1
-1  1562	0E89  0A F6			     or	     dh,dh
-1  1563	0E8B  74 2A			     je	     print_error_1
-1  1564	0E8D  50			     push    ax
-1  1565	0E8E  53			     push    bx
-1  1566	0E8F  52			     push    dx
-1  1567	0E90  1E			     push    ds
-1  1568
-1  1569					     movseg  ds,cs
-2  1570	0E91  0E			     push    cs
-2  1571	0E92  1F			     pop     ds
-1  1572
-1  1573	0E93  8A DE			     mov     bl,dh
-1  1574	0E95  32 FF			     xor     bh,bh
-1  1575	0E97  BA 0E4Er			     mov     dx,offset errunk	     ;in case we don't know about it.
-1  1576	0E9A  80 FB 11			     cmp     bl,error_count	     ;Do we know about this error number?
-1  1577	0E9D  73 06			     jae     print_error_2	     ;	no, bail out.
-1  1578	0E9F  D1 E3			     shl     bx,1
-1  1579	0EA1  8B 97 0E5Cr		     mov     dx,errlist[bx]
-1  1580	0EA5			     print_error_2:
-1  1581	0EA5  B4 09			     mov     ah,9
-1  1582	0EA7  CD 21			     int     21h
-1  1583
-1  1584	0EA9  B0 0D			     mov     al,13		     ;crlf.
-1  1585	0EAB  E8 F208			     call    chrout
-1  1586	0EAE  B0 0A			     mov     al,10
-1  1587	0EB0  E8 F203			     call    chrout
-1  1588
-1  1589	0EB3  1F			     pop     ds
-1  1590	0EB4  5A			     pop     dx
-1  1591	0EB5  5B			     pop     bx
-1  1592	0EB6  58			     pop     ax
-1  1593	0EB7			     print_error_1:
-1  1594	0EB7  9D			     popf
-1  1595	0EB8  C3			     ret
-1  1596
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 29
+1  1540	0E32  41 6E 20 69 6E 76	61+  err16   db	     "An invalid iocb was specified",'$'
+   1541	      6C 69 64 20 69 6F	63+
+   1542	      62 20 77 61 73 20	73+
+   1543	      70 65 63 69 66 69	65+
+   1544	      64 24
+1  1545	0E50  55 6E 6B 6E 6F 77	6E+  errunk  db	     "Unknown error",'$'
+   1546	      20 65 72 72 6F 72	24
+1  1547
+1  1548	0E5E  0B92r 0BA3r 0BB9r	  +  errlist dw	     err0, err1, err2, err3, err4, err5, err6, err7, err8
+   1549	      0BE0r 0C06r 0C2Er	  +
+   1550	      0C48r 0C72r 0C96r
+1  1551	0E70  0CBDr 0CECr 0D25r	  +	     dw	     err9, err10, err11, err12,	err13, err14, err15, err16
+   1552	      0D56r 0D8Br 0DCAr	  +
+   1553	      0DF4r 0E32r
+1  1554	      =0011		     error_count     equ     ($	- errlist)/2
+1  1555
+1  1556	0E80			     fatal_error:
+1  1557	0E80  E8 0005			     call    print_error
+1  1558	0E83  73 02			     jnc     fatal_error_1	     ;Only terminate if	there really
+1  1559	0E85  CD 20			     int     20h		     ;	was an error.
+1  1560	0E87			     fatal_error_1:
+1  1561	0E87  C3			     ret
+1  1562
+1  1563	0E88			     print_error:
+1  1564				     ;enter with cy set	if an error occured, dh	is the error number.  If cy
+1  1565				     ;	is not set, don't print	anything.  Don't change	any registers.
+1  1566	0E88  9C			     pushf
+1  1567	0E89  73 2E			     jnc     print_error_1
+1  1568	0E8B  0A F6			     or	     dh,dh
+1  1569	0E8D  74 2A			     je	     print_error_1
+1  1570	0E8F  50			     push    ax
+1  1571	0E90  53			     push    bx
+1  1572	0E91  52			     push    dx
+1  1573	0E92  1E			     push    ds
+1  1574
+1  1575					     movseg  ds,cs
+2  1576	0E93  0E			     push    cs
+2  1577	0E94  1F			     pop     ds
+1  1578
+1  1579	0E95  8A DE			     mov     bl,dh
+1  1580	0E97  32 FF			     xor     bh,bh
+1  1581	0E99  BA 0E50r			     mov     dx,offset errunk	     ;in case we don't know about it.
+1  1582	0E9C  80 FB 11			     cmp     bl,error_count	     ;Do we know about this error number?
+1  1583	0E9F  73 06			     jae     print_error_2	     ;	no, bail out.
+1  1584	0EA1  D1 E3			     shl     bx,1
+1  1585	0EA3  8B 97 0E5Er		     mov     dx,errlist[bx]
+1  1586	0EA7			     print_error_2:
+1  1587	0EA7  B4 09			     mov     ah,9
+1  1588	0EA9  CD 21			     int     21h
+1  1589
+1  1590	0EAB  B0 0D			     mov     al,13		     ;crlf.
+1  1591	0EAD  E8 F206			     call    chrout
+1  1592	0EB0  B0 0A			     mov     al,10
+1  1593	0EB2  E8 F201			     call    chrout
+1  1594
+1  1595	0EB5  1F			     pop     ds
+1  1596	0EB6  5A			     pop     dx
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 29
 tail.ASM
 
 
 
-   1597					     include getenv.asm
-1  1598	      =002C		     phd_enviorn     equ     2ch
-1  1599
-1  1600	0EB9			     getenv:
-1  1601				     ;enter with si->environ string to search for.
-1  1602				     ;exit with	cy if not found, or nc,	es:di->value if	found.
-1  1603	0EB9  2E: 8E 06	002C		     mov     es,cs:[phd_enviorn]     ;get our enviornment segment.
-1  1604	0EBE  33 FF			     xor     di,di
-1  1605	0EC0			     getenv_1:
-1  1606	0EC0  56			     push    si
-1  1607	0EC1  57			     push    di
-1  1608	0EC2			     getenv_2:
-1  1609	0EC2  AC			     lodsb			     ;get a character.
-1  1610	0EC3  0A C0			     or	     al,al		     ;end of string?
-1  1611	0EC5  74 03			     je	     getenv_3		     ;yes.
-1  1612	0EC7  AE			     scasb			     ;did it match?
-1  1613	0EC8  74 F8			     je	     getenv_2		     ;yes.
-1  1614	0ECA			     getenv_3:
-1  1615	0ECA  74 13			     je	     getenv_4
-1  1616
-1  1617	0ECC  5F			     pop     di
-1  1618	0ECD  5E			     pop     si
-1  1619
-1  1620	0ECE  32 C0			     xor     al,al		     ;skip to the next string.
-1  1621	0ED0  B9 0100			     mov     cx,100h		     ;no string	can be longer than 256 bytes.
-1  1622	0ED3  F2> AE			     repnz   scasb
-1  1623	0ED5  75 06			     jne     getenv_5		     ;go if environment	is trashed.
-1  1624
-1  1625	0ED7  26: 80 3D	00		     cmp     byte ptr es:[di],0	     ;is this the last one?
-1  1626	0EDB  75 E3			     jnz     getenv_1	     ;no - try again.
-1  1627	0EDD			     getenv_5:
-1  1628	0EDD  F9			     stc
-1  1629	0EDE  C3			     ret
+1  1597	0EB7  5B			     pop     bx
+1  1598	0EB8  58			     pop     ax
+1  1599	0EB9			     print_error_1:
+1  1600	0EB9  9D			     popf
+1  1601	0EBA  C3			     ret
+1  1602
+   1603					     include getenv.asm
+1  1604	      =002C		     phd_enviorn     equ     2ch
+1  1605
+1  1606	0EBB			     getenv:
+1  1607				     ;enter with si->environ string to search for.
+1  1608				     ;exit with	cy if not found, or nc,	es:di->value if	found.
+1  1609	0EBB  2E: 8E 06	002C		     mov     es,cs:[phd_enviorn]     ;get our enviornment segment.
+1  1610	0EC0  33 FF			     xor     di,di
+1  1611	0EC2			     getenv_1:
+1  1612	0EC2  56			     push    si
+1  1613	0EC3  57			     push    di
+1  1614	0EC4			     getenv_2:
+1  1615	0EC4  AC			     lodsb			     ;get a character.
+1  1616	0EC5  0A C0			     or	     al,al		     ;end of string?
+1  1617	0EC7  74 03			     je	     getenv_3		     ;yes.
+1  1618	0EC9  AE			     scasb			     ;did it match?
+1  1619	0ECA  74 F8			     je	     getenv_2		     ;yes.
+1  1620	0ECC			     getenv_3:
+1  1621	0ECC  74 13			     je	     getenv_4
+1  1622
+1  1623	0ECE  5F			     pop     di
+1  1624	0ECF  5E			     pop     si
+1  1625
+1  1626	0ED0  32 C0			     xor     al,al		     ;skip to the next string.
+1  1627	0ED2  B9 0100			     mov     cx,100h		     ;no string	can be longer than 256 bytes.
+1  1628	0ED5  F2> AE			     repnz   scasb
+1  1629	0ED7  75 06			     jne     getenv_5		     ;go if environment	is trashed.
 1  1630
-1  1631	0EDF			     getenv_4:
-1  1632	0EDF  83 C4 04			     add     sp,4		     ;pop the old stuff	off the	stack.
-1  1633	0EE2  F8			     clc
-1  1634	0EE3  C3			     ret
-1  1635
-   1636
-   1637					     public  branding_msg
-   1638	0EE4  24		     branding_msg    db	     '$'
-   1639
-   1640	0EE5			     code    ends
-   1641
-   1642					     end
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 30
+1  1631	0ED9  26: 80 3D	00		     cmp     byte ptr es:[di],0	     ;is this the last one?
+1  1632	0EDD  75 E3			     jnz     getenv_1	     ;no - try again.
+1  1633	0EDF			     getenv_5:
+1  1634	0EDF  F9			     stc
+1  1635	0EE0  C3			     ret
+1  1636
+1  1637	0EE1			     getenv_4:
+1  1638	0EE1  83 C4 04			     add     sp,4		     ;pop the old stuff	off the	stack.
+1  1639	0EE4  F8			     clc
+1  1640	0EE5  C3			     ret
+1  1641
+   1642
+   1643					     public  branding_msg
+   1644	0EE6  24		     branding_msg    db	     '$'
+   1645
+   1646	0EE7			     code    ends
+   1647
+   1648					     end
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 30
 Symbol Table
 
 
@@ -1793,9 +1799,9 @@ Symbol Table
 
 Symbol Name			  Type	 Value
 
-??DATE				  Text	 "05/31/26"
+??DATE				  Text	 "06/03/26"
 ??FILENAME			  Text	 "tail	  "
-??TIME				  Text	 "09:03:13"
+??TIME				  Text	 "12:06:21"
 ??VERSION			  Number 040A
 @CPU				  Text	 0101H
 @CURSEG				  Text	 CODE
@@ -1814,7 +1820,7 @@ BAD_IOCB			  Number 0010
 BAD_MODE			  Number 0008
 BLUEBOOK			  Number 0001
 BOGUS_TYPE			  Byte	 CODE:0604
-BRANDING_MSG			  Byte	 CODE:0EE4
+BRANDING_MSG			  Byte	 CODE:0EE6
 BYTEOUT				  Near	 CODE:0084
 CALLED_ETOPEN			  Number 0001
 CALLME				  Number 0002
@@ -1822,17 +1828,16 @@ CANT_RESET			  Number 000F
 CANT_SEND			  Number 000C
 CANT_SET			  Number 000D
 CANT_TERMINATE			  Number 0007
-CHK_OPTIONS			  Near	 CODE:0701
+CHK_OPTIONS			  Near	 CODE:0703
 CHROUT				  Near	 CODE:00B6
 COPYLEFT_MSG			  Byte	 CODE:0234
 COPYRIGHT_MSG			  Byte	 CODE:---- Extern
 CR				  Number 000D
 CRLF				  Near	 CODE:00A5
-CY				  Number 0001
 DECOUT				  Near	 CODE:0033
 DECOUT_1			  Near	 CODE:0049
 DECOUT_NONZERO			  Near	 CODE:0040
-DELAYED_OPEN_1			  Near	 CODE:0962
+DELAYED_OPEN_1			  Near	 CODE:0964
 DIGOUT				  Near	 CODE:0093
 DIGOUT_1			  Near	 CODE:00A4
 DONE				  Number 0001
@@ -1841,93 +1846,91 @@ DWORDOUT			  Near	 CODE:0076
 D_OPTION			  Number 0002
 EADDR_LEN			  Number 0006
 EADDR_MSG			  Byte	 CODE:03EC
-EI				  Number 0200
 EISA_MSG			  Byte	 CODE:03A6
 EISA_SIGNATURE			  Byte	 CODE:0344
 END_FREE_MEM			  Byte	 CODE:---- Extern
 END_RESIDENT			  Byte	 CODE:---- Extern
 END_TAIL_1			  Byte	 CODE:00D5
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 31
+ENTRY_POINT			  Byte	 CODE:---- Extern
+ENTRY_POINT_FND			  Byte	 CODE:0603
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 31
 Symbol Table
 
 
 
-ENTRY_POINT			  Byte	 CODE:---- Extern
-ENTRY_POINT_FND			  Byte	 CODE:0603
 ENTRY_POINT_NAME		  Byte	 CODE:03C7
-ERR0				  Byte	 CODE:0B90
-ERR1				  Byte	 CODE:0BA1
-ERR10				  Byte	 CODE:0CEA
-ERR11				  Byte	 CODE:0D23
-ERR12				  Byte	 CODE:0D54
-ERR13				  Byte	 CODE:0D89
-ERR14				  Byte	 CODE:0DC8
-ERR15				  Byte	 CODE:0DF2
-ERR16				  Byte	 CODE:0E30
-ERR2				  Byte	 CODE:0BB7
-ERR3				  Byte	 CODE:0BDE
-ERR4				  Byte	 CODE:0C04
-ERR5				  Byte	 CODE:0C2C
-ERR6				  Byte	 CODE:0C46
-ERR7				  Byte	 CODE:0C70
-ERR8				  Byte	 CODE:0C94
-ERR9				  Byte	 CODE:0CBB
-ERRLIST				  Word	 CODE:0E5C
+ERR0				  Byte	 CODE:0B92
+ERR1				  Byte	 CODE:0BA3
+ERR10				  Byte	 CODE:0CEC
+ERR11				  Byte	 CODE:0D25
+ERR12				  Byte	 CODE:0D56
+ERR13				  Byte	 CODE:0D8B
+ERR14				  Byte	 CODE:0DCA
+ERR15				  Byte	 CODE:0DF4
+ERR16				  Byte	 CODE:0E32
+ERR2				  Byte	 CODE:0BB9
+ERR3				  Byte	 CODE:0BE0
+ERR4				  Byte	 CODE:0C06
+ERR5				  Byte	 CODE:0C2E
+ERR6				  Byte	 CODE:0C48
+ERR7				  Byte	 CODE:0C72
+ERR8				  Byte	 CODE:0C96
+ERR9				  Byte	 CODE:0CBD
+ERRLIST				  Word	 CODE:0E5E
 ERROR				  Near	 CODE:063B
 ERROR_COUNT			  Number 0011
-ERRUNK				  Byte	 CODE:0E4E
+ERRUNK				  Byte	 CODE:0E50
 ERR_BAD_HANDLE			  Number 0001
 ERR_BAD_TYPE			  Number 0005
 ETOPEN				  Near	 CODE:---- Extern
 ETOPEN_DIAGN			  Byte	 CODE:060B
-FATAL_ERROR			  Near	 CODE:0E7E
-FATAL_ERROR_1			  Near	 CODE:0E85
+FATAL_ERROR			  Near	 CODE:0E80
+FATAL_ERROR_1			  Near	 CODE:0E87
 FLAGBYTE			  Byte	 CODE:---- Extern
 FREE_MEM			  Word	 CODE:00C1
-F_RELEASE_TYPE_1		  Near	 CODE:0999
-GETENV				  Near	 CODE:0EB9
-GETENV_1			  Near	 CODE:0EC0
-GETENV_2			  Near	 CODE:0EC2
-GETENV_3			  Near	 CODE:0ECA
-GETENV_4			  Near	 CODE:0EDF
-GETENV_5			  Near	 CODE:0EDD
-GET_DIGIT			  Near	 CODE:0B47
-GET_DIGIT_1			  Near	 CODE:0B6B
-GET_DIGIT_2			  Near	 CODE:0B53
-GET_DIGIT_3			  Near	 CODE:0B5F
-GET_HEX				  Near	 CODE:0AD6
-GET_NUMBER			  Near	 CODE:0ADF
-GET_NUMBER_1			  Near	 CODE:0AFB
-GET_NUMBER_2			  Near	 CODE:0B2D
-GET_NUMBER_3			  Near	 CODE:0B36
-GET_NUMBER_4			  Near	 CODE:0AF7
-GET_NUMBER_5			  Near	 CODE:0B28
-GET_NUMBER_6			  Near	 CODE:0B46
+F_RELEASE_TYPE_1		  Near	 CODE:099B
+GETENV				  Near	 CODE:0EBB
+GETENV_1			  Near	 CODE:0EC2
+GETENV_2			  Near	 CODE:0EC4
+GETENV_3			  Near	 CODE:0ECC
+GETENV_4			  Near	 CODE:0EE1
+GETENV_5			  Near	 CODE:0EDF
+GET_DIGIT			  Near	 CODE:0B49
+GET_DIGIT_1			  Near	 CODE:0B6D
+GET_DIGIT_2			  Near	 CODE:0B55
+GET_DIGIT_3			  Near	 CODE:0B61
+GET_HEX				  Near	 CODE:0AD8
+GET_NUMBER			  Near	 CODE:0AE1
+GET_NUMBER_1			  Near	 CODE:0AFD
+GET_NUMBER_2			  Near	 CODE:0B2F
+GET_NUMBER_3			  Near	 CODE:0B38
+GET_NUMBER_4			  Near	 CODE:0AF9
+GET_NUMBER_5			  Near	 CODE:0B2A
+GET_NUMBER_6			  Near	 CODE:0B48
 GIANT				  Number 05EA
 GOT_FEATURES			  Near	 CODE:06AC
-GO_RESIDENT			  Near	 CODE:09A7
+GO_RESIDENT			  Near	 CODE:09A9
 HANDLE				  Word	 CODE:0601
-HAVE_BUS			  Near	 CODE:0905
-HAVE_PROCESSOR			  Near	 CODE:08EA
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 32
+HAVE_BUS			  Near	 CODE:0907
+HAVE_PROCESSOR			  Near	 CODE:08EC
+HT				  Number 0009
+I186_MSG			  Byte	 CODE:0371
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 32
 Symbol Table
 
 
 
-HT				  Number 0009
-HW_INT_NO			  Byte	 CODE:---- Extern
-I186_MSG			  Byte	 CODE:0371
 I286_MSG			  Byte	 CODE:0363
 I386_MSG			  Byte	 CODE:0351
 I8088_MSG			  Byte	 CODE:037F
 IDENTIFIED			  Near	 CODE:06CB
 IEEE8023			  Number 000B
-INT_BAD				  Near	 CODE:0868
+INT_BAD				  Near	 CODE:086A
 INT_MSG				  Byte	 CODE:0514
 INT_MSG_NUM			  Word	 CODE:0544
 INT_NO				  Byte	 CODE:---- Extern
-INT_OK				  Near	 CODE:088A
-INT_OK_7			  Near	 CODE:086E
+INT_OK				  Near	 CODE:088C
+INT_OK_7			  Near	 CODE:0870
 ISA_MSG				  Byte	 CODE:03B1
 IS_186				  Byte	 CODE:---- Extern
 IS_286				  Byte	 CODE:---- Extern
@@ -1948,80 +1951,80 @@ MCA_USAGE_MSG			  Byte	 CODE:---- Extern
 MEMORY_TO_KEEP			  Word	 CODE:060C
 MY_ADDRESS			  Byte	 CODE:---- Extern
 M_OPTION			  Number 0020
-NOT_D_OPT			  Near	 CODE:0717
+NOT_D_OPT			  Near	 CODE:0719
 NOT_EISA			  Near	 CODE:068B
-NOT_I_OPT			  Near	 CODE:076D
-NOT_M_OPT			  Near	 CODE:0756
-NOT_N_OPT			  Near	 CODE:0722
+NOT_I_OPT			  Near	 CODE:076F
+NOT_M_OPT			  Near	 CODE:0758
+NOT_N_OPT			  Near	 CODE:0724
 NOT_PCI				  Near	 CODE:0675
-NOT_P_OPT			  Near	 CODE:0740
-NOT_TERMINATE			  Near	 CODE:0834
-NOT_U_OPT			  Near	 CODE:074B
-NOT_W_OPT			  Near	 CODE:072D
-NOW_CLOSE			  Near	 CODE:0828
+NOT_P_OPT			  Near	 CODE:0742
+NOT_TERMINATE			  Near	 CODE:0836
+NOT_U_OPT			  Near	 CODE:074D
+NOT_W_OPT			  Near	 CODE:072F
+NOW_CLOSE			  Near	 CODE:082A
 NO_CLASS			  Number 0002
 NO_ERROR			  Number 0000
-NO_ET_DIAGN			  Near	 CODE:09CC
+NO_ET_DIAGN			  Near	 CODE:09CE
 NO_IEEE_MSG			  Byte	 CODE:05A4
-NO_MAPPING_NEEDED		  Near	 CODE:089D
-NO_MORE_OPT			  Near	 CODE:0770
+NO_MAPPING_NEEDED		  Near	 CODE:089F
+NO_MORE_OPT			  Near	 CODE:0772
 NO_MULTICAST			  Number 0006
 NO_NUMBER			  Number 0004
 NO_PKINT_MSG			  Byte	 CODE:0468
 NO_PKT_MSG			  Byte	 CODE:048F
-NO_RESIDENT			  Near	 CODE:09B5
+NO_RESIDENT			  Near	 CODE:09B7
 NO_RESIDENT_MSG			  Byte	 CODE:030B
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 33
+NO_SPACE			  Number 0009
+NO_TYPE				  Number 0003
+N_OPTION			  Number 0004
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 33
 Symbol Table
 
 
 
-NO_SPACE			  Number 0009
-NO_TYPE				  Number 0003
-N_OPTION			  Number 0004
-ONLY_ONE_8259			  Near	 CODE:0917
-OPEN_NOW			  Near	 CODE:08AD
+ONLY_ONE_8259			  Near	 CODE:0919
+OPEN_NOW			  Near	 CODE:08AF
 OPTIONS_I_MSG			  Byte	 CODE:00D5
 OPTIONS_MSG			  Byte	 CODE:0123
 OUR_ISR				  Near	 CODE:---- Extern
 OUR_RECV			  Near	 CODE:0606
-PACKET_INT_MSG			  Byte	 CODE:09D7
-PACKET_INT_OK			  Near	 CODE:0848
-PACKET_INT_UNUSED		  Near	 CODE:084D
+PACKET_INT_MSG			  Byte	 CODE:09D9
+PACKET_INT_OK			  Near	 CODE:084A
+PACKET_INT_UNUSED		  Near	 CODE:084F
 PARSE_ARGS			  Near	 CODE:---- Extern
 PHD_DIOA			  Byte	 CODE:---- Extern
 PHD_ENVIORN			  Number 002C
 PHD_ENVIRON			  Word	 CODE:---- Extern
-PRINT_ADDR_2			  Near	 CODE:0949
-PRINT_ADDR_3			  Near	 CODE:0962
-PRINT_EADDR			  Near	 CODE:0939
-PRINT_ERROR			  Near	 CODE:0E86
-PRINT_ERROR_1			  Near	 CODE:0EB7
-PRINT_ERROR_2			  Near	 CODE:0EA5
-PRINT_ETHER_ADDR		  Near	 CODE:0B78
-PRINT_ETHER_ADDR_0		  Near	 CODE:0B7B
-PRINT_ETHER_ADDR_1		  Near	 CODE:0B8D
+PRINT_ADDR_2			  Near	 CODE:094B
+PRINT_ADDR_3			  Near	 CODE:0964
+PRINT_EADDR			  Near	 CODE:093B
+PRINT_ERROR			  Near	 CODE:0E88
+PRINT_ERROR_1			  Near	 CODE:0EB9
+PRINT_ERROR_2			  Near	 CODE:0EA7
+PRINT_ETHER_ADDR		  Near	 CODE:0B7A
+PRINT_ETHER_ADDR_0		  Near	 CODE:0B7D
+PRINT_ETHER_ADDR_1		  Near	 CODE:0B8F
 PRINT_NUMBER			  Near	 CODE:0002
 PRINT_PARAMETERS		  Near	 CODE:---- Extern
-PROCESSOR_IDENTIFIED		  Near	 CODE:06F7
+PROCESSOR_IDENTIFIED		  Near	 CODE:06F9
 RCV_MODES			  Word	 CODE:---- Extern
 ROM_ADDRESS			  Byte	 CODE:---- Extern
 RUNT				  Number 003C
-SIGNATURE			  Byte	 CODE:09CE
+SIGNATURE			  Byte	 CODE:09D0
 SIGNATURE_LEN			  Number 0009
-SKIP_BLANKS			  Near	 CODE:0B6D
+SKIP_BLANKS			  Near	 CODE:0B6F
 START_1				  Near	 CODE:0644
 SYSTEM_MSG			  Byte	 CODE:0348
 SYS_FEATURES			  Byte	 CODE:---- Extern
 SYS_MCA				  Number 0002
-TERMINATE			  Near	 CODE:0780
+TERMINATE			  Near	 CODE:0782
 TERMINATED_MSG			  Byte	 CODE:05ED
-TERMINATE_1			  Near	 CODE:07CC
-TERMINATE_2			  Near	 CODE:07D4
-TERMINATE_CHECK_INT		  Near	 CODE:078C
-TERMINATE_CHECK_INT_1		  Near	 CODE:07A0
-TERMINATE_CHECK_INT_2		  Near	 CODE:07BE
-TERMINATE_INT_OK		  Near	 CODE:07C4
+TERMINATE_1			  Near	 CODE:07CE
+TERMINATE_2			  Near	 CODE:07D6
+TERMINATE_CHECK_INT		  Near	 CODE:078E
+TERMINATE_CHECK_INT_1		  Near	 CODE:07A2
+TERMINATE_CHECK_INT_2		  Near	 CODE:07C0
+TERMINATE_INT_OK		  Near	 CODE:07C6
 THEIR_ISR			  Dword	 CODE:---- Extern
 TWO_8259			  Number 0040
 TWO_8259_MSG			  Byte	 CODE:03BB
@@ -2029,22 +2032,22 @@ TWO_PKTS_MSG			  Byte	 CODE:04C7
 TYPE_INUSE			  Number 000A
 USAGE_ERROR			  Near	 CODE:061C
 USAGE_ERROR_1			  Near	 CODE:0629
-USAGE_ERROR_J_1			  Near	 CODE:076D
-USAGE_ERROR_J_2			  Near	 CODE:0831
+USAGE_ERROR_J_1			  Near	 CODE:076F
+USAGE_ERROR_J_2			  Near	 CODE:0833
 USAGE_MSG			  Byte	 CODE:---- Extern
 U_OPTION			  Number 0010
-Turbo Assembler	 Version 4.1	    05/31/26 09:03:14	    Page 34
+VERIFY_PACKET_INT		  Near	 CODE:0A9C
+VERIFY_PACKET_INT_BAD		  Near	 CODE:0ABF
+VERIFY_PACKET_INT_OK		  Near	 CODE:0AC4
+Turbo Assembler	 Version 4.1	    06/03/26 12:06:22	    Page 34
 Symbol Table
 
 
 
-VERIFY_PACKET_INT		  Near	 CODE:0A9A
-VERIFY_PACKET_INT_BAD		  Near	 CODE:0ABD
-VERIFY_PACKET_INT_OK		  Near	 CODE:0AC2
 WORDOUT				  Near	 CODE:007D
 W_OPTION			  Number 0008
 XT_HD_WARN_MSG			  Byte	 CODE:0551
-YES_RESIDENT			  Near	 CODE:08B5
+YES_RESIDENT			  Near	 CODE:08B7
 
 Macro Name
 
@@ -2075,5 +2078,5 @@ SEGMOFFS
 
 Groups & Segments		  Bit Size Align  Combine Class
 
-CODE				  16  0EE5 Word	  Public
+CODE				  16  0EE7 Word	  Public
 
